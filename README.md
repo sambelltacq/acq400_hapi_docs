@@ -1,6 +1,6 @@
 D-Tacq acq400_hapi documentation
 
-
+https://sambelltacq.github.io/acq400_hapi_docs/
 
 ### Installation
 

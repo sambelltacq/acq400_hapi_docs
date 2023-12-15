@@ -1,27 +1,39 @@
-D-Tacq acq400_hapi documentation
+![Logo](https://www.d-tacq.com/images/dtacq.png)
 
-https://sambelltacq.github.io/acq400_hapi_docs/
+D-Tacq [acq400_hapi](https://github.com/D-TACQ/acq400_hapi) documentation
 
-### Installation
+[online docs](https://sambelltacq.github.io/acq400_hapi_docs/)
 
-Required packages:
+### Dependencies:
+
+* [Sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html)
+* [sphinx-argparse](https://sphinx-argparse.readthedocs.io/en/latest/install.html)
+* [sphinx-design](https://sphinx-design.readthedocs.io/en/rtd-theme/)
+* [sphinx-rtd-theme](https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html)
+
+### How To
+
+Install dependencies:
 ```
     apt install python3-sphinx
-    pip3 install sphinx
+
     pip3 install sphinx-argparse
     pip3 install sphinx-design
     pip3 install sphinx-rtd-theme
-
 ```
 
-### Updating documentation
-
+Clone and Run:
 ```
     git clone https://github.com/sambelltacq/acq400_hapi_docs
+    cd acq400_hapi_docs
     ./make_docs.sh
-    git add docs/
-    git commit 'made from repo at commit <HASH>'
-    git push
+```
 
+Push updated docs to master branch
+
+```
+    git add docs/
+    git commit -m 'made from repo at commit <HASH>'
+    git push
 ```
 

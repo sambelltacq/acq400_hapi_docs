@@ -2,8 +2,8 @@
 
 #This scripts turns a repo into sphinx documentation and uploads to github pages
 
-#Required python packages
-#	pip3 install sphinx
+#Required:
+#	apt install python3-sphinx
 #	pip3 install sphinx-argparse
 #	pip3 install sphinx-design
 #	pip3 install sphinx-rtd-theme
@@ -15,6 +15,8 @@ PROJECT='acq400_hapi'
 RELEASE='2.10.0'
 LANG='en'
 REPO='https://github.com/D-TACQ/acq400_hapi'
+
+REPO='https://github.com/D-TACQ/acq400_hapi -b doc' #until big merge
 
 #REPO='https://github.com/sambelltacq/acq400_hapi -b SPHINX_CLEANUP' #for testing
 
@@ -71,11 +73,16 @@ sphinx-build $sphinx_src $html_dir
 > $html_dir/.nojekyll #needed for github pages
 
 
+#cleanup, comment out for debugging
+rm $sphinx_root -rf
+rm $PROJECT_DIR -rf
+
+#update git
 echo To see results open "$PWD/docs/index.html" in browser
 echo 'To commit changes do:'
-echo git add $PROJECT
-echo git commit -m ""Updated to commit $RELEASE""
-echo git push -f
+echo git add $html_dir
+echo git commit -m \"Updated to commit $RELEASE\"
+echo git push
 
 
 

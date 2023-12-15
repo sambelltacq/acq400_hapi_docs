@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Creates reST files corresponding to Python modules for code documentation.
 
 Parses a directory tree looking for Python modules and packages and creates
@@ -101,10 +103,6 @@ def write_file(name: str, text: str, opts: Any) -> None:
             logger.info(__('Creating file %s.'), fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
-
-from acq400_hapi import PR, pprint
-
-
 
 def create_module_file(package: str | None, basename: str, opts: Any,
                        user_template_dir: str | None = None, parent_context: dict | None = None) -> None:
@@ -366,29 +364,6 @@ def recurse_tree(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
             prRed(error)
 
     return toplevels
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def is_excluded(root: str, excludes: Sequence[re.Pattern[str]]) -> bool:
     """Check if the directory is in the exclude list.

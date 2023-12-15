@@ -1,0 +1,94 @@
+{%- macro automodule(modname, options) -%}
+.. automodule:: {{ modname }}
+{%- for option in options %}
+   :{{ option }}:
+{%- endfor %}
+{%- endmacro %}
+
+
+{%- for option in options %}
+   {{ option }}
+{%- endfor %}
+
+{%- macro toctree(docnames) -%}
+.. toctree::
+   :maxdepth: {{ maxdepth }}
+{% for docname in docnames %}
+   {{ docname }}
+{%- endfor %}
+{%- endmacro %}
+
+{%- macro toctreehidden(docnames) -%}
+.. toctree::
+   :maxdepth: {{ maxdepth }}
+   :hidden:
+{% for docname in docnames %}
+   {{ docname }}
+{%- endfor %}
+{%- endmacro %}
+
+{# custom toc func #}
+{%- macro modposttoc(moddics) -%}
+
+.. rst-class:: spaced_list
+{% for moddic in moddics %}
+
+{% if moddic['post']|length > 0 %}
+* :doc:`{{ moddic['module'] }}` **{{ moddic['post'] }}**
+{% else %}
+* :doc:`{{ moddic['module'] }}`
+{% endif %}
+
+
+{%- endfor %}
+{%- endmacro %}
+
+
+{%- if is_namespace %}
+{{- [pkgname, "namespace"] | join(" ") | e | heading }}
+{% else %}
+{{- [filename, ""] | join(" ") | e | heading }}
+{% endif %}
+
+{%- if is_namespace %}
+.. py:module:: {{ pkgname }}
+{% endif %}
+
+{%- if modulefirst and not is_namespace %}
+{{ automodule(pkgname, automodule_options) }}
+{% endif %}
+
+{%- if subpackages %}
+Subpackages
+-----------
+
+{{ toctree(subpackages) }}
+{% endif %}
+
+{%- if submodules %}
+Submodules
+----------
+   {% if separatemodules %}
+      {% if fancy_toc %}
+{{ modposttoc(submodule_desc) }}
+
+{{ toctreehidden(submodules) }}
+      {% else %}
+{{ toctree(submodules) }}
+      {%- endif %}
+   {% else %}
+      {%- for submodule in submodules %}
+         {% if show_headings %}
+{{- [submodule, "module"] | join(" ") | e | heading(2) }}
+         {% endif %}
+{{ automodule(submodule, automodule_options) }}
+      {% endfor %}
+   {%- endif %}
+{%- endif %}
+
+{%- if not modulefirst and not is_namespace %}
+Module contents
+---------------
+
+{{ automodule(pkgname, automodule_options) }}
+{% endif %}

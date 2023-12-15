@@ -1,0 +1,32 @@
+{%- if show_headings %}
+{{- filename | e | heading }}
+{% endif -%}
+
+{% if errored == True %}
+
+   .. Error::
+      Unable to parse file 😞
+      
+{% endif %}
+
+
+{% if has_parser == True and not errored%}
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: {{basename}}.get_parser
+      :prog: {{filename}}.py
+      :nodescription:
+
+{{"Outline:" | e | heading(3) }}
+{% endif %}
+
+{% if not errored%}
+
+.. automodule:: {{ qualname }}
+{%- for option in automodule_options %}
+   :{{ option }}:
+{%- endfor %}
+
+{% endif %}
+

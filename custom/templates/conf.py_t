@@ -1,0 +1,75 @@
+import os, sys
+
+project = {{ project | repr }}
+copyright = {{ copyright | repr }}
+author = {{ author | repr }}
+
+{%- if version %}
+version = {{ version | repr }}
+{%- endif %}
+{%- if release %}
+release = {{ release | repr }}
+{%- endif %}
+
+{% if suffix != '.rst' -%}
+source_suffix = {{ suffix | repr }}
+{% endif -%}
+
+{% if root_doc != 'index' -%}
+root_doc = {{ root_doc | repr }}
+{% endif -%}
+
+{% if language -%}
+language = {{ language | repr }}
+{%- endif %}
+
+for (root, dirs, files) in os.walk(os.environ['PROJECT_DIR'], topdown=True):
+    if '.git' in root:
+        continue
+    sys.path.insert(0, os.path.abspath(root))
+
+extensions = [
+    'sphinx.ext.duration', #show time taken per file
+    'sphinx.ext.autodoc', #docstrings to rst files
+    'sphinx.ext.napoleon', #proccess google docstrings
+    'sphinx.ext.viewcode', #add view source button
+    'sphinxarg.ext', #map argparser
+    'sphinx_design' #more html 
+]
+
+#auto doc config
+exclude_patterns = []
+autodoc_class_signature="separated"
+autodoc_member_order="groupwise"
+autodoc_inherit_docstrings=False
+autodoc_default_options = {
+    'members': 'var1, var2',
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': True,
+    'exclude-members': '__weakref__',
+    'show-inheritance': False,
+}
+
+#theme config
+html_theme = 'sphinx_rtd_theme'
+html_theme_options = {
+    "collapse_navigation": True,
+    "logo_only": True,
+    'navigation_depth': 1,
+    "titles_only": True,
+    "prev_next_buttons_location" : None,
+}
+
+#html config
+html_static_path = ['_static']
+templates_path = ['_templates']
+html_use_index=False #?
+add_module_names=False # hide modules names prepended to class,func,etc
+html_show_sourcelink=False #hide see source link
+html_show_sphinx=False #hide made with sphinx 
+html_logo = 'd-tacq_logo.svg'
+html_favicon='d-tacq_logo.ico'
+html_css_files = [
+    'custom_style.css', #custom css files
+]

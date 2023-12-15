@@ -1,0 +1,25 @@
+acq400\_set\_gain
+=================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_set_gain.get_parser
+      :prog: acq400_set_gain.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_set_gain
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

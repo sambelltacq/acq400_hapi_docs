@@ -1,0 +1,25 @@
+acq400\_fullshot
+================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_fullshot.get_parser
+      :prog: acq400_fullshot.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_fullshot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

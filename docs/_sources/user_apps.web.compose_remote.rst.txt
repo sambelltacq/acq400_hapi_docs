@@ -1,0 +1,25 @@
+compose\_remote
+===============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.web.compose_remote.get_parser
+      :prog: compose_remote.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.web.compose_remote
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

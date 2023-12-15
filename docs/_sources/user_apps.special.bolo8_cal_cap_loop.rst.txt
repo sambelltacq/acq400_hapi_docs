@@ -1,0 +1,25 @@
+bolo8\_cal\_cap\_loop
+=====================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.bolo8_cal_cap_loop.get_parser
+      :prog: bolo8_cal_cap_loop.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.bolo8_cal_cap_loop
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

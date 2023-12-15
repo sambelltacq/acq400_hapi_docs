@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq400.acq400_upload &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq400.acq400_upload</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq400.acq400_upload</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;acq400_upload.py :: simplified upload-only program.</span>
+
+<span class="sd">For fullshot capture and upload, see acq400_fullshot.py </span>
+
+<span class="sd">example: upload data from previous &quot;DEMUX=0&quot; shot::</span>
+
+<span class="sd">    [pgm@hoy5 acq400_hapi]$ ./user_apps/acq400/acq400_upload.py --save_data BOLO --trace_upload 1 acq2106_123</span>
+<span class="sd">    INFO: Shotcontroller.handle_data() acq2106_123 data valid: UNKNOWN</span>
+<span class="sd">    TIMING:func:&#39;handle_data&#39; took: 11.63 sec</span>
+<span class="sd">    RAW DATA BOLO/acq2106_123_CH00 size 19200000</span>
+<span class="sd">    TIMING:func:&#39;upload&#39; took: 23.67 sec</span>
+<span class="sd">    TIMING:func:&#39;run_main&#39; took: 23.67 sec</span>
+<span class="sd">    [pgm@hoy5 acq400_hapi]$ ls -l BOLO</span>
+<span class="sd">    BOLO/        BOLO_README  </span>
+<span class="sd">    [pgm@hoy5 acq400_hapi]$ ls -l BOLO/</span>
+<span class="sd">    acq2106_123_CH00  format            </span>
+<span class="sd">    [pgm@hoy5 acq400_hapi]$ ls -l BOLO/acq2106_123_CH00 </span>
+<span class="sd">    -rw-r--r-- 1 pgm pgm 19200000 Jul  2 20:27 BOLO/acq2106_123_CH00</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">call</span>
+
+<div class="viewcode-block" id="TimedShotController"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_upload.html#user_apps.acq400.acq400_upload.TimedShotController">[docs]</a><span class="k">class</span> <span class="nc">TimedShotController</span><span class="p">(</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ShotControllerWithDataHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="TimedShotController.handle_data"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_upload.html#user_apps.acq400.acq400_upload.TimedShotController.handle_data">[docs]</a>    <span class="nd">@acq400_hapi</span><span class="o">.</span><span class="n">timing</span>
+    <span class="k">def</span> <span class="nf">handle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">handle_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimedShotController.__init__"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_upload.html#user_apps.acq400.acq400_upload.TimedShotController.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_uuts</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">shot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">_uuts</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span></div></div>
+      
+<div class="viewcode-block" id="upload"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_upload.html#user_apps.acq400.acq400_upload.upload">[docs]</a><span class="nd">@acq400_hapi</span><span class="o">.</span><span class="n">timing</span>
+<span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">doClose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">]</span>
+    <span class="c1">#[ acq400_hapi.Acq400UI.exec_args(uut, args) for uut in uuts ]</span>
+ 
+    <span class="n">shot_controller</span> <span class="o">=</span> <span class="n">TimedShotController</span><span class="p">(</span><span class="n">uuts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">shot_controller</span><span class="o">.</span><span class="n">handle_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>  
+        <span class="n">u</span><span class="o">.</span><span class="n">read_chan</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">rawfn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">_CH00&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">save_data</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">)</span>              
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RAW DATA </span><span class="si">{}</span><span class="s2"> size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rawfn</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">rawfn</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span><span class="p">))</span>
+            
+    <span class="k">if</span> <span class="n">doClose</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="uniq"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_upload.html#user_apps.acq400.acq400_upload.uniq">[docs]</a><span class="k">def</span> <span class="nf">uniq</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_upload.html#user_apps.acq400.acq400_upload.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">argStr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple capture and get data&#39;</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ShotControllerUI</span><span class="o">.</span><span class="n">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uuts&#39;</span><span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uut[s]&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_upload.html#user_apps.acq400.acq400_upload.run_main">[docs]</a><span class="nd">@acq400_hapi</span><span class="o">.</span><span class="n">timing</span>
+<span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>    
+    <span class="c1"># deduplicate (yes, some non-optimal apps call with duplicated uuts, wastes time)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">uuts</span> <span class="o">=</span> <span class="n">uniq</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">)</span>
+    <span class="c1"># encourage single ints to become a list</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\d$&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">channels</span> <span class="o">+=</span> <span class="s1">&#39;,&#39;</span>
+
+    <span class="n">upload</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

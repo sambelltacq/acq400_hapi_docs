@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq400.acq400_pre_post &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq400.acq400_pre_post</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq400.acq400_pre_post</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+
+<span class="sd">&quot;&quot;&quot;A script to loop pre-post captures.</span>
+
+<span class="sd">A data_test can also be run, where the system will assume a slow free running</span>
+<span class="sd">trigger is given (~0.5Hz) with CH01 sampling a square wave.</span>
+
+<span class="sd">Example usage::</span>
+
+<span class="sd">    python3 acq400_pre_post.py --data_test=1 --pre=50000 --post=100000 \</span>
+<span class="sd">    --trg=ext --shots=5 acq1001_084</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># from acq400_configure_transient import configure_shot</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">acq400_configure_transient</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">sync_role</span>
+
+
+<div class="viewcode-block" id="validate"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_pre_post.html#user_apps.acq400.acq400_pre_post.validate">[docs]</a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shot</span><span class="p">):</span>
+<span class="c1"># for ch in data[0]:</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">zero_crossings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ch</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">test_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pre</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">pre</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">crossing</span> <span class="ow">in</span> <span class="n">test_range</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">crossing</span> <span class="ow">in</span> <span class="n">zero_crossings</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Test passed - pre/post appears to be working.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shot</span><span class="p">))</span>
+            <span class="k">break</span>
+        <span class="k">elif</span> <span class="n">crossing</span> <span class="o">!=</span> <span class="n">test_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Test failed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shot</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="configure_shot"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_pre_post.html#user_apps.acq400.acq400_pre_post.configure_shot">[docs]</a><span class="k">def</span> <span class="nf">configure_shot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">acq400_configure_transient</span><span class="o">.</span><span class="n">configure_shot</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">sync_role</span><span class="o">.</span><span class="n">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">transient</span> <span class="o">=</span> <span class="s2">&quot;DEMUX=1&quot;</span>
+
+    <span class="k">return</span> <span class="n">uuts</span></div>
+
+<div class="viewcode-block" id="run_shot"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_pre_post.html#user_apps.acq400.acq400_pre_post.run_shot">[docs]</a><span class="k">def</span> <span class="nf">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uuts</span><span class="p">,</span> <span class="n">shot</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">uuts</span><span class="p">):</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_arm</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">wait_armed</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">wait_stopped</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">read_channels</span><span class="p">((</span><span class="mi">1</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">data_test</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">validate</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_shots"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_pre_post.html#user_apps.acq400.acq400_pre_post.run_shots">[docs]</a><span class="k">def</span> <span class="nf">run_shots</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uuts</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">shot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">shots</span><span class="p">):</span>
+        <span class="n">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uuts</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_pre_post.html#user_apps.acq400.acq400_pre_post.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">run_shots</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">configure_shot</span><span class="p">(</span><span class="n">args</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_pre_post.html#user_apps.acq400.acq400_pre_post.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;config pre-post then capture&#39;</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--data_test&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Whether to test the data for the trigger at the pre/post crossover&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--shots&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of pre-post captures to run.&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--enable_trigger&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set this to enable the trigger all other args ignored&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--toprole&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;role of top in stack&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--fclk&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;1000000&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;sample clock rate&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--fin&#39;</span><span class="p">,</span>  <span class="n">default</span><span class="o">=</span><span class="s1">&#39;1000000&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;external clock rate&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--clkdiv&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;optional clockdiv&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uuts&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;uut1 [uut2..]&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

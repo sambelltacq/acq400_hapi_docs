@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq400.acq400_checkramp &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq400.acq400_checkramp</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq400.acq400_checkramp</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot; capture upload test</span>
+<span class="sd">    acq1001_capplot UUT1 [UUT2 ..]</span>
+<span class="sd">    where UUT1 is the ip-address or host name of first uut</span>
+<span class="sd">    example test client runs captures in a loop on one or more uuts</span>
+<span class="sd">    </span>
+<span class="sd">    pre-requisite: UUT&#39;s are configured and ready to make a transient</span>
+<span class="sd">    capture </span>
+<span class="sd">    eg clk is running. soft trg enabled</span>
+<span class="sd">    eg transient length set.</span>
+<span class="sd">    </span>
+<span class="sd">    runs one capture, uploads the data and plots with matplotlib</span>
+<span class="sd">    tested with 2 x 8 channels UUT&#39;s (ACQ1014)</span>
+<span class="sd">    matplot will get very congested with more channels.</span>
+<span class="sd">    this is really meant as a demonstration of capture, load to numpy,</span>
+<span class="sd">    it&#39;s not really intended as a scope UI.</span>
+
+<span class="sd">    USAGE: acq1001_caploop UUT1 [UUT2 ..]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">SOFT_TRIGGER</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SOFT_TRIGGER&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span>
+<span class="n">TRACE_UPLOAD</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TRACE_UPLOAD&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span>
+<span class="n">SAVEDATA</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SAVEDATA&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">PLOTDATA</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PLOTDATA&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span>
+<span class="n">CAPTURE</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CAPTURE&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span>
+<span class="n">PLOTTO</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PLOTTO&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_checkramp.html#user_apps.acq400.acq400_checkramp.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">SOFT_TRIGGER</span><span class="p">,</span><span class="n">TRACE_UPLOAD</span><span class="p">,</span> <span class="n">SAVEDATA</span><span class="p">,</span> <span class="n">PLOTDATA</span><span class="p">,</span> <span class="n">PLOTTO</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span>  <span class="p">]</span>        
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>        
+        <span class="k">for</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>            
+            <span class="n">uuts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">addr</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;USAGE: acq1001_caploop UUT1 [UUT2 ..]&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>   
+
+
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">cleanup</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+    <span class="n">shot_controller</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ShotController</span><span class="p">(</span><span class="n">uuts</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>  
+        <span class="k">if</span> <span class="n">CAPTURE</span><span class="p">:</span>
+            <span class="n">shot_controller</span><span class="o">.</span><span class="n">run_shot</span><span class="p">(</span><span class="n">soft_trigger</span><span class="o">=</span><span class="n">SOFT_TRIGGER</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">SAVEDATA</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">save_data</span> <span class="o">=</span> <span class="n">SAVEDATA</span>
+        <span class="k">if</span> <span class="n">TRACE_UPLOAD</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="mi">1</span>
+                
+        <span class="n">chx</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">nchan</span><span class="p">,</span> <span class="n">nsam</span> <span class="o">=</span> <span class="n">shot_controller</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+      
+<span class="c1"># plot ex: 2 x 8 ncol=2 nchan=8</span>
+<span class="c1"># U1 U2      FIG</span>
+<span class="c1"># 11 21      1  2</span>
+<span class="c1"># 12 22      3  4</span>
+<span class="c1"># 13 23</span>
+<span class="c1"># ...</span>
+<span class="c1"># 18 28     15 16</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+        
+        <span class="n">checks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">PLOTDATA</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncol</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">chn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nchan</span><span class="p">):</span>
+                    <span class="n">fignum</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">col</span> <span class="o">+</span> <span class="n">chn</span><span class="o">*</span><span class="n">ncol</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">nchan</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">fignum</span><span class="p">)</span>                
+                    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uuts</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">chn</span><span class="p">))</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">chn</span><span class="p">])</span>
+                    
+                <span class="n">checkramp</span> <span class="o">=</span> <span class="n">chx</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">nchan</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+                <span class="n">ll</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkramp</span><span class="p">)</span>              
+                <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">nchan</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">fignum</span><span class="p">)</span>
+                <span class="n">checkramp</span> <span class="o">=</span> <span class="n">checkramp</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">ll</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">checkramp</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">ll</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">checkramp</span><span class="p">)</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">checkramp</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">checkramp</span><span class="p">)))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;stats </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">checks</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">PLOTTO</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">while</span> <span class="n">PLOTTO</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">PLOTTO</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hit return to quit&quot;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            
+    <span class="k">except</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">cleanup</span><span class="o">.</span><span class="n">ExitCommand</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ExitCommand raised and caught&quot;</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finally, going down&quot;</span><span class="p">)</span></div>
+
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">()</span>
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

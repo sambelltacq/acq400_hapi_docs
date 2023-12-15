@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq400.acq400_continuous_burst_awg &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq400.acq400_continuous_burst_awg</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq400.acq400_continuous_burst_awg</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on 24 Sep 2020</span>
+
+<span class="sd">@author: pgm</span>
+
+<span class="sd">acq400_continuous_burst_awg.py UUT</span>
+
+<span class="sd">load a &quot;Rainbow&quot; waveform and play it out</span>
+
+<span class="sd">from a software point of view, it&#39;s continuous, but the waveform may run on a burst trigger</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># AWG &quot;Feature&quot;</span>
+<span class="n">MINBUFFERS</span> <span class="o">=</span> <span class="mi">4</span>
+
+<div class="viewcode-block" id="get_distributor_sites"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.get_distributor_sites">[docs]</a><span class="k">def</span> <span class="nf">get_distributor_sites</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">dx</span> <span class="ow">in</span> <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">distributor</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="n">dx</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;sites&#39;</span><span class="p">:</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">sites</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="n">nc</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">sx</span> <span class="ow">in</span> <span class="n">uut</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+                <span class="n">nc</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">sx</span><span class="p">]</span><span class="o">.</span><span class="n">NCHAN</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">nchan</span> <span class="o">=</span> <span class="n">nc</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;nchan set </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">))</span>
+            <span class="k">return</span></div>
+          
+<div class="viewcode-block" id="configure_master_site"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.configure_master_site">[docs]</a><span class="k">def</span> <span class="nf">configure_master_site</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">uut</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">trg</span> <span class="o">=</span> <span class="s1">&#39;1,0,1&#39;</span>        
+        <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">rtm</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">burst</span> <span class="o">=</span> <span class="s1">&#39;3,0,1&#39;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;0,0,0&#39;</span>        
+        <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">AWG_BURSTLEN</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span>
+        <span class="k">break</span></div>
+    
+    
+<div class="viewcode-block" id="load_burstlen_equals_wavelen"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.load_burstlen_equals_wavelen">[docs]</a><span class="k">def</span> <span class="nf">load_burstlen_equals_wavelen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+    <span class="c1"># load a sequence of waveforms to be loaded and played in turn</span>
+    <span class="n">work</span><span class="o">=</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">awg_data</span><span class="o">.</span><span class="n">RainbowGen</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>    
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">work</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">continuous</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">delay</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">delay</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;hit return for next WF&quot;</span><span class="p">)</span>
+                <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">AWG_MODE_ABO</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+                <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">playloop_length</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span></div>
+
+<div class="viewcode-block" id="load_multiple_bursts_in_one_wavelen"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.load_multiple_bursts_in_one_wavelen">[docs]</a><span class="k">def</span> <span class="nf">load_multiple_bursts_in_one_wavelen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+    <span class="c1"># build a sequence of bursts to load in one waveform</span>
+    <span class="n">work</span><span class="o">=</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">awg_data</span><span class="o">.</span><span class="n">RainbowGen</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">awg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">))</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">awg</span><span class="p">)</span><span class="o">/</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span> <span class="o">&lt;</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">):</span>
+            <span class="n">awx</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">sinc_off_ch</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">awx</span><span class="p">[:,</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">args</span><span class="o">.</span><span class="n">burst_length</span><span class="p">)</span>
+            <span class="n">awg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">awg</span><span class="p">,</span> <span class="n">awx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">awg</span><span class="p">)</span><span class="o">/</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span> <span class="o">&gt;=</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+                <span class="k">break</span>
+            
+    <span class="n">uut</span><span class="o">.</span><span class="n">load_awg</span><span class="p">(</span><span class="n">awg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span> <span class="n">continuous</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>    
+        
+    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;hit return to stop&quot;</span><span class="p">)</span>
+    <span class="n">site</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">AWG_MODE_ABO</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">playloop_length</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span></div>
+
+
+<div class="viewcode-block" id="tee_adc"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.tee_adc">[docs]</a><span class="k">def</span> <span class="nf">tee_adc</span><span class="p">(</span><span class="n">uut_name</span><span class="p">,</span> <span class="n">burstlen</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tee_adc </span><span class="si">{}</span><span class="s2"> .. we assume it&#39;s ready to go with a triggered transient&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut_name</span><span class="p">))</span>
+    <span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">uut_name</span><span class="p">)</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">rgm</span> <span class="o">=</span> <span class="s1">&#39;3,0,1&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">RTM_TRANSLEN</span> <span class="o">=</span> <span class="n">burstlen</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">transient</span> <span class="o">=</span> <span class="s1">&#39;PRE=0 POST=100000&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">TRANSIENT_SET_ARM</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">TRANSIENT_SET_ARM</span> <span class="o">=</span> <span class="mi">0</span></div>
+      
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  
+
+
+
+<span class="n">PAGE</span> <span class="o">=</span> <span class="mi">4096</span>
+<span class="n">PAGEM</span> <span class="o">=</span> <span class="p">(</span><span class="n">PAGE</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  
+                                   
+<div class="viewcode-block" id="run_awg"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.run_awg">[docs]</a><span class="k">def</span> <span class="nf">run_awg</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">get_distributor_sites</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">)</span>
+    
+    <span class="n">wavelen</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span>
+    <span class="n">bufferlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">bufferlen</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">wavelen</span> <span class="o">&lt;=</span> <span class="n">MINBUFFERS</span> <span class="o">*</span> <span class="n">bufferlen</span><span class="p">:</span>
+        <span class="n">play_bufferlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wavelen</span> <span class="o">/</span> <span class="n">MINBUFFERS</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># pick larges buffer such than nbuffers is an even number</span>
+        <span class="n">nbuffers</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">wavelen</span><span class="o">/</span><span class="n">bufferlen</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">nbuffers</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">nbuffers</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">play_bufferlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wavelen</span><span class="o">/</span><span class="n">nbuffers</span><span class="p">)</span>
+        
+        <span class="k">while</span> <span class="n">play_bufferlen</span><span class="o">&amp;</span><span class="mi">7</span> <span class="ow">and</span> <span class="n">nbuffers</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+           <span class="n">nbuffers</span> <span class="o">+=</span> <span class="mi">2</span>
+           <span class="n">play_bufferlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wavelen</span><span class="o">/</span><span class="n">nbuffers</span><span class="p">)</span>
+        <span class="n">wl_act</span> <span class="o">=</span> <span class="n">play_bufferlen</span><span class="o">*</span><span class="n">nbuffers</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;wavelen </span><span class="si">{}</span><span class="s2"> play_bufferlen </span><span class="si">{}</span><span class="s2"> nbuffers </span><span class="si">{}</span><span class="s2"> p*n </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>\
+              <span class="nb">format</span><span class="p">(</span><span class="n">wavelen</span><span class="p">,</span> <span class="n">play_bufferlen</span><span class="p">,</span> <span class="n">nbuffers</span><span class="p">,</span> <span class="n">wl_act</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="n">wl_act</span> <span class="o">==</span> <span class="n">wavelen</span> <span class="k">else</span> <span class="s2">&quot;UNEQUAL&quot;</span><span class="p">))</span>
+            
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">dist_bufferlen_play</span> <span class="o">=</span> <span class="n">play_bufferlen</span>
+    
+    <span class="n">configure_master_site</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+        <span class="n">load_burstlen_equals_wavelen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">load_multiple_bursts_in_one_wavelen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">)</span></div>
+
+
+<span class="n">BURST_IS_AWGLEN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="o">%</span><span class="mi">64</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="o">&amp;</span><span class="p">(</span><span class="mi">64</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="mi">64</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rounding up length to next multiple of 64 </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">==</span> <span class="n">BURST_IS_AWGLEN</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">&gt;</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">length</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: setting burst_length equal to awg length&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">monitor_uut</span><span class="p">:</span>
+        <span class="n">tee_adc</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">monitor_uut</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_length</span><span class="p">)</span>
+    <span class="n">run_awg</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_continuous_burst_awg.html#user_apps.acq400.acq400_continuous_burst_awg.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;awg rainbow burst demo&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--length&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8192</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;AWG length&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--burst_length&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">BURST_IS_AWGLEN</span><span class="p">,</span> 
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Burst length : </span><span class="si">{}</span><span class="s2"> same as AWG, 0: no burst, &gt;0 special [sub] length&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">BURST_IS_AWGLEN</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--delay&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;auto switch on this delay&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--trgDX&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;trigger DX line&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--monitor_uut&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;url of capture ADC&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uuts&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uut &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+           
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

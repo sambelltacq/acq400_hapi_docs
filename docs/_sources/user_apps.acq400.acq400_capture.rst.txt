@@ -1,0 +1,25 @@
+acq400\_capture
+===============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_capture.get_parser
+      :prog: acq400_capture.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_capture
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

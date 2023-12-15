@@ -1,0 +1,25 @@
+go\_demux
+=========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.go_demux.get_parser
+      :prog: go_demux.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.go_demux
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

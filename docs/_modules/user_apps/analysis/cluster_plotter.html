@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.cluster_plotter &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.cluster_plotter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.cluster_plotter</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Plots data from cluster of uuts</span>
+
+<span class="sd">Example usage::</span>
+
+<span class="sd">    ./user_apps/analysis/cluster_plotter.py --chans=1 --cycles=1:2 --secs=1 --clk=2M \</span>
+<span class="sd">acq2206_010 acq2206_009 acq2206_008 acq2206_007 acq2206_006 acq2206_005</span>
+
+<span class="sd">    ./user_apps/analysis/cluster_plotter.py --chans=1 --cycles=1:2 --secs=1 --clk=2M --nchan=64 --data_type=16\</span>
+<span class="sd">acq2206_010 acq2206_009 acq2206_008 acq2206_007 acq2206_006 acq2206_005</span>
+
+<span class="sd">    ./user_apps/analysis/cluster_plotter.py --chans=1 --src=acq2106_41?_VI.dat \</span>
+<span class="sd">acq2106_413 acq2106_414 acq2106_415</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">PR</span><span class="p">,</span> <span class="n">pprint</span>
+
+<span class="n">type_map</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">32</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+        <span class="s1">&#39;wsize&#39;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="mi">16</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
+        <span class="s1">&#39;wsize&#39;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="mi">8</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">,</span>
+        <span class="s1">&#39;wsize&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+<span class="n">data_globs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;?.??&#39;</span><span class="p">,</span><span class="s1">&#39;*.dat&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">scaffold</span> <span class="o">=</span> <span class="n">build_scaffold</span><span class="p">(</span><span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="n">demux</span><span class="p">(</span><span class="n">scaffold</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">pprint</span><span class="p">(</span><span class="n">scaffold</span><span class="p">)</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">scaffold</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="build_scaffold"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.build_scaffold">[docs]</a><span class="k">def</span> <span class="nf">build_scaffold</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">uuts</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">nchan</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">clk</span><span class="p">,</span> <span class="n">secs</span><span class="p">,</span> <span class="n">offline</span><span class="p">,</span> <span class="n">egu</span><span class="p">,</span> <span class="n">spadlen</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;building&#39;</span><span class="p">)</span>
+    <span class="n">scaffold</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">globbed_src</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+    <span class="n">cycles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">cycles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">file_src</span> <span class="ow">in</span> <span class="n">globbed_src</span><span class="p">:</span>
+        <span class="n">uutname</span> <span class="o">=</span> <span class="n">identify_uut</span><span class="p">(</span><span class="n">file_src</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">uutname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_src</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">file_src</span><span class="p">):</span>
+            <span class="n">dat_files</span><span class="p">,</span> <span class="n">filesize</span><span class="p">,</span> <span class="n">first_cycle</span><span class="p">,</span> <span class="n">per_cycle</span> <span class="o">=</span> <span class="n">get_files</span><span class="p">(</span><span class="n">file_src</span><span class="p">,</span> <span class="n">cycles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cycles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dat_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_src</span><span class="p">]</span>
+            <span class="n">filesize</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">file_src</span><span class="p">)</span>
+            <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_src</span>
+            <span class="n">first_cycle</span> <span class="o">=</span> <span class="n">per_cycle</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">offline</span><span class="p">:</span>
+            <span class="n">uut</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uut</span> <span class="o">=</span> <span class="n">attach_api</span><span class="p">(</span><span class="n">uutname</span><span class="p">)</span>
+
+        <span class="n">_data_type</span> <span class="o">=</span> <span class="n">data_type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data_type</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">uut</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;--data_type required&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">data32</span><span class="p">):</span>
+                <span class="n">_data_type</span> <span class="o">=</span> <span class="mi">32</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_data_type</span> <span class="o">=</span> <span class="mi">16</span>
+
+        <span class="n">_nchan</span> <span class="o">=</span> <span class="n">nchan</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nchan</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">uut</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;--nchan required&#39;</span><span class="p">)</span>
+            <span class="n">_nchan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">get_ai_channels</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">spadlen</span><span class="p">:</span>
+                <span class="n">spadlen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">spad</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">spad</span> <span class="o">=</span> <span class="n">spadlen</span> <span class="o">*</span> <span class="p">(</span><span class="mi">4</span> <span class="o">-</span> <span class="n">type_map</span><span class="p">[</span><span class="n">_data_type</span><span class="p">][</span><span class="s1">&#39;wsize&#39;</span><span class="p">])</span>
+            <span class="n">_nchan</span> <span class="o">+=</span> <span class="n">spad</span>
+
+        <span class="n">_clk</span> <span class="o">=</span> <span class="n">clk</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">clk</span> <span class="ow">and</span> <span class="n">secs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">uut</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;--secs needs --clk&#39;</span><span class="p">)</span>
+            <span class="n">_clk</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">pv</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_CLK_MB_SET</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="p">,</span> <span class="s1">&#39;ACQ480_FPGA_DECIM&#39;</span><span class="p">):</span>
+                <span class="n">decim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">pv</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">ACQ480_FPGA_DECIM</span><span class="p">))</span>
+                <span class="n">_clk</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_clk</span> <span class="o">/</span> <span class="n">decim</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">egu</span><span class="p">:</span>
+            <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">uut</span><span class="o">.</span><span class="n">fetch_all_calibration</span><span class="p">)</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
+        
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;dat_files&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dat_files</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;api&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uut</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;nchan&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_nchan</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;clk&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_clk</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">type_map</span><span class="p">[</span><span class="n">_data_type</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;wsize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">type_map</span><span class="p">[</span><span class="n">_data_type</span><span class="p">][</span><span class="s1">&#39;wsize&#39;</span><span class="p">]</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;first_cycle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_cycle</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;per_cycle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">per_cycle</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;cycle_start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cycles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;cycle_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cycles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;total_files&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dat_files</span><span class="p">)</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;file_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filesize</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;chan_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filesize</span> <span class="o">/</span> <span class="n">_nchan</span> <span class="o">/</span> <span class="n">type_map</span><span class="p">[</span><span class="n">_data_type</span><span class="p">][</span><span class="s1">&#39;wsize&#39;</span><span class="p">])</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">scaffold</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;num_chans&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">scaffold</span><span class="p">:</span>
+        <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;No valid uuts found&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">scaffold</span></div>
+
+<div class="viewcode-block" id="identify_uut"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.identify_uut">[docs]</a><span class="k">def</span> <span class="nf">identify_uut</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span>  <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;(acq[0-9]</span><span class="si">{4}</span><span class="s2">_[0-9]</span><span class="si">{3}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span></div>
+
+<div class="viewcode-block" id="attach_api"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.attach_api">[docs]</a><span class="k">def</span> <span class="nf">attach_api</span><span class="p">(</span><span class="n">uutname</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="n">uutname</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unable to connect to </span><span class="si">{</span><span class="n">uutname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+    
+<div class="viewcode-block" id="get_files"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.get_files">[docs]</a><span class="k">def</span> <span class="nf">get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+    <span class="n">dat_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">data_glob</span> <span class="ow">in</span> <span class="n">data_globs</span><span class="p">:</span>
+            <span class="n">file_glob</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cycle</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data_glob</span><span class="p">)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">file_glob</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">dat_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dat_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: Unable to find files for glob </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">first_cycle</span> <span class="o">=</span> <span class="n">get_first_cycle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dat_files</span><span class="p">,</span> <span class="n">first_cycle</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">first_cycle</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">first_cycle</span><span class="o">.</span><span class="n">files</span></div>
+
+<div class="viewcode-block" id="get_first_cycle"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.get_first_cycle">[docs]</a><span class="k">def</span> <span class="nf">get_first_cycle</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">first_cycle</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;first_cycle&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;files&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">data_glob</span> <span class="ow">in</span> <span class="n">data_globs</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cycle</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data_glob</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">first_cycle</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;Error could not find first cycle&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="demux"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.demux">[docs]</a><span class="k">def</span> <span class="nf">demux</span><span class="p">(</span><span class="n">scaffold</span><span class="p">,</span> <span class="n">chans</span><span class="p">,</span> <span class="n">uuts</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;demuxing&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">scaffold</span><span class="p">[</span><span class="n">uut</span><span class="p">]</span>
+        <span class="n">nchan</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;nchan&#39;</span><span class="p">]</span>
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;dat_files&#39;</span><span class="p">]:</span>
+            <span class="n">item</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">data_type</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">chans</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">chan</span> <span class="o">&gt;</span> <span class="n">nchan</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">ichan</span> <span class="o">=</span> <span class="n">chan</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">item</span><span class="p">[</span><span class="s1">&#39;num_chans&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">item</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="n">chan</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">ichan</span><span class="p">::</span><span class="n">nchan</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">scaffold</span><span class="p">,</span> <span class="n">uuts</span><span class="p">,</span> <span class="n">secs</span><span class="p">,</span> <span class="n">egu</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">plots</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;plotting&#39;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Seconds&#39;</span> <span class="k">if</span> <span class="n">secs</span> <span class="k">else</span> <span class="s1">&#39;Samples&#39;</span>
+    <span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;Volts&#39;</span> <span class="k">if</span> <span class="n">egu</span> <span class="k">else</span> <span class="s1">&#39;Raw ADC Codes&#39;</span>
+
+    <span class="k">class</span> <span class="nc">plt_wrapper</span><span class="p">:</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plots</span><span class="p">,</span> <span class="n">num_chans</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_arrs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_chans</span> <span class="o">=</span> <span class="n">num_chans</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">plots</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_chans</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_chans</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="n">axes</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">axes</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">egu</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">api</span><span class="p">:</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;no calibration found unable to plot by volts&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">wsize</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">/</span> <span class="mi">256</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">chan2volts</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">secs</span><span class="p">:</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">length</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_arrs</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">x_arrs</span><span class="p">[</span><span class="n">length</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_x_array</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_arrs</span><span class="p">[</span><span class="n">length</span><span class="p">],</span> <span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">get_major_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_useOffset</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">get_major_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_useOffset</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_chans</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">def</span> <span class="nf">build_x_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="s1">&#39;filename&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span> <span class="ow">and</span> <span class="n">cycle_start</span> <span class="o">&gt;</span> <span class="n">first_cycle</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">chan_len</span> <span class="o">*</span> <span class="n">per_cycle</span> <span class="o">*</span> <span class="p">(</span><span class="n">cycle_start</span> <span class="o">-</span> <span class="n">first_cycle</span><span class="p">)</span>
+            <span class="n">x_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">length</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
+            <span class="n">x_arr</span> <span class="o">=</span> <span class="n">x_arr</span> <span class="o">/</span> <span class="n">clk</span>
+            <span class="k">return</span> <span class="n">x_arr</span>
+        
+    <span class="n">num_chans</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">scaffold</span><span class="p">[</span><span class="n">uut</span><span class="p">][</span><span class="s1">&#39;num_chans&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">])</span>
+    <span class="n">wrapper</span> <span class="o">=</span> <span class="n">plt_wrapper</span><span class="p">(</span><span class="n">plots</span><span class="p">,</span> <span class="n">num_chans</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">scaffold</span><span class="p">[</span><span class="n">uut</span><span class="p">]</span>
+        <span class="n">cycle_start</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;cycle_start&#39;</span><span class="p">]</span>
+        <span class="n">cycle_end</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;cycle_end&#39;</span><span class="p">]</span>
+        <span class="n">wsize</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;wsize&#39;</span><span class="p">]</span>
+        <span class="n">chan_len</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;chan_len&#39;</span><span class="p">]</span>
+        <span class="n">api</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;api&#39;</span><span class="p">]</span>
+        <span class="n">clk</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;clk&#39;</span><span class="p">]</span>
+        <span class="n">first_cycle</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;first_cycle&#39;</span><span class="p">]</span>
+        <span class="n">per_cycle</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;per_cycle&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s1">&#39;filename&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cycle_start</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">cycle_end</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">chan</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">scaffold</span><span class="p">[</span><span class="n">uut</span><span class="p">][</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">uut</span><span class="si">}</span><span class="s2"> CH</span><span class="si">{</span><span class="n">chan</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">uut</span><span class="si">}</span><span class="s2"> Plotting Chan </span><span class="si">{</span><span class="n">chan</span><span class="si">}</span><span class="s2"> length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+
+    <span class="n">wrapper</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="n">wrapper</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+    <span class="n">wrapper</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;done&#39;</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="list_of_channels"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.list_of_channels">[docs]</a><span class="k">def</span> <span class="nf">list_of_channels</span><span class="p">(</span><span class="n">chans</span><span class="p">):</span>
+    <span class="n">channels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">chans</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">chan</span><span class="p">:</span>
+            <span class="n">chan</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">chan</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)))</span>
+            <span class="n">channels</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">chan</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chan</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+            <span class="k">continue</span>
+        <span class="n">channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">chan</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">channels</span></div>
+
+<div class="viewcode-block" id="prefix_number"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.prefix_number">[docs]</a><span class="k">def</span> <span class="nf">prefix_number</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">prefixes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;K&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s1">&#39;M&#39;</span><span class="p">:</span> <span class="mi">1000000</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
+        <span class="n">num</span><span class="p">,</span> <span class="n">mag</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">*</span> <span class="n">prefixes</span><span class="p">[</span><span class="n">mag</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.cluster_plotter.html#user_apps.analysis.cluster_plotter.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Plot data from a cluster of UUTs&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--src&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;/mnt/afhba.*/acq2?06_???&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;src dir&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--chans&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">list_of_channels</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;channels to plot 1,2,3-5&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--egu&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot volts&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--secs&#39;</span><span class="p">,</span>  <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot secs&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--cycles&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;single cycle 1 or start end 3:7 to plot&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nchan&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of chan&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--data_type&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Data type to use </span><span class="si">{</span><span class="n">type_map</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--clk&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">prefix_number</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;clk speed&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--offline&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Don&#39;t try to connect to uuts&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Increase verbosity&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plots&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Multi plot&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--spadlen&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Length of spad&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uuts&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uuts&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

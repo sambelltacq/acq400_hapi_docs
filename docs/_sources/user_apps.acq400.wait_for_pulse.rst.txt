@@ -1,0 +1,25 @@
+wait\_for\_pulse
+================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.wait_for_pulse.get_parser
+      :prog: wait_for_pulse.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.wait_for_pulse
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

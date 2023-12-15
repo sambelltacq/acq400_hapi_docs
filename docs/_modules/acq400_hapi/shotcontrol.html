@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_hapi.shotcontrol &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acq400_hapi.shotcontrol</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acq400_hapi.shotcontrol</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+
+<div class="viewcode-block" id="wait_for_state"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.wait_for_state">[docs]</a><span class="k">def</span> <span class="nf">wait_for_state</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">UUTS</span> <span class="o">=</span> <span class="p">[</span><span class="n">uut</span><span class="p">]</span>
+    <span class="n">time0</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">time0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">time0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">UUTS</span><span class="p">:</span>
+        <span class="n">olds</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">dots</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pollcat</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">finished</span><span class="p">:</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">TRANS_ACT_STATE</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#Real name TRANS_ACT:STATE</span>
+            <span class="n">finished</span> <span class="o">=</span> <span class="n">st</span> <span class="o">==</span> <span class="n">state</span>
+            <span class="n">news</span> <span class="o">=</span> <span class="s2">&quot;polling </span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> waiting for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="s1">&#39;DONE&#39;</span> <span class="k">if</span> <span class="n">finished</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">news</span> <span class="o">!=</span> <span class="n">olds</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{:06.2f}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time0</span><span class="p">,</span> <span class="n">news</span><span class="p">))</span>
+                <span class="n">olds</span> <span class="o">=</span> <span class="n">news</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">dots</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">dots</span> <span class="o">&gt;=</span> <span class="mi">20</span><span class="p">:</span>
+                    <span class="n">dots</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">olds</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">finished</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">timeout</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">timeout waiting for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">news</span><span class="p">))</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">pollcat</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ActionScript"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ActionScript">[docs]</a><span class="k">class</span> <span class="nc">ActionScript</span><span class="p">:</span>
+<div class="viewcode-block" id="ActionScript.__init__"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ActionScript.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_and_args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sas</span> <span class="o">=</span> <span class="n">script_and_args</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ActionScript creates </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sas</span><span class="p">))</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ActionScript: call()&quot;</span><span class="p">)</span>
+        <span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sas</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ShotController"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController">[docs]</a><span class="k">class</span> <span class="nc">ShotController</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ShotController handles shot synchronization for a set of uuts</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ShotController.prep_shot"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.prep_shot">[docs]</a>    <span class="k">def</span> <span class="nf">prep_shot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">stopped</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">armed</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tp</span> <span class="o">=</span> <span class="p">[</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">wait_stopped</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tp</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">setDaemon</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ta</span> <span class="o">=</span> <span class="p">[</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">wait_armed</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ta</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">setDaemon</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ShotController.wait_armed"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.wait_armed">[docs]</a>    <span class="k">def</span> <span class="nf">wait_armed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">wdt</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wdt</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;wait_list&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ta</span><span class="p">})</span>
+        <span class="n">wdt</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ta</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">wdt</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ShotController.wait_complete"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.wait_complete">[docs]</a>    <span class="k">def</span> <span class="nf">wait_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># @@TODO start a watcher task. If one or more has completed, kill the rest after a timeout.</span>
+        <span class="n">wdt</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wdt</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;wait_list&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tp</span><span class="p">})</span> 
+        <span class="n">wdt</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tp</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">wdt</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>   </div>
+
+<div class="viewcode-block" id="ShotController.wdt"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.wdt">[docs]</a>    <span class="k">def</span> <span class="nf">wdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait_list</span><span class="p">):</span>
+        <span class="n">loops_with_zombies</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">alive</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dead</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">wait_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                    <span class="n">alive</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dead</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">alive</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="n">dead</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">loops_with_zombies</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">loops_with_zombies</span><span class="o">/</span><span class="mi">10</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">zombie_timeout</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;we have zombies&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">wait_list</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> zombie requested to leave&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+                            <span class="n">u</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">break_requested</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
+                             
+            
+            
+<div class="viewcode-block" id="ShotController.arm_shot_action"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.arm_shot_action">[docs]</a>    <span class="k">def</span> <span class="nf">arm_shot_action</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_arm_shot_action</span><span class="p">():</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">TRANSIENT_SET_ARM</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">_arm_shot_action</span></div>
+
+
+<div class="viewcode-block" id="ShotController.arm_shot"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.arm_shot">[docs]</a>    <span class="k">def</span> <span class="nf">arm_shot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">thx</span> <span class="o">=</span> <span class="p">[</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">ShotController</span><span class="o">.</span><span class="n">arm_shot_action</span><span class="p">(</span><span class="n">u</span><span class="p">))</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">)</span> <span class="p">]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thx</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thx</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_armed</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ShotController.abort_shot"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.abort_shot">[docs]</a>    <span class="k">def</span> <span class="nf">abort_shot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> set_abort&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_abort</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="ShotController.on_shot_complete"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.on_shot_complete">[docs]</a>    <span class="k">def</span> <span class="nf">on_shot_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;runs on completion, expect subclass override.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> SHOT COMPLETE shot:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ShotController.run_shot"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.run_shot">[docs]</a>    <span class="k">def</span> <span class="nf">run_shot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soft_trigger</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">acq1014_ext_trigger</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">remote_trigger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;run_shot() control an entire shot from client.</span>
+
+<span class="sd">           for more control, use the individual methods above.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               soft_trigger=False (bool) : trigger when armed</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">acq1014_ext_trigger</span><span class="p">:</span>
+            <span class="c1"># block external triggers with temp switch to soft trigger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">acq1014_trg</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prep_shot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arm_shot</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">soft_trigger</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">soft_trigger</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hit return for soft_trigger&quot;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">while</span> <span class="n">soft_trigger</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sleep </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">soft_trigger</span><span class="p">))</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">soft_trigger</span> <span class="o">=</span> <span class="n">soft_trigger</span> <span class="o">-</span> <span class="mi">1</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> soft_trigger&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">soft_trigger</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">remote_trigger</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">remote_trigger</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">acq1014_ext_trigger</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">acq1014_ext_trigger</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">acq1014_trg</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_complete</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_shot_complete</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ShotController.map_channels"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.map_channels">[docs]</a>    <span class="k">def</span> <span class="nf">map_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1">#print(&quot;map_channels {}&quot;.format(channels))</span>
+        <span class="n">ii</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">iu</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">channels</span> <span class="o">==</span> <span class="p">():</span>
+                <span class="n">cmap</span><span class="p">[</span><span class="n">iu</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">nchan</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># default : ALL</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="n">cmap</span><span class="p">[</span><span class="n">iu</span><span class="p">]</span> <span class="o">=</span> <span class="n">channels</span>                  <span class="c1"># single value</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="n">cmap</span><span class="p">[</span><span class="n">iu</span><span class="p">]</span> <span class="o">=</span> <span class="n">channels</span>                  <span class="c1"># same tuple all UUTS</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">cmap</span><span class="p">[</span><span class="n">iu</span><span class="p">]</span> <span class="o">=</span> <span class="n">channels</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>          <span class="c1"># dedicated tuple</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">cmap</span><span class="p">[</span><span class="n">iu</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>                     <span class="c1"># fallback, ch1</span>
+
+            <span class="n">ii</span> <span class="o">=</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">cmap</span></div>
+
+<div class="viewcode-block" id="ShotController.read_channels"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.read_channels">[docs]</a>    <span class="k">def</span> <span class="nf">read_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">()):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_channels</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+        <span class="n">chx</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">read_channels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">[</span><span class="n">iu</span><span class="p">])</span> <span class="k">for</span> <span class="n">iu</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/format&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save_data</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">iu</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">[</span><span class="n">iu</span><span class="p">]:</span>
+                        <span class="n">fid</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_CH</span><span class="si">%02d</span><span class="s2"> RAW </span><span class="si">%s</span><span class="s2"> 1</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">ch</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">))</span>
+
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="ShotController.__init__"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotController.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_uuts</span><span class="p">,</span> <span class="n">shot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zombie_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span> <span class="o">=</span> <span class="n">_uuts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zombie_timeout</span> <span class="o">=</span> <span class="n">zombie_timeout</span>
+        <span class="k">if</span> <span class="n">shot</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="n">shot</span></div></div>
+
+
+<div class="viewcode-block" id="ShotControllerWithDataHandler"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler">[docs]</a><span class="k">class</span> <span class="nc">ShotControllerWithDataHandler</span><span class="p">(</span><span class="n">ShotController</span><span class="p">):</span>
+       
+<div class="viewcode-block" id="ShotControllerWithDataHandler.plot_data"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler.plot_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">plot_data</span><span class="p">,</span> <span class="n">chx</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">nchan</span><span class="p">,</span> <span class="n">nsam</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">plt</span> <span class="o">=</span> <span class="n">e</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plt</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sorry, plotting not available&quot;</span><span class="p">)</span>
+            <span class="k">return</span>        
+    <span class="c1"># plot ex: 2 x 8 ncol=2 nchan=8</span>
+    <span class="c1"># U1 U2      FIG</span>
+    <span class="c1"># 11 21      1  2</span>
+    <span class="c1"># 12 22      3  4</span>
+    <span class="c1"># 13 23</span>
+    <span class="c1"># ...</span>
+    <span class="c1"># 18 28     15 16</span>
+        <span class="n">overlay_plot</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="k">if</span> <span class="n">plot_data</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">plot_data</span> <span class="o">&gt;</span> <span class="n">nchan</span><span class="p">:</span>
+            <span class="n">plot_data</span> <span class="o">=</span> <span class="n">nchan</span>
+        
+        <span class="k">if</span> <span class="n">plot_data</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_nchan</span> <span class="o">=</span> <span class="o">-</span><span class="n">plot_data</span>
+            <span class="k">if</span> <span class="n">_nchan</span> <span class="o">&lt;</span> <span class="n">nchan</span><span class="p">:</span>                    
+                <span class="n">nchan</span> <span class="o">=</span> <span class="n">_nchan</span>
+                <span class="n">overlay_plot</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;overlay plotting first </span><span class="si">{}</span><span class="s2"> channels&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nchan</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_nchan</span> <span class="o">=</span> <span class="n">plot_data</span>
+            <span class="k">if</span> <span class="n">_nchan</span> <span class="o">&lt;</span> <span class="n">nchan</span><span class="p">:</span>                    
+                <span class="n">nchan</span> <span class="o">=</span> <span class="n">_nchan</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;plotting first </span><span class="si">{}</span><span class="s2"> channels&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nchan</span><span class="p">))</span>
+                       
+        <span class="n">ax</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ax0</span> <span class="o">=</span> <span class="kc">None</span>
+                           
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncol</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">chn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nchan</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;one_plot&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">one_plot</span><span class="p">:</span>
+                    <span class="n">axkey</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chn</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">overlay_plot</span> <span class="k">else</span> <span class="n">col</span><span class="p">)</span>                    
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">overlay_plot</span> <span class="ow">or</span> <span class="n">col</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">fignum</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">overlay_plot</span> <span class="k">else</span> <span class="n">col</span><span class="p">)</span> <span class="o">+</span> <span class="n">chn</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">overlay_plot</span> <span class="k">else</span> <span class="n">ncol</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;calling plt.subplot(</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">overlay_plot</span> <span class="k">else</span> <span class="n">ncol</span> <span class="p">,</span> <span class="n">fignum</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">ax0</span><span class="p">:</span>                           
+                            <span class="n">ax</span><span class="p">[</span><span class="n">axkey</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">overlay_plot</span> <span class="k">else</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">fignum</span><span class="p">)</span>                        
+                            <span class="n">ax0</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="n">axkey</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ax</span><span class="p">[</span><span class="n">axkey</span><span class="p">]</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">overlay_plot</span> <span class="k">else</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">fignum</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax0</span><span class="p">)</span> 
+                <span class="n">_label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">chn</span><span class="p">])</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> shot </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">plot_data</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">chan2volts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">chn</span><span class="p">],</span> <span class="n">chx</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">chn</span><span class="p">])</span>                    
+                    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Volts&quot;</span><span class="p">)</span>  
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ax[</span><span class="si">{}</span><span class="s2">].plot( ... label=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">axkey</span><span class="p">,</span> <span class="n">_label</span><span class="p">))</span>  
+                    <span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="n">axkey</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">_label</span><span class="p">)</span>                            
+                    <span class="n">ax</span><span class="p">[</span><span class="n">axkey</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>            
+<span class="c1">#                elif plot_data == 2:</span>
+<span class="c1">#                    tb = self.uuts[0].read_transient_timebase(args.post+args.pre, args.pre)</span>
+<span class="c1">#                    plt.xlabel(&quot;time [S]&quot;)</span>
+<span class="c1">#                    plt.ylabel(&quot;Volts&quot;)                        </span>
+<span class="c1">#                    line, = ax[axkey].plot(tb, self.uuts[col].chan2volts(self.cmap[col][chn], chx[col][chn]), label=_label)</span>
+<span class="c1">#                    plt.legend()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span>                           
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">chn</span><span class="p">])</span>
+                    
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+                
+<div class="viewcode-block" id="ShotControllerWithDataHandler.handle_data"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler.handle_data">[docs]</a>    <span class="k">def</span> <span class="nf">handle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;INFO: Shotcontroller.handle_data() </span><span class="si">{}</span><span class="s2"> data valid: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">data_valid</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+            <span class="n">shotdir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">save_data</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">increment_shot</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">save_data</span> <span class="o">=</span> <span class="n">shotdir</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">trace_upload</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">chx</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">nchan</span><span class="p">,</span> <span class="n">nsam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_channels</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">channels</span><span class="p">))</span>
+
+
+        
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">plot_data</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">plot_data</span><span class="p">),</span> <span class="n">chx</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">nchan</span><span class="p">,</span> <span class="n">nsam</span><span class="p">)</span> </div>
+        
+
+
+
+<div class="viewcode-block" id="ShotControllerWithDataHandler.save_data_init"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler.save_data_init">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_data_init</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">save_data</span><span class="p">):</span>
+        <span class="n">save_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">save_data</span><span class="p">)</span>        <span class="c1"># ignore shot formatter</span>
+        <span class="k">if</span> <span class="n">save_root</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_root</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">exception</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EEXIST</span><span class="p">:</span>
+                    <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">save_root</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+
+        <span class="n">args</span><span class="o">.</span><span class="n">shotfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/SHOT&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">save_root</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shotfile</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shotfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">sf</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sf</span><span class="p">:</span>
+                    <span class="n">args</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shotfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">sf</span><span class="p">:</span>
+                <span class="n">sf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shot</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ShotControllerWithDataHandler.increment_shot"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler.increment_shot">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">increment_shot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shotfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">sf</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sf</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">shot</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shotfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">sf</span><span class="p">:</span>
+                <span class="n">sf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">shot</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">shot</span></div>
+
+<div class="viewcode-block" id="ShotControllerWithDataHandler.run_shot"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler.run_shot">[docs]</a>    <span class="k">def</span> <span class="nf">run_shot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soft_trigger</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">acq1014_ext_trigger</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">remote_trigger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run_shot</span><span class="p">(</span><span class="n">soft_trigger</span><span class="p">,</span> <span class="n">acq1014_ext_trigger</span><span class="p">,</span> <span class="n">remote_trigger</span><span class="p">)</span>            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">save_data</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">plot_data</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">handle_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ShotControllerWithDataHandler.__init__"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_uuts</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">shot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ShotController</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_uuts</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_data_init</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">save_data</span><span class="p">)</span></div></div>
+
+<span class="n">SAVEDATA</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SAVEDATA&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">PLOTDATA</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PLOTDATA&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">TRACE_UPLOAD</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TRACE_UPLOAD&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span>
+<span class="n">CHANNELS</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CHANNELS&quot;</span><span class="p">,</span> <span class="s2">&quot;()&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ShotControllerUI"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerUI">[docs]</a><span class="k">class</span> <span class="nc">ShotControllerUI</span><span class="p">:</span>
+<div class="viewcode-block" id="ShotControllerUI.add_args"><a class="viewcode-back" href="../../acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerUI.add_args">[docs]</a>        <span class="nd">@staticmethod</span>
+        <span class="k">def</span> <span class="nf">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--save_data&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">SAVEDATA</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;store data to specified directory, suffix </span><span class="si">{}</span><span class="s2"> for shot #&quot;</span><span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plot_data&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">PLOTDATA</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;0: plot data, all channels. N: first N, -N: first N, all one plot&quot;</span><span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--one_plot&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: plot data&quot;</span><span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--trace_upload&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">TRACE_UPLOAD</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: verbose upload&quot;</span><span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--channels&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">CHANNELS</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;comma separated channel list&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

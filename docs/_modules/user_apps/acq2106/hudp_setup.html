@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq2106.hudp_setup &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq2106.hudp_setup</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq2106.hudp_setup</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot; hudp_setup.py : configure Hardware UDP </span>
+
+<span class="sd">hudp_setup.py [opts] TXUUT RXUUT</span>
+
+<span class="sd">sets up a one way transfer from TXUUT to RXUUT</span>
+
+<span class="sd">Increasing spp reduces the packet rate per sample, potentially enabling a higher sample rate (do NOT exceed MTU 1400 bytes)</span>
+
+<span class="sd">Increasing decimation reduces the packet rate, suitable for spp=1 low latency control, while full rate data flows to DRAM for archive</span>
+
+<span class="sd">The DISCOntinuity check is a packet data checker. </span>
+
+<span class="sd">Typically, the TX data comes from ACQ2106 with SPAD enabled, and the DISCO index is SPAD[0], sample ramp.</span>
+
+<span class="sd">If either TXUUT or RXUUT is NOT an ACQ2106, or has already been configured for one direction, specify &quot;none&quot;</span>
+
+
+<span class="sd">Examples:</span>
+
+<span class="sd">Send data from UUT acq2106_363 at tx_ip ip 10.12.198.128 to UUT acq2106_364 at rx_ip=10.12.198.129::</span>
+
+<span class="sd">    ./user_apps/acq2106/hudp_setup.py --rx_ip=10.12.198.128 --tx_ip 10.12.198.129 --run0=&#39;1 1,16,0&#39; --play0=&#39;1 16&#39; acq2106_363 acq2106_364</span>
+
+<span class="sd">Send data from UUT acq2106_363 at tx_ip ip 10.12.198.128 to non-HUDP destination rx_ip=10.12.198.254::</span>
+
+<span class="sd">    ./user_apps/acq2106/hudp_setup.py --rx_ip=10.12.198.254 --tx_ip 10.12.198.128 --run0=&#39;1 1,16,0&#39; acq2106_363 none</span>
+
+<span class="sd">Send data from non-HUDP source at tx_ip 10.12.198.254 to UUT acq2106_363 at rx_ip  10.12.198.128::</span>
+
+<span class="sd">    ./user_apps/acq2106/hudp_setup.py --rx_ip=10.12.198.128 --tx_ip 10.12.198.254 --play0=&#39;1 16&#39; none acq2106_363</span>
+
+<span class="sd">In all cases,</span>
+
+<span class="sd">for UUT Tx, run0 specifies data from site1 followed by a 16 column ScratchPAD.</span>
+
+<span class="sd">for UUT Rx, play0 specifues datas to site1 followed by a 16 column TrashCAN.</span>
+
+<span class="sd">This allows, for example a 32 channel, 16 bit ADC to play data direct to a 32 channel DAC, </span>
+<span class="sd">including instrumentation that could be checked with --disco=16 (SPAD[0] at offset 16 LW)</span>
+
+
+<span class="sd">::</span>
+
+<span class="sd">    [pgm@hoy5 acq400_hapi]$ cat /home/pgm/PROJECTS/ACQ400/ACQ420FMC/NOTES/HUDPDEMO.txt</span>
+<span class="sd">    #!/bin/bash</span>
+<span class="sd">    set -x</span>
+<span class="sd">    TX1=${TX1:-acq2106_189} </span>
+<span class="sd">    RX1=${RX1:-acq2106_274}</span>
+<span class="sd">    RX2=${RX2:-acq2106_130}</span>
+<span class="sd">    IP_TX1=${IP_TX1:-10.12.198.128}</span>
+<span class="sd">    IP_RX1=${IP_RX1:-10.12.198.129}</span>
+<span class="sd">    IP_RX2=${IP_RX2:-10.12.198.130}</span>
+
+<span class="sd">    echo HUDP Demo TX1:$TX1,$IP_TX1 RX1:$RX1,$IP_RX1 RX2:$RX2,$IP_RX2</span>
+<span class="sd">    echo set clk/trg</span>
+<span class="sd">    ./user_apps/acq400/sync_role.py --fin=50k --fclk=50k --si5326_bypass 1 --toprole=fpmaster,strg acq2106_189</span>
+<span class="sd">    echo &#39;UNICAST -&gt;&#39; $RX1</span>
+<span class="sd">    ./user_apps/acq2106/hudp_setup.py --tx_ip $IP_TX1 --rx_ip $IP_RX1 --broadcast=0 $TX1 $RX1</span>
+<span class="sd">    read continue</span>
+<span class="sd">    echo &#39;UNICAST -&gt;&#39; $RX2</span>
+<span class="sd">    ./user_apps/acq2106/hudp_setup.py --tx_ip $IP_TX1 --rx_ip $IP_RX2 --broadcast=0 $TX1 $RX2</span>
+<span class="sd">    echo &#39;BROADCAST -&gt;&#39; $RX1 $RX2 and naboo</span>
+<span class="sd">    ./user_apps/acq2106/hudp_setup.py --tx_ip $IP_TX1 --rx_ip $IP_RX1 --broadcast=1 $TX1 $RX1</span>
+<span class="sd">    ./user_apps/acq2106/hudp_setup.py --tx_ip $IP_TX1 --rx_ip $IP_RX2 --broadcast=1 $TX1 $RX2</span>
+
+<span class="sd">.. rst-class:: hidden</span>
+
+<span class="sd">    usage: hudp_setup.py [-h] [--netmask NETMASK] [--tx_ip TX_IP] [--rx_ip RX_IP] [--gw GW] [--port PORT] [--run0 RUN0] </span>
+<span class="sd">                        [--play0 PLAY0] [--broadcast BROADCAST] [--disco DISCO] [--spp SPP]</span>
+<span class="sd">                        [--hudp_decim HUDP_DECIM]</span>
+<span class="sd">                        txuut rxuut</span>
+
+<span class="sd">    hudp_setup</span>
+
+<span class="sd">    positional arguments:</span>
+<span class="sd">    txuut                 transmit uut</span>
+<span class="sd">    rxuut                 transmit uut</span>
+
+<span class="sd">    options:</span>
+<span class="sd">    -h, --help            show this help message and exit</span>
+<span class="sd">    --netmask NETMASK     netmask (default: 255.255.255.0)</span>
+<span class="sd">    --tx_ip TX_IP         tx ip address (default: 10.12.198.128)</span>
+<span class="sd">    --rx_ip RX_IP         rx ip address (default: 10.12.198.129)</span>
+<span class="sd">    --gw GW               gateway (default: 10.12.198.1)</span>
+<span class="sd">    --port PORT           port (default: 53676)</span>
+<span class="sd">    --run0 RUN0           set tx sites+spad (default: 1 1,16,0)</span>
+<span class="sd">    --play0 PLAY0         set rx sites+spad (default: 1 16)</span>
+<span class="sd">    --broadcast BROADCAST  broadcast the data (default: 0)</span>
+<span class="sd">    --disco DISCO         enable discontinuity check at index x (default: None)</span>
+<span class="sd">    --spp SPP             samples per packet (default: 1) </span>
+<span class="sd">    --hudp_decim HUDP_DECIM  hudp decimation, 1..16 (default: 1)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">future</span> <span class="kn">import</span> <span class="n">builtins</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">input</span>
+
+<div class="viewcode-block" id="hudp_init"><a class="viewcode-back" href="../../../user_apps.acq2106.hudp_setup.html#user_apps.acq2106.hudp_setup.hudp_init">[docs]</a><span class="k">def</span> <span class="nf">hudp_init</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">ip</span><span class="p">):</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">tx_ctrl</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">ip</span> <span class="o">=</span> <span class="n">ip</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">gw</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">gw</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">netmask</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">netmask</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">disco</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;enable disco at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">disco</span><span class="p">))</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">disco_idx</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">disco</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">disco_en</span>  <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">disco_en</span> <span class="o">=</span> <span class="mi">0</span></div>
+    
+<div class="viewcode-block" id="hudp_enable"><a class="viewcode-back" href="../../../user_apps.acq2106.hudp_setup.html#user_apps.acq2106.hudp_setup.hudp_enable">[docs]</a><span class="k">def</span> <span class="nf">hudp_enable</span><span class="p">(</span><span class="n">uut</span><span class="p">):</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">tx_ctrl</span> <span class="o">=</span> <span class="mi">1</span></div>
+    
+<div class="viewcode-block" id="ip_broadcast"><a class="viewcode-back" href="../../../user_apps.acq2106.hudp_setup.html#user_apps.acq2106.hudp_setup.ip_broadcast">[docs]</a><span class="k">def</span> <span class="nf">ip_broadcast</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">ip_dest</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">rx_ip</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">nm</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">netmask</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">nm</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;0&#39;</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ip_dest</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;255&#39;</span>
+    
+    <span class="k">return</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ip_dest</span><span class="p">)</span></div>
+        
+<span class="n">MTU</span> <span class="o">=</span> <span class="mi">9038</span> <span class="o">-</span> <span class="mi">66</span>
+
+<span class="c1"># tx: XI : AI, DI       </span>
+<div class="viewcode-block" id="config_tx_uut"><a class="viewcode-back" href="../../../user_apps.acq2106.hudp_setup.html#user_apps.acq2106.hudp_setup.config_tx_uut">[docs]</a><span class="k">def</span> <span class="nf">config_tx_uut</span><span class="p">(</span><span class="n">txuut</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;txuut </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txuut</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run0</span> <span class="o">!=</span> <span class="s1">&#39;notouch&#39;</span><span class="p">:</span>
+        <span class="n">txuut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">run0</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">run0</span>
+    <span class="n">hudp_init</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">txuut</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">tx_ip</span><span class="p">)</span>
+    <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">hudp_decim</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hudp_decim</span>
+    <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">src_port</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span>
+    <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">dst_port</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span>
+    <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">dst_ip</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">rx_ip</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">broadcast</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">ip_broadcast</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">hudp_relay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">udp_data_src</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">tx_ssb</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">txuut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">dssb</span><span class="p">)</span> <span class="o">-</span> <span class="n">args</span><span class="o">.</span><span class="n">hudp_relay</span>
+        <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">slice_len</span> <span class="o">=</span> <span class="n">tx_ssb</span><span class="o">//</span><span class="mi">4</span>
+        <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">slice_off</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">hudp_relay</span><span class="o">//</span><span class="mi">4</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">udp_data_src</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tx_ssb</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">txuut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">ssb</span><span class="p">)</span>
+
+    <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">tx_sample_sz</span> <span class="o">=</span> <span class="n">tx_ssb</span>
+    <span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">tx_spp</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">spp</span>
+    <span class="n">tx_pkt_sz</span> <span class="o">=</span> <span class="n">tx_ssb</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">spp</span>                         <span class="c1"># compute tx pkt sz and check bounds</span>
+    <span class="k">if</span>  <span class="n">tx_pkt_sz</span> <span class="o">&gt;</span> <span class="n">MTU</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR packet length </span><span class="si">{}</span><span class="s2"> exceeds MTU </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tx_pkt_sz</span><span class="p">,</span> <span class="n">MTU</span><span class="p">))</span>
+    <span class="n">hudp_enable</span><span class="p">(</span><span class="n">txuut</span><span class="p">)</span>
+    <span class="n">tx_calc_pkt_sz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">txuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">tx_calc_pkt_sz</span><span class="p">)</span>      <span class="c1"># actual tx pkt sz computed by FPGA logic.</span>
+    <span class="k">if</span> <span class="n">tx_pkt_sz</span> <span class="o">!=</span> <span class="n">tx_calc_pkt_sz</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: set tx_pkt_size </span><span class="si">{}</span><span class="s2"> actual tx_pkt_size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tx_pkt_sz</span><span class="p">,</span> <span class="n">tx_calc_pkt_sz</span><span class="p">))</span>    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TX configured. ssb:</span><span class="si">{}</span><span class="s2"> spp:</span><span class="si">{}</span><span class="s2"> tx_pkt_size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tx_ssb</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">spp</span><span class="p">,</span> <span class="n">tx_pkt_sz</span><span class="p">))</span></div>
+
+<span class="c1"># rx: XO : AO, DO        </span>
+<div class="viewcode-block" id="config_rx_uut"><a class="viewcode-back" href="../../../user_apps.acq2106.hudp_setup.html#user_apps.acq2106.hudp_setup.config_rx_uut">[docs]</a><span class="k">def</span> <span class="nf">config_rx_uut</span><span class="p">(</span><span class="n">rxuut</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rxuut </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rxuut</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+       
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">play0</span> <span class="o">!=</span> <span class="s1">&#39;notouch&#39;</span><span class="p">:</span>
+        <span class="n">rxuut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">play0</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">play0</span>       
+    <span class="n">rxuut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">distributor</span> <span class="o">=</span> <span class="s1">&#39;comms=U off&#39;</span>        
+    <span class="n">rxuut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">distributor</span> <span class="o">=</span> <span class="s1">&#39;on&#39;</span>
+
+    <span class="n">hudp_init</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">rxuut</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">rx_ip</span><span class="p">)</span>
+    <span class="n">rxuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">rx_src_ip</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tx_ip</span>
+    <span class="n">rxuut</span><span class="o">.</span><span class="n">s10</span><span class="o">.</span><span class="n">rx_port</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span>
+    <span class="n">hudp_enable</span><span class="p">(</span><span class="n">rxuut</span><span class="p">)</span>    </div>
+   
+<span class="n">PCSEL</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;pc&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq2106.hudp_setup.html#user_apps.acq2106.hudp_setup.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">gw</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">gw</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">rx_ip</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">txuut</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PCSEL</span><span class="p">:</span>
+        <span class="n">config_tx_uut</span><span class="p">(</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">txuut</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">rxuut</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PCSEL</span><span class="p">:</span>
+        <span class="n">config_rx_uut</span><span class="p">(</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">rxuut</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">args</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq2106.hudp_setup.html#user_apps.acq2106.hudp_setup.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Setup HUDP for UUTs&quot;</span><span class="p">,</span> 
+                <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--netmask&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;255.255.255.0&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;netmask&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--tx_ip&quot;</span><span class="p">,</span>   <span class="n">default</span><span class="o">=</span><span class="s1">&#39;10.12.198.128&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;tx ip address&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--rx_ip&quot;</span><span class="p">,</span>   <span class="n">default</span><span class="o">=</span><span class="s1">&#39;10.12.198.129&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;rx ip address&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--gw&quot;</span><span class="p">,</span>      <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>   <span class="n">help</span><span class="o">=</span><span class="s1">&#39;gateway&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--port&quot;</span><span class="p">,</span>    <span class="n">default</span><span class="o">=</span><span class="s1">&#39;53676&#39;</span><span class="p">,</span>         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;port&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--run0&quot;</span><span class="p">,</span>    <span class="n">default</span><span class="o">=</span><span class="s1">&#39;1 1,16,0&#39;</span><span class="p">,</span>      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set tx sites+spad or notouch if set elsewhere&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--play0&quot;</span><span class="p">,</span>   <span class="n">default</span><span class="o">=</span><span class="s1">&#39;1 16&#39;</span><span class="p">,</span>          <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set rx sites+spad or notouch if set elsewhere&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--broadcast&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;broadcast the data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--disco&quot;</span><span class="p">,</span>   <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>  <span class="n">help</span><span class="o">=</span><span class="s2">&quot;enable discontinuity check at index x&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--hudp_relay&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>  <span class="n">help</span><span class="o">=</span><span class="s2">&quot;0..N: relay LLC VI out HUDP txt offset in vector&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--spp&quot;</span><span class="p">,</span>     <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;samples per packet&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--hudp_decim&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>  <span class="n">help</span><span class="o">=</span><span class="s2">&quot;hudp decimation, 1..16&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;txuut&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                     <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;transmit uut (if it&#39;s a PC, type one of </span><span class="si">{</span><span class="n">PCSEL</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;rxuut&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                     <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;rx uut (if it&#39;s a PC, type one of </span><span class="si">{</span><span class="n">PCSEL</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+    
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

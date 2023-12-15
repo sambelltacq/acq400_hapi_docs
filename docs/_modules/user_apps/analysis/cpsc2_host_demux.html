@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.cpsc2_host_demux &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.cpsc2_host_demux</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.cpsc2_host_demux</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot; host_demux.py Demux Data on HOST Computer</span>
+
+<span class="sd">  - data is stored locally, either from mgtdram/ftp or fiber-optic AFHBA404</span>
+<span class="sd">  - channelize the data</span>
+<span class="sd">  - optionally store file-per-channel</span>
+<span class="sd">  - optionally plot in pykst</span>
+<span class="sd">  - @@todo store to MDSplus as segments.</span>
+
+<span class="sd">example usage::</span>
+
+<span class="sd">    ./host_demux.py --save=DATA --nchan=32 --nblks=-1 --pchan=none acq2106_067</span>
+<span class="sd">        # load all blocks, save per channel to subdirectory DATA/data_CC.dat</span>
+
+<span class="sd">    ./host_demux.py --nchan=32 --nblks=4 --pchan=1:8 acq2106_067</span>
+<span class="sd">        # plot channels 1:8, 4 blocks</span>
+
+
+<span class="sd">    ./host_demux.py --nchan=32 --nblks=-1 --pchan=1,2 acq2106_067</span>
+<span class="sd">        # plot channels 1,2, ALL blocks</span>
+<span class="sd">        # works for 8GB data, best to LIMIT the number of channels ..</span>
+
+<span class="sd">    ./host_demux.py --nchan=96 --src=/data/ACQ400DATA/1 \</span>
+<span class="sd">        --egu=1 --xdt=2e-6 --cycle=1:4 --pchan=1:2 \</span>
+<span class="sd">        acq2106_061</span>
+<span class="sd">        # plot AFHBA404 data from PORT1</span>
+<span class="sd">        # plot egu (V vs s), specify interval, plot 4 cycles, plot 2 channels</span>
+<span class="sd">        # uut</span>
+
+<span class="sd">    use of --src</span>
+<span class="sd">        --src=/data                     # valid for FTP upload data</span>
+<span class="sd">        --src=/data/ACQ400DATA/1 	# valid for SFP data, port 1</span>
+<span class="sd">        --src=afhba.0.log               # one big raw file, eg from LLC</span>
+
+<span class="sd">    ./host_demux.py --nchan 128 --pchan 1,33,65,97 --src=/path-to/afhba.0.log acq2106_110</span>
+<span class="sd">    # plot data from LLC, 128 channels, show one &quot;channel&quot; from each site.</span>
+<span class="sd">    # 97 was actually the LSB of TLATCH.</span>
+
+<span class="sd">.. rst-class:: hidden</span>
+<span class="sd">    usage::</span>
+
+<span class="sd">        host_demux.py [-h] [--nchan NCHAN] [--nblks NBLKS] [--save SAVE]</span>
+<span class="sd">                        [--src SRC] [--pchan PCHAN]</span>
+<span class="sd">                        uut</span>
+
+<span class="sd">    host demux, host side data handling</span>
+
+<span class="sd">    positional arguments:</span>
+<span class="sd">    uut            uut</span>
+
+<span class="sd">    optional arguments:</span>
+<span class="sd">    -h, --help     show this help message and exit</span>
+<span class="sd">    --nchan NCHAN</span>
+<span class="sd">    --nblks NBLKS</span>
+<span class="sd">    --save SAVE    save channelized data to dir</span>
+<span class="sd">    --src SRC      data source root</span>
+<span class="sd">    --pchan PCHAN  channels to plot</span>
+<span class="sd">    --egu EGU      plot egu (V vs s)</span>
+<span class="sd">    --xdt XDT      0: use interval from UUT, else specify interval</span>
+<span class="sd">    --double_up    Use for ACQ480 two lines per channel mode</span>
+
+<span class="sd">if --src is a file, use it directly</span>
+<span class="sd">    dir/nnnn</span>
+<span class="sd">if --src is a directory, first check if it has cycles:</span>
+<span class="sd">    dir/NNNNN/nnnnn*</span>
+<span class="sd">else iterate files in dir</span>
+<span class="sd">    dir/nnnnn*</span>
+
+<span class="sd">TO DEMUX ON WINDOWS TO STORE CHANNELISED DATA:</span>
+<span class="sd">    python .\host_demux.py --save=1 --src=&quot;[dir]&quot; --pchan=none acq2106_114</span>
+
+<span class="sd">    Make sure that the muxed data is in D:\\[dir]\[UUT name]</span>
+
+<span class="sd">    Where [dir] is the location of the data.</span>
+
+<span class="sd">    Demuxed data will be written to D:\\demuxed\[UUT name]</span>
+
+<span class="sd">    To plot subsampled data on windows:</span>
+<span class="sd">        python .\host_demux.py --src=Projects --nchan=8 \</span>
+<span class="sd">    --pchan 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16  --plot_mpl=1:1000:1 acq2106_120</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">has_pykst</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pykst</span>
+        <span class="n">has_pykst</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: failed to import pykst, no kst plots&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="channel_required"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.channel_required">[docs]</a><span class="k">def</span> <span class="nf">channel_required</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ch</span><span class="p">):</span>
+<span class="c1">#    print(&quot;channel_required {} {}&quot;.format(ch, &#39;in&#39; if ch in args.pc_list else &#39;out&#39;, args.pc_list))</span>
+    <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">double_up</span> <span class="ow">or</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">pc_list</span></div>
+
+<div class="viewcode-block" id="create_npdata"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.create_npdata">[docs]</a><span class="k">def</span> <span class="nf">create_npdata</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">nblk</span><span class="p">,</span> <span class="n">nchn</span><span class="p">):</span>
+    <span class="n">channels</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">counter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchn</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">channel_required</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">counter</span><span class="p">):</span>
+           <span class="n">channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">nblk</span><span class="p">)</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">NSAM</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">np_data_type</span><span class="p">))</span>
+
+       <span class="k">else</span><span class="p">:</span>
+           <span class="n">channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">np_data_type</span><span class="p">))</span>
+    <span class="c1"># print &quot;length of data = &quot;, len(total_data)</span>
+    <span class="c1"># print &quot;npdata = &quot;, npdata</span>
+    <span class="k">return</span> <span class="n">channels</span></div>
+
+
+<div class="viewcode-block" id="make_cycle_list"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.make_cycle_list">[docs]</a><span class="k">def</span> <span class="nf">make_cycle_list</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cycle</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cyclist</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uutroot</span><span class="p">)</span>
+        <span class="n">cyclist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cyclist</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">cycle</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">cyclist</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;</span><span class="si">{:06d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">cycle</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">cyclist</span> <span class="o">=</span> <span class="p">[</span> <span class="n">args</span><span class="o">.</span><span class="n">cycle</span> <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cyclist</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;</span><span class="si">{:06d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">cycle</span><span class="p">))</span> <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">cyclist</span></div>
+
+<div class="viewcode-block" id="get_file_names"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.get_file_names">[docs]</a><span class="k">def</span> <span class="nf">get_file_names</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">fnlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="c1"># matches BOTH 0.?? for AFHBA an 0000 for FTP</span>
+    <span class="n">datapat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;[.0-9]</span><span class="si">{4}</span><span class="s1">$&#39;</span><span class="p">)</span>
+    <span class="n">has_cycles</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">make_cycle_list</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cycle</span> <span class="o">==</span> <span class="s2">&quot;err.log&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">uutroot</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uutroot</span><span class="p">,</span> <span class="n">cycle</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">)</span>
+            <span class="n">ls</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">uutroot</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;uutroot = &quot;</span><span class="p">,</span> <span class="n">uutroot</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">uutroot</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">uutroot</span>
+            <span class="n">ls</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">uutroot</span><span class="p">)</span>
+            <span class="n">has_cycles</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ls</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">datapat</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+                <span class="n">fnlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uutroot</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no match </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_cycles</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">fnlist</span></div>
+
+<div class="viewcode-block" id="read_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.read_data">[docs]</a><span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">NCHAN</span><span class="p">):</span>
+    <span class="c1"># global NSAM</span>
+    <span class="n">data_files</span> <span class="o">=</span> <span class="n">get_file_names</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_files</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">NCHAN</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;collect in groups of 3 to keep alignment&quot;</span><span class="p">)</span>
+        <span class="n">GROUP</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">GROUP</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">NSAM</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">NSAM</span> <span class="o">=</span> <span class="n">GROUP</span><span class="o">*</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">data_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">args</span><span class="o">.</span><span class="n">WSIZE</span><span class="o">/</span><span class="n">NCHAN</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NSAM set </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">NSAM</span><span class="p">))</span>
+
+    <span class="n">NBLK</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_files</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">nblks</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">NBLK</span> <span class="o">&gt;</span> <span class="n">args</span><span class="o">.</span><span class="n">nblks</span><span class="p">:</span>
+        <span class="n">NBLK</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">nblks</span>
+        <span class="n">data_files</span> <span class="o">=</span> <span class="p">[</span> <span class="n">data_files</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">NBLK</span><span class="p">)</span> <span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NBLK </span><span class="si">{}</span><span class="s2"> NBLK/GROUP </span><span class="si">{}</span><span class="s2"> NCHAN </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NBLK</span><span class="p">,</span> <span class="n">NBLK</span><span class="o">/</span><span class="n">GROUP</span><span class="p">,</span> <span class="n">NCHAN</span><span class="p">))</span>
+
+    <span class="n">raw_channels</span> <span class="o">=</span> <span class="n">create_npdata</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">NBLK</span><span class="o">/</span><span class="n">GROUP</span><span class="p">,</span> <span class="n">NCHAN</span><span class="p">)</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">i0</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">iblock</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">blknum</span><span class="p">,</span> <span class="n">blkfile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_files</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">blocks</span> <span class="o">&gt;=</span> <span class="n">NBLK</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">blkfile</span> <span class="o">!=</span> <span class="s2">&quot;analysis.py&quot;</span> <span class="ow">and</span> <span class="n">blkfile</span> <span class="o">!=</span> <span class="s2">&quot;root&quot;</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="n">blkfile</span><span class="p">,</span> <span class="n">blknum</span><span class="p">)</span>
+            <span class="c1"># concatenate 3 blocks to ensure modulo 3 channel align</span>
+            <span class="k">if</span> <span class="n">iblock</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">blkfile</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">np_data_type</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">blkfile</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">np_data_type</span><span class="p">))</span>
+
+
+
+            <span class="n">iblock</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">iblock</span> <span class="o">&lt;</span> <span class="n">GROUP</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">i1</span> <span class="o">=</span> <span class="n">i0</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">NSAM</span>
+            <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NCHAN</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">channel_required</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ch</span><span class="p">):</span>
+                    <span class="n">raw_channels</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="n">i0</span><span class="p">:</span><span class="n">i1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ch</span><span class="p">::</span><span class="n">NCHAN</span><span class="p">])</span>
+                <span class="c1"># print x</span>
+            <span class="n">i0</span> <span class="o">=</span> <span class="n">i1</span>
+            <span class="n">blocks</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">iblock</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;length of data = &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;length of data[0] = &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;length of data[1] = &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">raw_channels</span></div>
+
+<div class="viewcode-block" id="read_data_file"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.read_data_file">[docs]</a><span class="k">def</span> <span class="nf">read_data_file</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">NCHAN</span><span class="p">):</span>
+    <span class="c1"># NCHAN = args.nchan</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">np_data_type</span><span class="p">)</span>
+
+    <span class="n">nsam</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">/</span><span class="n">NCHAN</span>
+    <span class="n">raw_channels</span> <span class="o">=</span> <span class="n">create_npdata</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">nsam</span><span class="p">,</span> <span class="n">NCHAN</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NCHAN</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">channel_required</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ch</span><span class="p">):</span>
+            <span class="n">raw_channels</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">ch</span><span class="p">::</span><span class="n">NCHAN</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">raw_channels</span></div>
+
+<div class="viewcode-block" id="save_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.save_data">[docs]</a><span class="k">def</span> <span class="nf">save_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span> <span class="c1"># if system is windows.</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:</span><span class="se">\\</span><span class="s1">demuxed\</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">drive_letter</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># raw string literal so we can use \ in path.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">saveroot</span> <span class="o">=</span> <span class="n">path</span> <span class="c1"># set args.saveroot to windows style dir.</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;mkdir&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">saveroot</span><span class="p">])</span>
+
+    <span class="n">uutname</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">enum</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">):</span>
+        <span class="n">data_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">_</span><span class="si">{:02d}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">saveroot</span><span class="p">,</span> <span class="n">uutname</span><span class="p">,</span> <span class="n">enum</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;wb+&quot;</span><span class="p">)</span>
+        <span class="n">channel</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;data saved to directory: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">saveroot</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/format&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">saveroot</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fmt</span><span class="p">:</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# dirfile format file for </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uutname</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">enum</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">):</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{:02d}</span><span class="s2">.dat RAW s 1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uutname</span><span class="p">,</span> <span class="n">enum</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">raw_channels</span></div>
+
+<div class="viewcode-block" id="decode_dac_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.decode_dac_data">[docs]</a><span class="k">def</span> <span class="nf">decode_dac_data</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">left_shift</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="decode_pass"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.decode_pass">[docs]</a><span class="k">def</span> <span class="nf">decode_pass</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="ColumnHandler"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.ColumnHandler">[docs]</a><span class="k">class</span> <span class="nc">ColumnHandler</span><span class="p">:</span>
+<div class="viewcode-block" id="ColumnHandler.__init__"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.ColumnHandler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span></div>
+<div class="viewcode-block" id="ColumnHandler.decode"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.ColumnHandler.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+<div class="viewcode-block" id="ColumnHandler.title"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.ColumnHandler.title">[docs]</a>    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">)</span></div>
+<div class="viewcode-block" id="ColumnHandler.tostr"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.ColumnHandler.tostr">[docs]</a>    <span class="k">def</span> <span class="nf">tostr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">)</span></div></div>
+        
+
+<div class="viewcode-block" id="PacketID_ColumnHandler"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.PacketID_ColumnHandler">[docs]</a><span class="k">class</span> <span class="nc">PacketID_ColumnHandler</span><span class="p">(</span><span class="n">ColumnHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="PacketID_ColumnHandler.__init__"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.PacketID_ColumnHandler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Packet ID </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="Payload_ColumnHandler"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.Payload_ColumnHandler">[docs]</a><span class="k">class</span> <span class="nc">Payload_ColumnHandler</span><span class="p">(</span><span class="n">ColumnHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="Payload_ColumnHandler.__init__"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.Payload_ColumnHandler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">ch</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Packet Payload </span><span class="si">{}</span><span class="s2"> ch&quot;</span><span class="o">+</span><span class="s2">&quot;</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; ID </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Payload_ColumnHandler.decode"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.Payload_ColumnHandler.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">decode_dac_data</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Payload_ColumnHandler.title"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.Payload_ColumnHandler.title">[docs]</a>    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">right_shift</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span></div>
+<div class="viewcode-block" id="Payload_ColumnHandler.tostr"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.Payload_ColumnHandler.tostr">[docs]</a>    <span class="k">def</span> <span class="nf">tostr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">)</span></div></div>
+
+    
+    
+
+<span class="n">columns</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="add_titlebox"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.add_titlebox">[docs]</a><span class="k">def</span> <span class="nf">add_titlebox</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">.85</span><span class="p">,</span> <span class="mf">.6</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span>
+        <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">),</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mf">12.5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="make_columns"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.make_columns">[docs]</a><span class="k">def</span> <span class="nf">make_columns</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">columns</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;ADC I </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ch</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">16</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;ADC V </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ch</span><span class="o">%</span><span class="mi">8</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">24</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;ADC T1 </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ch</span><span class="o">%</span><span class="mi">8</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="mi">32</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;ADC T2 </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ch</span><span class="o">%</span><span class="mi">8</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">8</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="n">ch</span><span class="o">+</span><span class="mi">32</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;SUM </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ch</span><span class="o">%</span><span class="mi">8</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">columns</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">=</span> <span class="n">PacketID_ColumnHandler</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="mi">41</span><span class="o">+</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">Payload_ColumnHandler</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ch</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">columns</span><span class="p">[</span><span class="mi">51</span><span class="p">]</span> <span class="o">=</span> <span class="n">PacketID_ColumnHandler</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="mi">52</span><span class="o">+</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">Payload_ColumnHandler</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">ch</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">columns</span><span class="p">[</span><span class="mi">62</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;FLAGS </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">columns</span><span class="p">[</span><span class="mi">63</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;FLAGS </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="mi">80</span><span class="p">):</span>
+        <span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnHandler</span><span class="p">(</span><span class="s2">&quot;SPAD</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="o">-</span><span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;COUNT&quot;</span> <span class="k">if</span> <span class="n">col</span><span class="o">-</span><span class="mi">64</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">col</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="show_columns"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.show_columns">[docs]</a><span class="k">def</span> <span class="nf">show_columns</span><span class="p">():</span>    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:10}</span><span class="s2"> </span><span class="si">{:10}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;ID1&quot;</span><span class="p">,</span> <span class="s2">&quot;Offset&quot;</span><span class="p">,</span> <span class="s2">&quot;Description&quot;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:8}{:02d}</span><span class="s2"> </span><span class="si">{:8}{:02d}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="o">.</span><span class="n">tostr</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="plot_mpl"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.plot_mpl">[docs]</a><span class="k">def</span> <span class="nf">plot_mpl</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">columns</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Plotting with MatPlotLib. Subrate = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">step</span><span class="p">))</span>
+    <span class="c1">#real_len = len(raw_channels[0]) # this is the real length of the channel data</span>
+    <span class="n">num_of_ch</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pc_list</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">plots</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num_of_ch</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pc_list</span><span class="p">):</span>
+        <span class="n">plots</span><span class="p">[</span><span class="n">num</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="n">args</span><span class="o">.</span><span class="n">start</span><span class="p">:</span><span class="n">args</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span><span class="n">args</span><span class="o">.</span><span class="n">step</span><span class="p">]))</span>
+        <span class="n">add_titlebox</span><span class="p">(</span><span class="n">plots</span><span class="p">[</span><span class="n">num</span><span class="p">],</span> <span class="s2">&quot;col </span><span class="si">{:2d}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="n">args</span><span class="o">.</span><span class="n">start</span><span class="p">])))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="plot_data_kst"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.plot_data_kst">[docs]</a><span class="k">def</span> <span class="nf">plot_data_kst</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">):</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">pykst</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s2">&quot;NumpyVector&quot;</span><span class="p">)</span>
+    <span class="n">llen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">egu</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">xdt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING ##### NO CLOCK RATE PROVIDED. TIME SCALE measured by system.&quot;</span><span class="p">)</span>
+            <span class="n">raw_input</span><span class="p">(</span><span class="s2">&quot;Please press enter if you want to continue with innacurate time base.&quot;</span><span class="p">)</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">the_uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_CLK_S1_FREQ</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">llen</span><span class="o">/</span><span class="n">time1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">llen</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">llen</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">xdt</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">llen</span><span class="p">)</span>
+        <span class="n">xname</span><span class="o">=</span> <span class="s1">&#39;time&#39;</span>
+        <span class="n">yu</span> <span class="o">=</span> <span class="s1">&#39;V&#39;</span>
+        <span class="n">xu</span> <span class="o">=</span> <span class="s1">&#39;s&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xname</span> <span class="o">=</span> <span class="s1">&#39;idx&#39;</span>
+        <span class="n">yu</span> <span class="o">=</span> <span class="s1">&#39;code&#39;</span>
+        <span class="n">xu</span> <span class="o">=</span> <span class="s1">&#39;sample&#39;</span>
+        <span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">llen</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="n">V1</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">new_editable_vector</span><span class="p">(</span><span class="n">xdata</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">xname</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">pc_list</span><span class="p">]:</span>
+        <span class="n">channel</span> <span class="o">=</span> <span class="n">raw_channels</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span>
+        <span class="n">ch1</span> <span class="o">=</span> <span class="n">ch</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">yu1</span> <span class="o">=</span> <span class="n">yu</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">egu</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># chan2volts ch index from 1:</span>
+                <span class="n">channel</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">the_uut</span><span class="o">.</span><span class="n">chan2volts</span><span class="p">(</span><span class="n">ch1</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="n">yu1</span> <span class="o">=</span> <span class="s1">&#39;code&#39;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: no calibration for CH</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch1</span><span class="p">))</span>
+
+        <span class="c1"># label 1.. (human)</span>
+        <span class="n">V2</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">new_editable_vector</span><span class="p">(</span><span class="n">channel</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:CH</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">ch1</span><span class="p">))</span>
+        <span class="n">c1</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">new_curve</span><span class="p">(</span><span class="n">V1</span><span class="p">,</span> <span class="n">V2</span><span class="p">)</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">new_plot</span><span class="p">()</span>
+        <span class="n">p1</span><span class="o">.</span><span class="n">set_left_label</span><span class="p">(</span><span class="n">yu1</span><span class="p">)</span>
+        <span class="n">p1</span><span class="o">.</span><span class="n">set_bottom_label</span><span class="p">(</span><span class="n">xu</span><span class="p">)</span>
+        <span class="n">p1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.plot_data">[docs]</a><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">plot_mpl</span><span class="p">:</span>
+        <span class="c1"># if arg set then plot with matplotlib instead.</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span>  <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">plot_mpl</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+
+        <span class="n">plot_mpl</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">has_pykst</span><span class="p">:</span>
+        <span class="n">plot_data_kst</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SORRY, kst automation via pykst not available. Please install pykst, or use kst DirFile importer&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="process_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.process_data">[docs]</a><span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">NCHAN</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">double_up</span><span class="p">:</span>
+        <span class="n">NCHAN</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;nchan = &quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">)</span>
+
+    <span class="n">raw_data</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">NCHAN</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">)</span> <span class="k">else</span> <span class="n">read_data_file</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">NCHAN</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">double_up</span><span class="p">:</span>
+       <span class="n">raw_data</span> <span class="o">=</span> <span class="n">double_up</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">save_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pc_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="make_pc_list"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.make_pc_list">[docs]</a><span class="k">def</span> <span class="nf">make_pc_list</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="c1"># ch in 1.. (human)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pchan</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pchan</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pchan</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pchan</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">lr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">lr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">x2</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="o">+</span><span class="mi">1</span> <span class="k">if</span> <span class="n">lr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">lr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">pchan</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">WSIZE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">NSAM</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">np_data_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">WSIZE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">np_data_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">WSIZE</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>  <span class="c1"># do this if windows system.</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">uutroot</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:\</span><span class="si">{}</span><span class="s2">\</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">drive_letter</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">):</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">uutroot</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;uutroot </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uutroot</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">):</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">uutroot</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">src</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">saveroot</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">saveroot</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uutroot</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span><span class="p">)</span>
+
+    <span class="c1"># ch 0.. (comp)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">pc_list</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">make_pc_list</span><span class="p">(</span><span class="n">args</span><span class="p">)]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;args.pc_list </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pc_list</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">egu</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;get egu from UUT </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">egu</span><span class="p">))</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">the_uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq2106</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">egu</span><span class="p">)</span>
+
+    <span class="n">make_columns</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">show_columns</span><span class="p">:</span>
+        <span class="n">show_columns</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">process_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_host_demux.html#user_apps.analysis.cpsc2_host_demux.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;CPSC2 host demux and plot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nchan&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nblks&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--save&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;save channelized data to dir&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--src&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;/data&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;data source root&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--cycle&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;cycle from rtm-t-stream-disk&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pchan&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;channels to plot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--egu&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;plot egu (V vs s) .. --egu UUT&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--xdt&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;0: use interval from UUT, else specify interval &#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--data_type&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Use int16 or int32 for data demux.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--double_up&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Use for ACQ480 two lines per channel mode&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plot_mpl&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1:1000:1&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Use MatPlotLib to plot subrate data args: start:stop[:step]&#39;</span><span class="p">)</span>    
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--drive_letter&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Which drive letter to use when on windows.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--show_columns&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

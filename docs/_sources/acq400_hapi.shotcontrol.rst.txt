@@ -1,0 +1,15 @@
+shotcontrol
+===========
+
+
+
+
+
+
+
+.. automodule:: acq400_hapi.shotcontrol
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

@@ -1,0 +1,25 @@
+bigplot\_dirfile
+================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.bigplot_dirfile.get_parser
+      :prog: bigplot_dirfile.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.bigplot_dirfile
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

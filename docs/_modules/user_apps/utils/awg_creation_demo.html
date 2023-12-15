@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.utils.awg_creation_demo &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.utils.awg_creation_demo</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.utils.awg_creation_demo</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This script will generate a binary file that can be used to output a waveform on D-TACQ AO modules.</span>
+
+<span class="sd">To have the UUT output a single sample the file should have 32 int16s ie (CH1 CH2 ... CH32) where the value for each</span>
+<span class="sd">channel can be different (they will not be different for this example). The user can extend this to as many samples as</span>
+<span class="sd">necessary and to any value necessary i.e the values do not need to be the same across channels (channel 1 could be a</span>
+<span class="sd">sine wave, channel 2 could be a sinc wave etc).</span>
+
+<span class="sd">In this script we are outputting the same identical sine wave across all 32 channels for nsam number of samples.</span>
+<span class="sd">There is also an argument called even_ch_to_zeros that, if set, will set all of the even channels to zero to illustrate</span>
+<span class="sd">how the channels are ordered.</span>
+
+<span class="sd">Example usage:</span>
+
+<span class="sd">To create the default file::</span>
+
+<span class="sd">    python awg_creation_demo.py</span>
+
+<span class="sd">To create binary file with even channels set to 0 and a wave size of 3000 samples::</span>
+
+<span class="sd">    python awg_creation_demo.py --nsam=3000 --even_ch_to_zeros=1</span>
+
+<span class="sd">To upload awg files once it has been generated use the following python script::</span>
+
+<span class="sd">    python acq1001_awg_demo.py --files=&quot;../acq400/waves/example_awg&quot; --capture=1 --awglen=&lt;awg_length&gt; &lt;UUT name&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+
+<div class="viewcode-block" id="create_array"><a class="viewcode-back" href="../../../user_apps.utils.awg_creation_demo.html#user_apps.utils.awg_creation_demo.create_array">[docs]</a><span class="k">def</span> <span class="nf">create_array</span><span class="p">(</span><span class="n">nsam</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+
+    <span class="c1"># function that creates an array with nsam * nchan elements</span>
+
+    <span class="c1"># Firstly, an array containing a sine wave is generated. This is entirely arbitrary and is meant to demonstrate a</span>
+    <span class="c1"># waveform being generated. We scale the sine wave by 32767 because the DACs are 16 bit.</span>
+    <span class="c1"># DAC codes valid in range -32768 to 32767. If the UUT gets a code of 32768 the output will just saturate. Also</span>
+    <span class="c1"># be aware that the astype(np.int16) function used below will wrap back to -32768 if a number larger than 32767 is</span>
+    <span class="c1"># used. The same goes for numbers &lt; -32768: they wrap up to 32767.</span>
+
+    <span class="n">limit</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">w</span> 
+    <span class="n">fxn</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">limit</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">limit</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">nsam</span><span class="p">))</span> <span class="c1"># Creates sine wave</span>
+    <span class="n">fxn</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">fxn</span> <span class="c1"># Scales the sine wave to 16 bit</span>
+    <span class="n">fxn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">fxn</span><span class="p">)</span> <span class="c1"># round the sine wave to integers</span>
+
+    <span class="c1"># An empty list is created that will eventually contain our waveform</span>
+    <span class="n">waveform</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># For every point in the sine wave: duplicate it nchan times (one value for each one of the channels)</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">fxn</span><span class="p">:</span>
+        <span class="n">waveform</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="o">*</span><span class="p">[</span><span class="n">num</span><span class="p">])</span> <span class="c1"># extends the single value taken from the sine wave data across 32 channels.</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">even_ch_to_zeros</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># if this argument is chosen then all of the even channels will be set to 0.</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">waveform</span><span class="p">):</span> <span class="c1"># loop over all of the channels in order</span>
+
+            <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if the index of that channel is odd then set it to 0.</span>
+                               <span class="c1"># We check for odd channels here because in python we index from 0, whereas real</span>
+                               <span class="c1"># channels are indexed from 1.</span>
+
+                <span class="n">waveform</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Here we set the value of the &quot;even&quot; channel to 0.</span>
+
+    <span class="c1"># change waveform into a numpy array so we can use numpy functions on it.</span>
+    <span class="n">waveform</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+
+    <span class="c1"># We then ensure that the waveforms points are of type int16. This is important as the UUT requires the data type</span>
+    <span class="c1"># to be int16.</span>
+    <span class="n">waveform</span> <span class="o">=</span> <span class="n">waveform</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">waveform</span></div>
+
+
+<div class="viewcode-block" id="generate_awg"><a class="viewcode-back" href="../../../user_apps.utils.awg_creation_demo.html#user_apps.utils.awg_creation_demo.generate_awg">[docs]</a><span class="k">def</span> <span class="nf">generate_awg</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">waveform</span> <span class="o">=</span> <span class="n">create_array</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">nsam</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">fn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">outfn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}{}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span> 
+        <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">w</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">w</span><span class="p">)),</span> 
+        <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nsam</span><span class="p">,</span> 
+        <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">scale</span><span class="o">==</span><span class="mi">32767</span> <span class="k">else</span> <span class="s2">&quot;-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;generate output file </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outfn</span><span class="p">))</span>
+    <span class="n">waveform</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">outfn</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.utils.awg_creation_demo.html#user_apps.utils.awg_creation_demo.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ds</span><span class="o">==</span><span class="mi">16</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+    <span class="n">generate_awg</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.utils.awg_creation_demo.html#user_apps.utils.awg_creation_demo.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;generate awg waveform&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--fn&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;np.sin&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generator function default:np.sin()&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--w&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Angular frequency&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nsam&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">30000</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Size of wave to generate.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nchan&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of channels in AO module.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--even_ch_to_zeros&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Whether to set even channels to zero.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dir&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;waves&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Location to save files&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--scale&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32767</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Raw Scale Factor&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ds&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Data size in bits&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

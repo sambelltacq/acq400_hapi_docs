@@ -1,0 +1,25 @@
+make\_clktrg\_chain
+===================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.make_clktrg_chain.get_parser
+      :prog: make_clktrg_chain.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.make_clktrg_chain
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

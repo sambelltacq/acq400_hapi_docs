@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400 &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="acq400_print" href="acq400_hapi.acq400_print.html" />
+    <link rel="prev" title="channel_handlers" href="acq400_hapi.channel_handlers.channel_handlers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="acq400_hapi.html">acq400_hapi</a></li>
+      <li class="breadcrumb-item active">acq400</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-acq400_hapi.acq400">
+<span id="acq400"></span><h1>acq400<a class="headerlink" href="#module-acq400_hapi.acq400" title="Permalink to this heading"></a></h1>
+<p>acq400.py interface to one acq400 appliance instance</p>
+<ul class="simple">
+<li><p>enumerates all site services, available as uut.sX.knob</p></li>
+<li><p>monitors transient status on uut, provides blocking events</p></li>
+<li><p>read_channels() reads all data from channel data service.</p></li>
+<li><p>simple property interface allows natural “script-like” usage</p></li>
+</ul>
+<blockquote>
+<div><ul>
+<li><p>eg:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">uut1</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_arm</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</li>
+<li><p>equivalent to running this on a logged in shell session on the UUT:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="o">.</span><span class="n">site1</span> <span class="n">set_arm</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<dl class="py exception">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.DataNotAvailableError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DataNotAvailableError</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#DataNotAvailableError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.DataNotAvailableError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AcqPorts</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#AcqPorts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>uut server port constants</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.TSTAT">
+<span class="sig-name descname"><span class="pre">TSTAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2235</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.TSTAT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.STREAM">
+<span class="sig-name descname"><span class="pre">STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4210</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.STREAM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.SITE0">
+<span class="sig-name descname"><span class="pre">SITE0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4220</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.SITE0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.SEGSW">
+<span class="sig-name descname"><span class="pre">SEGSW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4250</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.SEGSW" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.SEGSR">
+<span class="sig-name descname"><span class="pre">SEGSR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4251</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.SEGSR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.DPGSTL">
+<span class="sig-name descname"><span class="pre">DPGSTL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4521</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.DPGSTL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.GPGSTL">
+<span class="sig-name descname"><span class="pre">GPGSTL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4541</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.GPGSTL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.GPGDUMP">
+<span class="sig-name descname"><span class="pre">GPGDUMP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4543</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.GPGDUMP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.WRPG">
+<span class="sig-name descname"><span class="pre">WRPG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4606</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.WRPG" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.DIO482_PG_STL">
+<span class="sig-name descname"><span class="pre">DIO482_PG_STL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">45001</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.DIO482_PG_STL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.DIO482_PG_DUMP">
+<span class="sig-name descname"><span class="pre">DIO482_PG_DUMP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">45003</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.DIO482_PG_DUMP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.BOLO8_CAL">
+<span class="sig-name descname"><span class="pre">BOLO8_CAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">45072</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.BOLO8_CAL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.DATA0">
+<span class="sig-name descname"><span class="pre">DATA0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53000</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.DATA0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.DATAT">
+<span class="sig-name descname"><span class="pre">DATAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53333</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.DATAT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.MULTI_EVENT_TMP">
+<span class="sig-name descname"><span class="pre">MULTI_EVENT_TMP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53555</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.MULTI_EVENT_TMP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.MULTI_EVENT_DISK">
+<span class="sig-name descname"><span class="pre">MULTI_EVENT_DISK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53556</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.MULTI_EVENT_DISK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.DATA_SPY">
+<span class="sig-name descname"><span class="pre">DATA_SPY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53667</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.DATA_SPY" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.LIVETOP">
+<span class="sig-name descname"><span class="pre">LIVETOP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53998</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.LIVETOP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.ONESHOT">
+<span class="sig-name descname"><span class="pre">ONESHOT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53999</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.ONESHOT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.AWG_ONCE">
+<span class="sig-name descname"><span class="pre">AWG_ONCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">54201</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.AWG_ONCE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.AWG_AUTOREARM">
+<span class="sig-name descname"><span class="pre">AWG_AUTOREARM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">54202</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.AWG_AUTOREARM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.AWG_CONTINUOUS">
+<span class="sig-name descname"><span class="pre">AWG_CONTINUOUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">54205</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.AWG_CONTINUOUS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.AWG_STREAM">
+<span class="sig-name descname"><span class="pre">AWG_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">54207</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.AWG_STREAM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.MGTDRAM">
+<span class="sig-name descname"><span class="pre">MGTDRAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53993</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.MGTDRAM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.MGTDRAM_PULL_DATA">
+<span class="sig-name descname"><span class="pre">MGTDRAM_PULL_DATA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53991</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.MGTDRAM_PULL_DATA" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqPorts.SLOWMON">
+<span class="sig-name descname"><span class="pre">SLOWMON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">53666</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqPorts.SLOWMON" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AcqSites</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#AcqSites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.AcqSites" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>uut site constants</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE0">
+<span class="sig-name descname"><span class="pre">SITE0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE1">
+<span class="sig-name descname"><span class="pre">SITE1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE2">
+<span class="sig-name descname"><span class="pre">SITE2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE3">
+<span class="sig-name descname"><span class="pre">SITE3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE4">
+<span class="sig-name descname"><span class="pre">SITE4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE4" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE5">
+<span class="sig-name descname"><span class="pre">SITE5</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE5" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE6">
+<span class="sig-name descname"><span class="pre">SITE6</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE6" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE_CA">
+<span class="sig-name descname"><span class="pre">SITE_CA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE_CA" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE_CB">
+<span class="sig-name descname"><span class="pre">SITE_CB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE_CB" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE_CC">
+<span class="sig-name descname"><span class="pre">SITE_CC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE_CC" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE_DSP">
+<span class="sig-name descname"><span class="pre">SITE_DSP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE_DSP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.AcqSites.SITE_HUDP">
+<span class="sig-name descname"><span class="pre">SITE_HUDP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#acq400_hapi.acq400.AcqSites.SITE_HUDP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.SF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SF</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#SF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.SF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>uut system state constants</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.SF.STATE">
+<span class="sig-name descname"><span class="pre">STATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#acq400_hapi.acq400.SF.STATE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.SF.PRE">
+<span class="sig-name descname"><span class="pre">PRE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#acq400_hapi.acq400.SF.PRE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.SF.POST">
+<span class="sig-name descname"><span class="pre">POST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#acq400_hapi.acq400.SF.POST" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.SF.ELAPSED">
+<span class="sig-name descname"><span class="pre">ELAPSED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#acq400_hapi.acq400.SF.ELAPSED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.SF.DEMUX">
+<span class="sig-name descname"><span class="pre">DEMUX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#acq400_hapi.acq400.SF.DEMUX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">STATE</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#STATE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.STATE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>transient state constants</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE.IDLE">
+<span class="sig-name descname"><span class="pre">IDLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#acq400_hapi.acq400.STATE.IDLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE.ARM">
+<span class="sig-name descname"><span class="pre">ARM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#acq400_hapi.acq400.STATE.ARM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE.RUNPRE">
+<span class="sig-name descname"><span class="pre">RUNPRE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#acq400_hapi.acq400.STATE.RUNPRE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE.RUNPOST">
+<span class="sig-name descname"><span class="pre">RUNPOST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#acq400_hapi.acq400.STATE.RUNPOST" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE.POPROCESS">
+<span class="sig-name descname"><span class="pre">POPROCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#acq400_hapi.acq400.STATE.POPROCESS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE.CLEANUP">
+<span class="sig-name descname"><span class="pre">CLEANUP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#acq400_hapi.acq400.STATE.CLEANUP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.STATE.str">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">st</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#STATE.str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.STATE.str" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Signals">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Signals</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Signals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Signals" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Signals.EXT_TRG_DX">
+<span class="sig-name descname"><span class="pre">EXT_TRG_DX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'d0'</span></em><a class="headerlink" href="#acq400_hapi.acq400.Signals.EXT_TRG_DX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Signals.INT_TRG_DX">
+<span class="sig-name descname"><span class="pre">INT_TRG_DX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'d1'</span></em><a class="headerlink" href="#acq400_hapi.acq400.Signals.INT_TRG_DX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Signals.MB_CLK_DX">
+<span class="sig-name descname"><span class="pre">MB_CLK_DX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'d1'</span></em><a class="headerlink" href="#acq400_hapi.acq400.Signals.MB_CLK_DX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.StreamClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StreamClient</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#StreamClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.StreamClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="acq400_hapi.netclient.html#acq400_hapi.netclient.Netclient" title="acq400_hapi.netclient.Netclient"><code class="xref py py-class docutils literal notranslate"><span class="pre">Netclient</span></code></a></p>
+<p>handles live streaming data</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.StreamClient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#StreamClient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.StreamClient.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.RawClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RawClient</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#RawClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.RawClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="acq400_hapi.netclient.html#acq400_hapi.netclient.Netclient" title="acq400_hapi.netclient.Netclient"><code class="xref py py-class docutils literal notranslate"><span class="pre">Netclient</span></code></a></p>
+<p>handles raw data from any service port</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.RawClient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#RawClient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.RawClient.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>init RawClient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> (<em>str</em>) – ip or hostname</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – service port see AcqPorts</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.RawClient.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nelems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#RawClient.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.RawClient.read" title="Permalink to this definition"></a></dt>
+<dd><p>read data from channel data server</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nelems</strong> (<em>int</em>) – data elements</p></li>
+<li><p><strong>data_size</strong> (<em>int</em><em>, </em><em>optional</em>) – data size in bytes 2|4 short or int. Defaults to 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>channel data</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.RawClient.get_blocks">
+<span class="sig-name descname"><span class="pre">get_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nelems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#RawClient.get_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.RawClient.get_blocks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.MgtDramPullClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MgtDramPullClient</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#MgtDramPullClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.MgtDramPullClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#acq400_hapi.acq400.RawClient" title="acq400_hapi.acq400.RawClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawClient</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.MgtDramPullClient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#MgtDramPullClient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.MgtDramPullClient.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.ChannelClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChannelClient</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#ChannelClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.ChannelClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#acq400_hapi.acq400.RawClient" title="acq400_hapi.acq400.RawClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawClient</span></code></a></p>
+<p>handles post shot data for one channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> (<em>str</em>) – ip address or hostname</p></li>
+<li><p><strong>ch</strong> (<em>int</em>) – channel number 1..N</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.ChannelClient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#ChannelClient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.ChannelClient.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.ExitCommand">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExitCommand</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#ExitCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.ExitCommand" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.signal_handler">
+<span class="sig-name descname"><span class="pre">signal_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#signal_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.signal_handler" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Statusmonitor</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>monitors the status channel</p>
+<p>Efficient event-driven monitoring in a separate thread</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.st_re">
+<span class="sig-name descname"><span class="pre">st_re</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('([0-9])</span> <span class="pre">([0-9]+)</span> <span class="pre">([0-9]+)</span> <span class="pre">([0-9]+)</span> <span class="pre">([0-9])+')</span></em><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.st_re" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.st_shot_re">
+<span class="sig-name descname"><span class="pre">st_shot_re</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('SHOT=([0-9]),([0-9]+),([0-9]+),([0-9]+)')</span></em><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.st_shot_re" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.st_failed_to_find_event_re">
+<span class="sig-name descname"><span class="pre">st_failed_to_find_event_re</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('ERROR</span> <span class="pre">EVENT</span> <span class="pre">NOT</span> <span class="pre">FOUND')</span></em><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.st_failed_to_find_event_re" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.st_timer_re">
+<span class="sig-name descname"><span class="pre">st_timer_re</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('Timer::report\\(([0-9]+)\\)</span> <span class="pre">([A-Z]{3})</span> <span class="pre">([0-9]+)</span> <span class="pre">msec')</span></em><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.st_timer_re" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.st_monitor">
+<span class="sig-name descname"><span class="pre">st_monitor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.st_monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.st_monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.get_state">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.get_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.get_state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.get_pre">
+<span class="sig-name descname"><span class="pre">get_pre</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.get_pre"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.get_pre" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.get_post">
+<span class="sig-name descname"><span class="pre">get_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.get_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.get_post" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.get_total">
+<span class="sig-name descname"><span class="pre">get_total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.get_total"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.get_total" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.get_elapsed">
+<span class="sig-name descname"><span class="pre">get_elapsed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.get_elapsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.get_elapsed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.wait_event">
+<span class="sig-name descname"><span class="pre">wait_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.wait_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.wait_event" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.wait_armed">
+<span class="sig-name descname"><span class="pre">wait_armed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.wait_armed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.wait_armed" title="Permalink to this definition"></a></dt>
+<dd><p>blocks until uut is ARMED</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.wait_stopped">
+<span class="sig-name descname"><span class="pre">wait_stopped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.wait_stopped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.wait_stopped" title="Permalink to this definition"></a></dt>
+<dd><p>blocks until uut is STOPPED</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Statusmonitor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Statusmonitor.trace">
+<span class="sig-name descname"><span class="pre">trace</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#acq400_hapi.acq400.Statusmonitor.trace" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.NullFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NullFilter</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#NullFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.NullFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.ProcessMonitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProcessMonitor</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#ProcessMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.ProcessMonitor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.ProcessMonitor.st_rex">
+<span class="sig-name descname"><span class="pre">st_rex</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(re.compile('^END'),</span> <span class="pre">re.compile('^real'))</span></em><a class="headerlink" href="#acq400_hapi.acq400.ProcessMonitor.st_rex" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.ProcessMonitor.st_monitor">
+<span class="sig-name descname"><span class="pre">st_monitor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#ProcessMonitor.st_monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.ProcessMonitor.st_monitor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.ProcessMonitor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_monport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_arm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#ProcessMonitor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.ProcessMonitor.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>init ProcessMonitor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_uut</strong> (<em>acq400</em>) – uut instance</p></li>
+<li><p><strong>_monport</strong> (<em>int</em>) – monitor port</p></li>
+<li><p><strong>_filter</strong> (<em>func</em>) – filtering function</p></li>
+<li><p><strong>set_arm</strong> (<em>bool</em>) – set arm</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Acq400</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Host-side proxy for Acq400 uut.</p>
+<p>acq400 discovers and maintains all site servers, maintains a monitor  and     handles multiple channel post shot upload</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.init_site_client">
+<span class="sig-name descname"><span class="pre">init_site_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.init_site_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.init_site_client" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.create_uuts">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_uuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.create_uuts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.create_uuts" title="Permalink to this definition"></a></dt>
+<dd><p>create_uuts():  factory .. create them in parallel</p>
+<p><strong>* Experimental Do Not Use *</strong></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.uuts_methods">
+<span class="sig-name descname"><span class="pre">uuts_methods</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#acq400_hapi.acq400.Acq400.uuts_methods" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.uuts">
+<span class="sig-name descname"><span class="pre">uuts</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#acq400_hapi.acq400.Acq400.uuts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0_client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>init acq400</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_uut</strong> (<em>srt</em>) – uut hostname or ip-address</p></li>
+<li><p><strong>monitor</strong> (<em>bool</em><em>, </em><em>optional</em>) – start statusmonitor. Defaults to True.</p></li>
+<li><p><strong>s0_client</strong> (<a class="reference internal" href="acq400_hapi.netclient.html#acq400_hapi.netclient.Siteclient" title="acq400_hapi.netclient.Siteclient"><em>netclient.Siteclient</em></a><em>, </em><em>optional</em>) – existing siteclient. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.close" title="Permalink to this definition"></a></dt>
+<dd><p>Closes uut connection gracefully</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.state">
+<span class="sig-name descname"><span class="pre">state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.post_samples">
+<span class="sig-name descname"><span class="pre">post_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.post_samples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.post_samples" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.pre_samples">
+<span class="sig-name descname"><span class="pre">pre_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.pre_samples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.pre_samples" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.elapsed_samples">
+<span class="sig-name descname"><span class="pre">elapsed_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.elapsed_samples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.elapsed_samples" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.demux_status">
+<span class="sig-name descname"><span class="pre">demux_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.demux_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.demux_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.samples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.samples" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.get_aggregator_sites">
+<span class="sig-name descname"><span class="pre">get_aggregator_sites</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.get_aggregator_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.get_aggregator_sites" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.fetch_all_calibration">
+<span class="sig-name descname"><span class="pre">fetch_all_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.fetch_all_calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.fetch_all_calibration" title="Permalink to this definition"></a></dt>
+<dd><p>Gets uut calibration and stores in instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.scale_raw">
+<span class="sig-name descname"><span class="pre">scale_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.scale_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.scale_raw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.chan2volts">
+<span class="sig-name descname"><span class="pre">chan2volts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.chan2volts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.chan2volts" title="Permalink to this definition"></a></dt>
+<dd><p>returns calibrated volts for channel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chan</strong> (<em>int</em>) – channel index</p></li>
+<li><p><strong>raw</strong> (<em>ndarray</em>) – uncalibrated data array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>calibrated data array</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.read_chan">
+<span class="sig-name descname"><span class="pre">read_chan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.read_chan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.read_chan" title="Permalink to this definition"></a></dt>
+<dd><p>Reads a channels data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chan</strong> (<em>int</em>) – channel number</p></li>
+<li><p><strong>nsam</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples. Defaults to 0.</p></li>
+<li><p><strong>data_size</strong> (<em>int</em><em>, </em><em>optional</em>) – data size in bytes. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.read_decims">
+<span class="sig-name descname"><span class="pre">read_decims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.read_decims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.read_decims" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.nchan">
+<span class="sig-name descname"><span class="pre">nchan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.nchan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.nchan" title="Permalink to this definition"></a></dt>
+<dd><p>gets total number of channels</p>
+<p>can include scratchpad</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of channels</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.data_size">
+<span class="sig-name descname"><span class="pre">data_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.data_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.data_size" title="Permalink to this definition"></a></dt>
+<dd><p>gets data size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>data size in bytes</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.uut_demux_enabled">
+<span class="sig-name descname"><span class="pre">uut_demux_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.uut_demux_enabled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.uut_demux_enabled" title="Permalink to this definition"></a></dt>
+<dd><p>returns demux status</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.read_channels">
+<span class="sig-name descname"><span class="pre">read_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">localdemux</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.read_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.read_channels" title="Permalink to this definition"></a></dt>
+<dd><p>read selected channels post shot data.</p>
+<p>uut_demux_enabled() == False: UUT did NOT demux the data, data order [sample][channel]
+uut_demux_enabled() == True:  UUT did demux the data, data order [channel][sample]</p>
+<p>DEMUX is a synonym for uut_demux_enabled()..</p>
+<p>channels=(0) : return all (bulk) data, likely in raw[sample][channel] format.
+channels=(0) localdemux=True: return all (bulk) in demux[channel][sample] format.</p>
+<p>channels=N or channels=(N,N1,N2 ..)   # N &gt;= 1 &amp;&amp; N &lt;= NCHAN</p>
+<p>There are 4 cases:
+channels=(1,2…nchan) and (remote) DEMUX=1: SIMPLE, pull each channel at a time from the UUT.
+channels=(0) and DEMUX=0 : SIMPLE: return the raw data.</p>
+<p>channels=(1,2..) and DEMUX=1 : demux locally.</p>
+<p>channels=(0) and DEMUX=0 and localdemux : demux locally, return bulk data [channels][samnples]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channels</strong> (<em>tuple</em><em>, </em><em>optional</em>) – tuple contining channels to read . Defaults to all.</p></li>
+<li><p><strong>nsam</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples. Defaults to 0.</p></li>
+<li><p><strong>localdemux</strong> (<em>bool</em><em>, </em><em>optional</em>) – demux data. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>channel data</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.read_transient_timebase">
+<span class="sig-name descname"><span class="pre">read_transient_timebase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.read_transient_timebase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.read_transient_timebase" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.load_segments">
+<span class="sig-name descname"><span class="pre">load_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.load_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.load_segments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.show_segments">
+<span class="sig-name descname"><span class="pre">show_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.show_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.show_segments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.clear_counters">
+<span class="sig-name descname"><span class="pre">clear_counters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.clear_counters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.clear_counters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.set_sync_routing_master">
+<span class="sig-name descname"><span class="pre">set_sync_routing_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clk_dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'d1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trg_dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'d0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.set_sync_routing_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.set_sync_routing_master" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.set_sync_routing_slave">
+<span class="sig-name descname"><span class="pre">set_sync_routing_slave</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.set_sync_routing_slave"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.set_sync_routing_slave" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.set_sync_routing">
+<span class="sig-name descname"><span class="pre">set_sync_routing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.set_sync_routing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.set_sync_routing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.set_mb_clk">
+<span class="sig-name descname"><span class="pre">set_mb_clk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zclk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.set_mb_clk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.set_mb_clk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.load_stl">
+<span class="sig-name descname"><span class="pre">load_stl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_eof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_eol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.load_stl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.load_stl" title="Permalink to this definition"></a></dt>
+<dd><p>Send a STL file to the specified port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stl</strong> (<em>str</em>) – stl string each line seperated by newlines</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – port num see AcqPorts</p></li>
+<li><p><strong>trace</strong> (<em>bool</em><em>, </em><em>optional</em>) – print each line sent. Defaults to False.</p></li>
+<li><p><strong>wait_eof</strong> (<em>bool</em><em>, </em><em>optional</em>) – wait for end of file. Defaults to True.</p></li>
+<li><p><strong>wait_eol</strong> (<em>bool</em><em>, </em><em>optional</em>) – wait for end of line. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.load_gpg">
+<span class="sig-name descname"><span class="pre">load_gpg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.load_gpg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.load_gpg" title="Permalink to this definition"></a></dt>
+<dd><p>Send stl to GPG port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stl</strong> (<em>str</em>) – stl string each line seperated by newlines</p></li>
+<li><p><strong>trace</strong> (<em>bool</em><em>, </em><em>optional</em>) – print each line sent. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.load_dpg">
+<span class="sig-name descname"><span class="pre">load_dpg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.load_dpg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.load_dpg" title="Permalink to this definition"></a></dt>
+<dd><p>Send stl to DPG port</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stl</strong> (<em>str</em>) – stl string each line seperated by newlines</p></li>
+<li><p><strong>trace</strong> (<em>bool</em><em>, </em><em>optional</em>) – print each line sent. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.load_wrpg">
+<span class="sig-name descname"><span class="pre">load_wrpg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.load_wrpg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.load_wrpg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.load_dio482pg">
+<span class="sig-name descname"><span class="pre">load_dio482pg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.load_dio482pg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.load_dio482pg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.set_DO">
+<span class="sig-name descname"><span class="pre">set_DO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.set_DO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.set_DO" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.AwgBusyError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AwgBusyError</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.AwgBusyError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.AwgBusyError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.AwgBusyError.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.AwgBusyError.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.AwgBusyError.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.load_awg">
+<span class="sig-name descname"><span class="pre">load_awg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autorearm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.load_awg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.load_awg" title="Permalink to this definition"></a></dt>
+<dd><p>Load and config a AWG pattern</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>str</em>) – AWG pattern</p></li>
+<li><p><strong>autorearm</strong> (<em>bool</em><em>, </em><em>optional</em>) – Rearm and wait after run. Defaults to False.</p></li>
+<li><p><strong>continuous</strong> (<em>bool</em><em>, </em><em>optional</em>) – Run pattern continuously. Defaults to False.</p></li>
+<li><p><strong>repeats</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of pattern repetitions. Defaults to 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.run_service">
+<span class="sig-name descname"><span class="pre">run_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EOF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'&gt;'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.run_service"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.run_service" title="Permalink to this definition"></a></dt>
+<dd><p>Run a service on the uut</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>port</strong> (<em>int</em>) – service port see AcqPorts</p></li>
+<li><p><strong>eof</strong> (<em>str</em><em>, </em><em>optional</em>) – end connection on character. Defaults to “EOF”.</p></li>
+<li><p><strong>prompt</strong> (<em>str</em><em>, </em><em>optional</em>) – prompt character. Defaults to ‘&gt;’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>service transcript</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.run_oneshot">
+<span class="sig-name descname"><span class="pre">run_oneshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.run_oneshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.run_oneshot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.run_livetop">
+<span class="sig-name descname"><span class="pre">run_livetop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.run_livetop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.run_livetop" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.disable_trigger">
+<span class="sig-name descname"><span class="pre">disable_trigger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.disable_trigger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.disable_trigger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.enable_trigger">
+<span class="sig-name descname"><span class="pre">enable_trigger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trg_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EXT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trg_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'STRIG'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.enable_trigger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.enable_trigger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.configure_post">
+<span class="sig-name descname"><span class="pre">configure_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.configure_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.configure_post" title="Permalink to this definition"></a></dt>
+<dd><p>Configure UUT for a regular transient capture</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>role</strong> (<em>str</em>) – uut role  <code class="docutils literal notranslate"><span class="pre">master</span></code> or <code class="docutils literal notranslate"><span class="pre">slave</span></code></p></li>
+<li><p><strong>trigger</strong> (<em>list</em><em>, </em><em>optional</em>) – Trigger trinary. Defaults to [1,1,1].</p></li>
+<li><p><strong>post</strong> (<em>int</em><em>, </em><em>optional</em>) – post samples. Defaults to 100k.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.configure_pre_post">
+<span class="sig-name descname"><span class="pre">configure_pre_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.configure_pre_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.configure_pre_post" title="Permalink to this definition"></a></dt>
+<dd><p>Configure UUT for pre/post mode.</p>
+<p>Default setup: soft trigger starts the data flow and trigger the event on a hard external trigger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>role</strong> (<em>str</em>) – uut role <code class="docutils literal notranslate"><span class="pre">master</span></code> or <code class="docutils literal notranslate"><span class="pre">slave</span></code></p></li>
+<li><p><strong>trigger</strong> (<em>list</em><em>, </em><em>optional</em>) – Trigger trinary. Defaults to [1,1,1].</p></li>
+<li><p><strong>event</strong> (<em>list</em><em>, </em><em>optional</em>) – Event trinary. Defaults to [1,1,1].</p></li>
+<li><p><strong>pre</strong> (<em>int</em><em>, </em><em>optional</em>) – pre samples. Defaults to 50k.</p></li>
+<li><p><strong>post</strong> (<em>int</em><em>, </em><em>optional</em>) – post samples. Defaults to 100k.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.configure_rtm">
+<span class="sig-name descname"><span class="pre">configure_rtm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtm_translen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.configure_rtm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.configure_rtm" title="Permalink to this definition"></a></dt>
+<dd><p>Configure UUT for rtm mode.</p>
+<p>Default setup: external trigger starts the capture and takes 5000 samples,        each subsequent trigger gives us another 5000 samples.</p>
+<p>GPG can be used in RTM mode as the Event. If you are using the GPG        then this function can put the GPG output onto the event bus (to use as        an Event for RTM).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>role</strong> (<em>str</em>) – uut role <code class="docutils literal notranslate"><span class="pre">master</span></code> or <code class="docutils literal notranslate"><span class="pre">slave</span></code></p></li>
+<li><p><strong>trigger</strong> (<em>list</em><em>, </em><em>optional</em>) – Trigger trinary. Defaults to [1,1,1].</p></li>
+<li><p><strong>event</strong> (<em>list</em><em>, </em><em>optional</em>) – Event trinary. Defaults to [1,1,1].</p></li>
+<li><p><strong>post</strong> (<em>int</em><em>, </em><em>optional</em>) – post samples. Defaults to 100k.</p></li>
+<li><p><strong>rtm_translen</strong> (<em>int</em><em>, </em><em>optional</em>) – translen. Defaults to 5000.</p></li>
+<li><p><strong>gpg</strong> (<em>int</em><em>, </em><em>optional</em>) – _description_. Defaults to 0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.configure_transient">
+<span class="sig-name descname"><span class="pre">configure_transient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_DX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'d0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_soft_trigger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demux</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rising'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.configure_transient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.configure_transient" title="Permalink to this definition"></a></dt>
+<dd><p>Configure uut for transient capture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pre</strong> (<em>int</em><em>, </em><em>optional</em>) – pre samples. Defaults to 0.</p></li>
+<li><p><strong>post</strong> (<em>int</em><em>, </em><em>optional</em>) – post samples. Defaults to 100k.</p></li>
+<li><p><strong>sig_DX</strong> (<em>str</em><em>, </em><em>optional</em>) – signal line responsible for <code class="docutils literal notranslate"><span class="pre">trigger</span></code> or <code class="docutils literal notranslate"><span class="pre">event</span></code>. Defaults to ‘d0’.</p></li>
+<li><p><strong>auto_soft_trigger</strong> (<em>int</em><em>, </em><em>optional</em>) – automatically soft trigger. Defaults to 0.</p></li>
+<li><p><strong>demux</strong> (<em>int</em><em>, </em><em>optional</em>) – demux data on/off. Defaults to 1.</p></li>
+<li><p><strong>edge</strong> (<em>str</em><em>, </em><em>optional</em>) – trigger edge. Defaults to ‘rising’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.configure_rgm">
+<span class="sig-name descname"><span class="pre">configure_rgm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'100000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.configure_rgm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.configure_rgm" title="Permalink to this definition"></a></dt>
+<dd><p>Configure UUT for RGM mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>role</strong> (<em>str</em>) – uut role <code class="docutils literal notranslate"><span class="pre">master</span></code> or <code class="docutils literal notranslate"><span class="pre">slave</span></code></p></li>
+<li><p><strong>trigger</strong> (<em>list</em><em>, </em><em>optional</em>) – Trigger trinary. Defaults to [1,0,1].</p></li>
+<li><p><strong>event</strong> (<em>list</em><em>, </em><em>optional</em>) – Event trinary. Defaults to [1,1,1].</p></li>
+<li><p><strong>post</strong> (<em>int</em><em>, </em><em>optional</em>) – post samples. Defaults to 100k.</p></li>
+<li><p><strong>gpg</strong> (<em>int</em><em>, </em><em>optional</em>) – Put GPG output onto the event bus (to use as an Event for RGM). Defaults to 0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.get_demux_state">
+<span class="sig-name descname"><span class="pre">get_demux_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.get_demux_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.get_demux_state" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the current state of demux</p>
+<p>Beware: if demux is set after the shot then this function will return the new state. There is no way to
+determine what the state was during the previous shot.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.pull_plot">
+<span class="sig-name descname"><span class="pre">pull_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demux</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.pull_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.pull_plot" title="Permalink to this definition"></a></dt>
+<dd><p>This function returns an array of the specified channels and plots the data.</p>
+<p>Pulls data from 53000 or 5300X and will return the corresponding data from each 5300X port             (if demux is on) or will return the corresponding data filtered from 53000 if demux is off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channels</strong> (<em>tuple</em><em>, </em><em>optional</em>) – tuple containing channel indexes. Defaults to ().</p></li>
+<li><p><strong>demux</strong> (<em>int</em><em>, </em><em>optional</em>) – 1 demux on 0 demux off -1 autodetect. Defaults to -1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.read_muxed_data">
+<span class="sig-name descname"><span class="pre">read_muxed_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.read_muxed_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.read_muxed_data" title="Permalink to this definition"></a></dt>
+<dd><p>returns data from port 53000.</p>
+<p>Only use if demux is turned off.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.pull_data">
+<span class="sig-name descname"><span class="pre">pull_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.pull_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.pull_data" title="Permalink to this definition"></a></dt>
+<dd><p>Gets data from all AI channels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>channel data</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.get_ai_channels">
+<span class="sig-name descname"><span class="pre">get_ai_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.get_ai_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.get_ai_channels" title="Permalink to this definition"></a></dt>
+<dd><p>Gets total number of AI channels</p>
+<p>nchan can sometimes include scratchpad</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>total AI channels</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.get_site_types">
+<span class="sig-name descname"><span class="pre">get_site_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.get_site_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.get_site_types" title="Permalink to this definition"></a></dt>
+<dd><p>gets all sites grouped by site type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AISITES, AOSITES, and DIOSITES</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.get_es_indices">
+<span class="sig-name descname"><span class="pre">get_es_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">human_readable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_hex_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.get_es_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.get_es_indices" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the location of event samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>optional</em>) – data source. Can load from file. Defaults to from uut.</p></li>
+<li><p><strong>nchan</strong> (<em>int</em><em>, </em><em>optional</em>) – total chans use when loading from file. Defaults to from uut.</p></li>
+<li><p><strong>human_readable</strong> (<em>int</em><em>, </em><em>optional</em>) – returns hex interpretations of the event sample data. Defaults to 0.</p></li>
+<li><p><strong>return_hex_string</strong> (<em>int</em><em>, </em><em>optional</em>) – if 1 and human_readable 1 returns single string containing all of             the event samples. Defaults to 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>[ [Event sample indices], [Event sample data] ]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.stream">
+<span class="sig-name descname"><span class="pre">stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recvlen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">131072</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.stream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.stream" title="Permalink to this definition"></a></dt>
+<dd><p>Runs stream and yields data buffers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>recvlen</strong> (<em>_type_</em><em>, </em><em>optional</em>) – buffer size. Defaults to 4096*32.</p></li>
+<li><p><strong>port</strong> (<em>_type_</em><em>, </em><em>optional</em>) – uut port. Defaults to AcqPorts.STREAM value.</p></li>
+<li><p><strong>data_size</strong> (<em>int</em><em>, </em><em>optional</em>) – data size in bytes. Defaults to 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ndarray</em> – data buffer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.stream_close">
+<span class="sig-name descname"><span class="pre">stream_close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.stream_close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.stream_close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.stream_slowmon">
+<span class="sig-name descname"><span class="pre">stream_slowmon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nspad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.stream_slowmon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.stream_slowmon" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq400.slowmon_close">
+<span class="sig-name descname"><span class="pre">slowmon_close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq400.slowmon_close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq400.slowmon_close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.freqpv">
+<span class="sig-name descname"><span class="pre">freqpv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#freqpv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.freqpv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.floatpv">
+<span class="sig-name descname"><span class="pre">floatpv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_pv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#floatpv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.floatpv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.activepv">
+<span class="sig-name descname"><span class="pre">activepv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_pv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#activepv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.activepv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Acq2106</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#acq400_hapi.acq400.Acq400" title="acq400_hapi.acq400.Acq400"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acq400</span></code></a></p>
+<p>Acq2106 specialization of Acq400</p>
+<p>Defines features specific to ACQ2106</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0_client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_dsp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_comms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_wr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_hudp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>init acq2106</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_uut</strong> (<em>srt</em>) – uut hostname or ip-address</p></li>
+<li><p><strong>monitor</strong> (<em>bool</em><em>, </em><em>optional</em>) – start statusmonitor. Defaults to True.</p></li>
+<li><p><strong>s0_client</strong> (<a class="reference internal" href="acq400_hapi.netclient.html#acq400_hapi.netclient.Siteclient" title="acq400_hapi.netclient.Siteclient"><em>netclient.Siteclient</em></a><em>, </em><em>optional</em>) – existing siteclient. Defaults to None.</p></li>
+<li><p><strong>has_dsp</strong> (<em>bool</em><em>, </em><em>optional</em>) – if uut has dsp. Defaults to False.</p></li>
+<li><p><strong>has_comms</strong> (<em>bool</em><em>, </em><em>optional</em>) – if uut has comms. Defaults to True.</p></li>
+<li><p><strong>has_wr</strong> (<em>bool</em><em>, </em><em>optional</em>) – if uut has white rabbit. Defaults to False.</p></li>
+<li><p><strong>has_hudp</strong> (<em>bool</em><em>, </em><em>optional</em>) – if uut has hudp. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.get_mgt_site">
+<span class="sig-name descname"><span class="pre">get_mgt_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mgt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.get_mgt_site"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.get_mgt_site" title="Permalink to this definition"></a></dt>
+<dd><p>gets mgt site str from num</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mgt</strong> (<em>int</em>) – mgt site num</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(site string, site num)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.set_mb_clk">
+<span class="sig-name descname"><span class="pre">set_mb_clk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zclk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.set_mb_clk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.set_mb_clk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.set_sync_routing_slave">
+<span class="sig-name descname"><span class="pre">set_sync_routing_slave</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.set_sync_routing_slave"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.set_sync_routing_slave" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.set_master_trg">
+<span class="sig-name descname"><span class="pre">set_master_trg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rising'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.set_master_trg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.set_master_trg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.set_MR">
+<span class="sig-name descname"><span class="pre">set_MR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evsel0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evsel1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MR10DEC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.set_MR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.set_MR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.wr_PPS_active">
+<span class="sig-name descname"><span class="pre">wr_PPS_active</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.wr_PPS_active"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.wr_PPS_active" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106.get_sys_info">
+<span class="sig-name descname"><span class="pre">get_sys_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106.get_sys_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106.get_sys_info" title="Permalink to this definition"></a></dt>
+<dd><p>Gets uut system information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>system info</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_Mgtdram8">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Acq2106_Mgtdram8</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_Mgtdram8"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_Mgtdram8" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#acq400_hapi.acq400.Acq2106" title="acq400_hapi.acq400.Acq2106"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acq2106</span></code></a></p>
+<p>Mgtdram8 specialization of Acq2106</p>
+<p>Defines features specific to Acq2106_Mgtdram8</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_Mgtdram8.MGT_BLOCK_BYTES">
+<span class="sig-name descname"><span class="pre">MGT_BLOCK_BYTES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4194304</span></em><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_Mgtdram8.MGT_BLOCK_BYTES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_Mgtdram8.MGT_BLOCK_MULTIPLE">
+<span class="sig-name descname"><span class="pre">MGT_BLOCK_MULTIPLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_Mgtdram8.MGT_BLOCK_MULTIPLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_Mgtdram8.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0_client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_Mgtdram8.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_Mgtdram8.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>init Acq2106_Mgtdram8</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_uut</strong> (<em>srt</em>) – uut hostname or ip-address</p></li>
+<li><p><strong>monitor</strong> (<em>bool</em><em>, </em><em>optional</em>) – start statusmonitor. Defaults to True.</p></li>
+<li><p><strong>s0_client</strong> (<a class="reference internal" href="acq400_hapi.netclient.html#acq400_hapi.netclient.Siteclient" title="acq400_hapi.netclient.Siteclient"><em>netclient.Siteclient</em></a><em>, </em><em>optional</em>) – existing siteclient. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_Mgtdram8.run_mgt">
+<span class="sig-name descname"><span class="pre">run_mgt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter=&lt;acq400_hapi.acq400.NullFilter</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_arm=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_Mgtdram8.run_mgt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_Mgtdram8.run_mgt" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_Mgtdram8.create_mgtdram_pull_client">
+<span class="sig-name descname"><span class="pre">create_mgtdram_pull_client</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_Mgtdram8.create_mgtdram_pull_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_Mgtdram8.create_mgtdram_pull_client" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_TIGA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Acq2106_TIGA</span></span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_TIGA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_TIGA" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#acq400_hapi.acq400.Acq2106" title="acq400_hapi.acq400.Acq2106"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acq2106</span></code></a></p>
+<p>TIGA specialization of Acq2106</p>
+<p>Defines features specific to Acq2106_TIGA</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_TIGA.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0_client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_TIGA.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_TIGA.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>init Acq2106_TIGA</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_uut</strong> (<em>srt</em>) – uut hostname or ip-address</p></li>
+<li><p><strong>monitor</strong> (<em>bool</em><em>, </em><em>optional</em>) – start statusmonitor. Defaults to True.</p></li>
+<li><p><strong>s0_client</strong> (<a class="reference internal" href="acq400_hapi.netclient.html#acq400_hapi.netclient.Siteclient" title="acq400_hapi.netclient.Siteclient"><em>netclient.Siteclient</em></a><em>, </em><em>optional</em>) – existing siteclient. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_TIGA.load_dio482pg">
+<span class="sig-name descname"><span class="pre">load_dio482pg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_TIGA.load_dio482pg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_TIGA.load_dio482pg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.Acq2106_TIGA.set_DO">
+<span class="sig-name descname"><span class="pre">set_DO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#Acq2106_TIGA.set_DO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.Acq2106_TIGA.set_DO" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.run_unit_test">
+<span class="sig-name descname"><span class="pre">run_unit_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#run_unit_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.run_unit_test" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.sigsel">
+<span class="sig-name descname"><span class="pre">sigsel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#sigsel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.sigsel" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.factory">
+<span class="sig-name descname"><span class="pre">factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.factory" title="Permalink to this definition"></a></dt>
+<dd><p>deduce what sort of uut this is and invoke the appropriate class</p>
+<p>Preferred to init hapi instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>_uut</strong> (<em>str</em>) – uut hostname or ip-address</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>uut hapi instance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>acq400</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.get_hapi">
+<span class="sig-name descname"><span class="pre">get_hapi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#get_hapi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.get_hapi" title="Permalink to this definition"></a></dt>
+<dd><p>find instance of hapi</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.freq">
+<span class="sig-name descname"><span class="pre">freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#freq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.freq" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.intpv">
+<span class="sig-name descname"><span class="pre">intpv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#intpv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.intpv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.acq400.pv">
+<span class="sig-name descname"><span class="pre">pv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/acq400.html#pv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.acq400.pv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

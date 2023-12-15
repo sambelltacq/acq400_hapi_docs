@@ -1,0 +1,15 @@
+dwg\_paste
+==========
+
+
+
+
+
+
+
+.. automodule:: user_apps.analysis.dwg_paste
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

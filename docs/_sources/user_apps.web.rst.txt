@@ -1,0 +1,28 @@
+
+
+web 
+====
+
+.. automodule:: user_apps.web
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+   
+      
+.. rst-class:: spaced_list
+
+
+
+* :doc:`user_apps.web.compose_remote` **Remote control to composer webapp**
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   user_apps.web.compose_remote
+      
+   

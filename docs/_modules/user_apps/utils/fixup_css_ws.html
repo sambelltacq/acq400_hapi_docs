@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.utils.fixup_css_ws &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.utils.fixup_css_ws</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.utils.fixup_css_ws</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;Fixup cs studio workspace</span>
+
+<span class="sd">Created on 19 Jun 2021</span>
+
+<span class="sd">@author: pgm</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.utils.fixup_css_ws.html#user_apps.utils.fixup_css_ws.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;acq400_remote_script&#39;</span><span class="p">)</span> 
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span><span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;show more info&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--olduser&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;user name to change&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--newuser&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;user name to change&quot;</span><span class="p">)</span>
+<span class="c1">#    parser.add_argument(&#39;--uuts&#39;, default=None, help=&quot;uuts to change [uut[1][,uut2[,uut3...]]]]&quot;)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;ws&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;workspace[s] to change&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+   
+
+<span class="c1"># ASCII ROOLS OK, BackSlash, ForwardSlash</span>
+<span class="n">BS</span> <span class="o">=</span> <span class="mh">0x5c</span>
+<span class="sd">&quot;&quot;&quot;ASCII BackSlash&quot;&quot;&quot;</span>
+
+<span class="n">FS</span> <span class="o">=</span> <span class="mh">0x2f</span>
+<span class="sd">&quot;&quot;&quot;ASCII ForwardSlash&quot;&quot;&quot;</span>
+
+<span class="c1"># URI is in Unix notation, AND must have leading FS</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">[pgm@hoy5 acq400_hapi]$ hexdump -C /home/pgm/SANDBOX/DOC-215920-01-FAT/.metadata/.plugins/org.eclipse.core.resources/.projects/ACQ400/.location</span>
+<span class="sd">00000000  40 b1 8b 81 23 bc 00 14  1a 25 96 e7 a3 93 be 1e  |@...#....%......|</span>
+<span class="sd">00000010  00 2d 55 52 49 2f 2f 66  69 6c 65 3a 2f 43 3a 2f  |.-URI//file:/C:/|</span>
+<span class="sd">00000020  55 73 65 72 73 2f 70 67  6d 30 30 2f 50 52 4f 4a  |Users/pgm00/PROJ|</span>
+<span class="sd">00000030  45 43 54 53 2f 41 43 51  34 30 30 43 53 53 2f 41  |ECTS/ACQ400CSS/A|</span>
+<span class="sd">00000040  43 51 34 30 30 00 00 00  00 00 00 00 00 c0 58 fb  |CQ400.........X.|</span>
+<span class="sd">00000050  f3 23 bc 00 14 1a 51 f3  8c 7b bb 77 c6           |.#....Q..{.w.|</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="fixup"><a class="viewcode-back" href="../../../user_apps.utils.fixup_css_ws.html#user_apps.utils.fixup_css_ws.fixup">[docs]</a><span class="k">def</span> <span class="nf">fixup</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ws</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;fixup </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ws</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">ws</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">subdir</span><span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">+</span><span class="n">file</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">file_changed</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">wmode</span> <span class="o">=</span> <span class="kc">None</span>
+            
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.old&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pat</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MATCH </span><span class="si">{}</span><span class="s2"> start:</span><span class="si">{}</span><span class="s2"> end:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()))</span>
+                    <span class="n">file_changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">wmode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+                    
+                <span class="k">if</span> <span class="n">file_changed</span><span class="p">:</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">olduser</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">newuser</span><span class="p">)</span>
+                
+            <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                
+                <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bpat</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Binary File match </span><span class="si">{}</span><span class="s2"> start:</span><span class="si">{}</span><span class="s2"> end:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;here is our match </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():</span><span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()]))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;here is what&#39;s next </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">():</span><span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()</span><span class="o">+</span><span class="mi">20</span><span class="p">]))</span>
+                    <span class="n">trailer_start</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+                    <span class="n">trailer_end</span> <span class="o">=</span> <span class="n">trailer_start</span><span class="o">+</span><span class="mi">1</span>
+                    <span class="k">while</span> <span class="n">text</span><span class="p">[</span><span class="n">trailer_end</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">trailer_end</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">headroom_end</span> <span class="o">=</span> <span class="n">trailer_end</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="k">while</span> <span class="n">text</span><span class="p">[</span><span class="n">headroom_end</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">headroom_end</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;trailer </span><span class="si">{}</span><span class="s2">, headroom </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">trailer_start</span><span class="p">:</span><span class="n">trailer_end</span><span class="p">],</span> <span class="n">headroom_end</span> <span class="o">-</span> <span class="n">trailer_end</span><span class="p">))</span>
+                    
+                    <span class="n">sub_bytes</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">newuser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_bytes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()</span> <span class="o">-</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">+</span> <span class="p">(</span><span class="n">headroom_end</span> <span class="o">-</span> <span class="n">trailer_end</span><span class="p">):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: unable to fit new name </span><span class="si">{}</span><span class="s2"> in binary file&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">user</span><span class="p">))</span>
+                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">trailer</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">trailer_start</span><span class="p">:</span><span class="n">trailer_end</span><span class="p">]</span>
+                    <span class="n">cursor</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">sub_bytes</span><span class="p">:</span>
+                        <span class="n">text</span><span class="p">[</span><span class="n">cursor</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
+                        <span class="n">cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">trailer</span><span class="p">:</span>
+                        <span class="n">text</span><span class="p">[</span><span class="n">cursor</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
+                        <span class="n">cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">headroom_end</span><span class="p">):</span>
+                        <span class="n">text</span><span class="p">[</span><span class="n">cursor</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">file_changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">wmode</span> <span class="o">=</span> <span class="s1">&#39;wb&#39;</span>
+            <span class="k">if</span> <span class="n">file_changed</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;acting on file_changed </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s2">&quot;.old&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">wmode</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+          
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.utils.fixup_css_ws.html#user_apps.utils.fixup_css_ws.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="c1">#args.pat = re.compile(r&#39;/home/pgm/&#39;)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">pat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">olduser</span><span class="p">))</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">bpat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">((</span><span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">olduser</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span> <span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">ws</span><span class="p">:</span>
+        <span class="n">fixup</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ws</span><span class="p">)</span></div>
+    
+    
+
+
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

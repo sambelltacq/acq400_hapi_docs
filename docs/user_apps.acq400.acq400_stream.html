@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_stream &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="acq400_stream2" href="user_apps.acq400.acq400_stream2.html" />
+    <link rel="prev" title="acq400_stop_streamtonowhere" href="user_apps.acq400.acq400_stop_streamtonowhere.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.acq400.html">acq400</a></li>
+      <li class="breadcrumb-item active">acq400_stream</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="acq400-stream">
+<h1>acq400_stream<a class="headerlink" href="#acq400-stream" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">acq400_stream</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">filesize</span> <span class="n">FILESIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">totaldata</span> <span class="n">TOTALDATA</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">root</span> <span class="n">ROOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">runtime</span> <span class="n">RUNTIME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="n">VERBOSE</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">callback</span> <span class="n">CALLBACK</span><span class="p">]</span>
+                        <span class="n">uuts</span> <span class="p">[</span><span class="n">uuts</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>uuts</kbd></dt>
+<dd><p class="sd-card-text">uuts</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--filesize</kbd></dt>
+<dd><p class="sd-card-text">Default: 1048576</p>
+</dd>
+<dt><kbd>--totaldata</kbd></dt>
+<dd><p class="sd-card-text">Default: 10000000000</p>
+</dd>
+<dt><kbd>--root</kbd></dt>
+<dd><p class="sd-card-text">Location to save files. Default dir is UUT name.</p>
+<p class="sd-card-text">Default: “”</p>
+</dd>
+<dt><kbd>--runtime</kbd></dt>
+<dd><p class="sd-card-text">How long to stream data for</p>
+<p class="sd-card-text">Default: 1000000</p>
+</dd>
+<dt><kbd>--verbose</kbd></dt>
+<dd><p class="sd-card-text">Prints status messages as the stream is running</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--callback</kbd></dt>
+<dd><p class="sd-card-text">for client program use only. Assume object with __call_ method</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.acq400.acq400_stream">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.acq400.acq400_stream" title="Permalink to this heading"></a></h2>
+<p>This is a script intended to connect to a UUT and stream data from port 4210.</p>
+<p>The data that has been streamed is not demuxed and so if it is to be used then it has to be demuxed first.
+Something like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="s2">&quot;0000&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;&lt;datatype&gt;&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[::</span><span class="o">&lt;</span><span class="n">number</span> <span class="n">of</span> <span class="n">channels</span><span class="o">&gt;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Some usage examples are included below:</p>
+<p>1: Acquire files of size 1024kb up to a total of 4096kb:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">acq400_stream</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">filesize</span><span class="o">=</span><span class="mi">1</span><span class="n">M</span> <span class="o">--</span><span class="n">totaldata</span><span class="o">=</span><span class="mi">4</span><span class="n">M</span> <span class="o">&lt;</span><span class="n">uut</span> <span class="n">hostname</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>2: Acquire a single file of size 4096kb:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">acq400_stream</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">filesize</span><span class="o">=</span><span class="mi">4</span><span class="n">M</span> <span class="o">--</span><span class="n">totaldata</span><span class="o">=</span><span class="mi">4</span><span class="n">M</span> <span class="o">&lt;</span><span class="n">uut</span> <span class="n">hostname</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>3: Acquire files of size 1024 for 10 seconds:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">acq400_stream</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">filesize</span><span class="o">=</span><span class="mi">1</span><span class="n">M</span> <span class="o">--</span><span class="n">runtime</span><span class="o">=</span><span class="mi">10</span> <span class="o">&lt;</span><span class="n">uut</span> <span class="n">hostname</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>4: Acquire data for 5 seconds and write the data all to a single file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">acq400_stream</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">verbose</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">filesize</span><span class="o">=</span><span class="mi">9999</span><span class="n">M</span> <span class="o">--</span><span class="n">runtime</span><span class="o">=</span><span class="mi">5</span> <span class="o">&lt;</span><span class="n">uut</span> <span class="n">hostname</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<dl class="simple hidden">
+<dt>usage::</dt><dd><dl class="simple">
+<dt>acq400_stream.py [-h] [–filesize FILESIZE] [–totaldata TOTALDATA]</dt><dd><p>[–root ROOT] [–runtime RUNTIME] [–verbose VERBOSE]
+uuts [uuts …]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="hidden">acq400 stream</p>
+<p class="hidden">positional arguments:
+uuts                  uuts</p>
+<p class="hidden">optional arguments:
+-h, –help            show this help message and exit
+–filesize FILESIZE   Size of file to store in KB. If filesize &gt;         total data then no data will be stored.
+–totaldata TOTALDATA Total amount of data to store in KB
+–root ROOT           Location to save files
+–runtime RUNTIME     How long to stream data for
+–verbose VERBOSE     Prints status messages as the stream is running</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_stream.make_data_dir">
+<span class="sig-name descname"><span class="pre">make_data_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_stream.html#make_data_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_stream.make_data_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_stream.run_stream">
+<span class="sig-name descname"><span class="pre">run_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_stream.html#run_stream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_stream.run_stream" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_stream.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_stream.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_stream.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

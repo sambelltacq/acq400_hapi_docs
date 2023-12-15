@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sync_cluster &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sync_role" href="user_apps.acq400.sync_role.html" />
+    <link rel="prev" title="set_burst" href="user_apps.acq400.set_burst.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.acq400.html">acq400</a></li>
+      <li class="breadcrumb-item active">sync_cluster</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sync-cluster">
+<h1>sync_cluster<a class="headerlink" href="#sync-cluster" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">sync_cluster</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">run_sync_role</span> <span class="n">RUN_SYNC_ROLE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fclk</span> <span class="n">FCLK</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fin</span> <span class="n">FIN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">clk_route</span> <span class="n">CLK_ROUTE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trg_route</span> <span class="n">TRG_ROUTE</span><span class="p">]</span>
+                       <span class="p">[</span><span class="o">--</span><span class="n">rtm</span> <span class="n">RTM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">rtm_translen</span> <span class="n">RTM_TRANSLEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">gpio_to_trg</span> <span class="n">GPIO_TO_TRG</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">TRG_DX</span> <span class="n">TRG_DX</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">toprole</span> <span class="n">TOPROLE</span><span class="p">]</span> <span class="o">--</span><span class="n">masters</span>
+                       <span class="n">MASTERS</span> <span class="o">--</span><span class="n">slaves</span> <span class="n">SLAVES</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--run_sync_role</kbd></dt>
+<dd><p class="sd-card-text">run sync role</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--fclk</kbd></dt>
+<dd><p class="sd-card-text">sample clock rate</p>
+<p class="sd-card-text">Default: “20M”</p>
+</dd>
+<dt><kbd>--fin</kbd></dt>
+<dd><p class="sd-card-text">external clock rate</p>
+<p class="sd-card-text">Default: “1M”</p>
+</dd>
+<dt><kbd>--clk_route</kbd></dt>
+<dd><p class="sd-card-text">clock routing MASTER, HDMI or FP</p>
+</dd>
+<dt><kbd>--trg_route</kbd></dt>
+<dd><p class="sd-card-text">trigger routing HDMI or FP</p>
+</dd>
+<dt><kbd>--rtm</kbd></dt>
+<dd><p class="sd-card-text">Enable rtm and set TRG to passed value ie d0</p>
+</dd>
+<dt><kbd>--rtm_translen</kbd></dt>
+<dd><p class="sd-card-text">rtm_translen value to set</p>
+</dd>
+<dt><kbd>--gpio_to_trg</kbd></dt>
+<dd><p class="sd-card-text">Routes hdmi_gpio to passed trg ie d1</p>
+</dd>
+<dt><kbd>--TRG_DX</kbd></dt>
+<dd><p class="sd-card-text">Set 1:TRG:DX source</p>
+</dd>
+<dt><kbd>--toprole</kbd></dt>
+<dd><p class="sd-card-text">role to use for the masters</p>
+</dd>
+<dt><kbd>--masters</kbd></dt>
+<dd><p class="sd-card-text">master uuts</p>
+</dd>
+<dt><kbd>--slaves</kbd></dt>
+<dd><p class="sd-card-text">slave uuts</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.acq400.sync_cluster">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.acq400.sync_cluster" title="Permalink to this heading"></a></h2>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">user_apps</span><span class="o">/</span><span class="n">acq400</span><span class="o">/</span><span class="n">sync_cluster</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">masters</span><span class="o">=</span><span class="n">acq2206_010</span><span class="p">,</span><span class="n">acq2206_007</span> <span class="o">--</span><span class="n">slaves</span><span class="o">=</span><span class="n">acq2206_009</span><span class="p">,</span><span class="n">acq2206_008</span><span class="p">,</span><span class="n">acq2206_006</span><span class="p">,</span><span class="n">acq2206_005</span> <span class="o">--</span><span class="n">fclk</span><span class="o">=</span><span class="mi">20</span><span class="n">M</span> <span class="o">--</span><span class="n">fin</span><span class="o">=</span><span class="mi">1</span><span class="n">M</span> <span class="o">--</span><span class="n">clk_route</span><span class="o">=</span><span class="n">HDMI</span> <span class="o">--</span><span class="n">trg_route</span><span class="o">=</span><span class="n">HDMI</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.run_main">
+<span class="sig-name descname"><span class="pre">run_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#run_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.run_main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.config_uuts">
+<span class="sig-name descname"><span class="pre">config_uuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#config_uuts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.config_uuts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.route_MASTER_clk">
+<span class="sig-name descname"><span class="pre">route_MASTER_clk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#route_MASTER_clk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.route_MASTER_clk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.route_HDMI_clk">
+<span class="sig-name descname"><span class="pre">route_HDMI_clk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#route_HDMI_clk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.route_HDMI_clk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.route_FP_clk">
+<span class="sig-name descname"><span class="pre">route_FP_clk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#route_FP_clk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.route_FP_clk" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.route_MASTER_trg">
+<span class="sig-name descname"><span class="pre">route_MASTER_trg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#route_MASTER_trg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.route_MASTER_trg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.route_HDMI_trg">
+<span class="sig-name descname"><span class="pre">route_HDMI_trg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#route_HDMI_trg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.route_HDMI_trg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.route_FP_trg">
+<span class="sig-name descname"><span class="pre">route_FP_trg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#route_FP_trg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.route_FP_trg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.route_hdmi_to_d1">
+<span class="sig-name descname"><span class="pre">route_hdmi_to_d1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#route_hdmi_to_d1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.route_hdmi_to_d1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.setup_rtm">
+<span class="sig-name descname"><span class="pre">setup_rtm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#setup_rtm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.setup_rtm" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.routing">
+<span class="sig-name descname"><span class="pre">routing</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'FP':</span> <span class="pre">{'clk_func':</span> <span class="pre">&lt;function</span> <span class="pre">route_FP_clk&gt;,</span> <span class="pre">'role':</span> <span class="pre">'fpmaster',</span> <span class="pre">'trg_func':</span> <span class="pre">&lt;function</span> <span class="pre">route_FP_trg&gt;},</span> <span class="pre">'HDMI':</span> <span class="pre">{'clk_func':</span> <span class="pre">&lt;function</span> <span class="pre">route_HDMI_clk&gt;,</span> <span class="pre">'role':</span> <span class="pre">'rpmaster',</span> <span class="pre">'trg_func':</span> <span class="pre">&lt;function</span> <span class="pre">route_HDMI_trg&gt;},</span> <span class="pre">'MASTER':</span> <span class="pre">{'clk_func':</span> <span class="pre">&lt;function</span> <span class="pre">route_MASTER_clk&gt;,</span> <span class="pre">'role':</span> <span class="pre">'master',</span> <span class="pre">'trg_func':</span> <span class="pre">&lt;function</span> <span class="pre">route_MASTER_trg&gt;}}</span></em><a class="headerlink" href="#user_apps.acq400.sync_cluster.routing" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>clk routing:</dt><dd><p>MASTER               MASTER -&gt;HDMI-&gt;  SLAVE
+HDMI    EXT -&gt;HDMI-&gt; MASTER -&gt;HDMI-&gt;  SLAVE
+FP      EXT -&gt;FP-&gt;   MASTER -&gt;HDMI-&gt;  SLAVE</p>
+</dd>
+<dt>trg routing:</dt><dd><p>MASTER  todo
+HDMI    EXT -&gt;HDMI-&gt; MASTER -&gt;HDMI-&gt;  SLAVE
+FP      EXT -&gt;FP-&gt;   MASTER -&gt;HDMI-&gt;  SLAVE</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.list_of_strings">
+<span class="sig-name descname"><span class="pre">list_of_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#list_of_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.list_of_strings" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.sync_cluster.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/sync_cluster.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.sync_cluster.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

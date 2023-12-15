@@ -1,0 +1,25 @@
+cpsc2\_test
+===========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.cpsc2_test.get_parser
+      :prog: cpsc2_test.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.cpsc2_test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

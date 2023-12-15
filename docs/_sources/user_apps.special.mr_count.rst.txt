@@ -1,0 +1,25 @@
+mr\_count
+=========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.mr_count.get_parser
+      :prog: mr_count.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.mr_count
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

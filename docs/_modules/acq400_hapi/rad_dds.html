@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_hapi.rad_dds &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acq400_hapi.rad_dds</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acq400_hapi.rad_dds</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">raddds.py specializes Acq400 for RADCELF triple DDS device</span>
+
+<span class="sd">- enumerates all site services, available as uut.sX.knob</span>
+<span class="sd">- monitors transient status on uut, provides blocking events</span>
+<span class="sd">- read_channels() reads all data from channel data service.</span>
+<span class="sd">- simple property interface allows natural &quot;script-like&quot; usage</span>
+
+<span class="sd"> - eg::</span>
+
+<span class="sd">       uut1.s0.set_arm = 1</span>
+
+<span class="sd"> - equivalent to running this on a logged in shell session on the UUT::</span>
+
+<span class="sd">       set.site1 set_arm=1</span>
+
+
+<span class="sd">Created on Sun Jan  8 12:36:38 2017</span>
+
+<span class="sd">@author: pgm</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">acq400</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">netclient</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">staticmethod</span>
+
+
+<div class="viewcode-block" id="AD9854"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854">[docs]</a><span class="k">class</span> <span class="nc">AD9854</span><span class="p">:</span>
+<div class="viewcode-block" id="AD9854.CR"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.CR">[docs]</a>    <span class="k">class</span> <span class="nc">CR</span><span class="p">:</span>
+        <span class="n">regular_en</span> <span class="o">=</span> <span class="s1">&#39;0061&#39;</span>
+        <span class="n">chirp_en</span>   <span class="o">=</span> <span class="s1">&#39;8761&#39;</span>
+        <span class="n">low_power</span>  <span class="o">=</span> <span class="s1">&#39;0041&#39;</span>
+        <span class="n">power_down</span> <span class="o">=</span> <span class="s1">&#39;1F000001&#39;</span>
+        <span class="n">zero_hz</span> <span class="o">=</span> <span class="s1">&#39;00044041&#39;</span>
+
+        <span class="n">CLR_ACC2</span> <span class="o">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">14</span></div>
+        
+<div class="viewcode-block" id="AD9854.CRX"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.CRX">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="c1"># CR for clock * n</span>
+    <span class="k">def</span> <span class="nf">CRX</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">CR</span><span class="o">.</span><span class="n">low_power</span><span class="p">,</span> <span class="n">clr_acc2</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span> 
+        <span class="n">ca2</span> <span class="o">=</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">CR</span><span class="o">.</span><span class="n">CLR_ACC2</span> <span class="k">if</span> <span class="n">clr_acc2</span> <span class="k">else</span> <span class="mi">0</span>           
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{:08x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="nb">int</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="n">ca2</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="AD9854.UCR"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.UCR">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="c1"># UCR for chirps_per_sec</span>
+    <span class="k">def</span> <span class="nf">UCR</span><span class="p">(</span><span class="n">chirps_per_sec</span><span class="p">,</span> <span class="n">intclk</span><span class="o">=</span><span class="mf">300e6</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{:08x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">intclk</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">chirps_per_sec</span><span class="p">))</span></div>
+        
+    
+<div class="viewcode-block" id="AD9854.ftw2ratio"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.ftw2ratio">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ftw2ratio</span><span class="p">(</span><span class="n">ftw</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s1">&#39;0x</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ftw</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="mh">0x1000000000000</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="AD9854.ratio2ftw"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.ratio2ftw">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ratio2ftw</span><span class="p">(</span><span class="n">ratio</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">48</span><span class="p">)),</span> <span class="s1">&#39;012x&#39;</span><span class="p">)</span>  </div>
+    
+<div class="viewcode-block" id="AD9854.CRX_chirp_off"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.CRX_chirp_off">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">CRX_chirp_off</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{:08x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="nb">int</span><span class="p">(</span><span class="n">AD9854</span><span class="o">.</span><span class="n">CR</span><span class="o">.</span><span class="n">low_power</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="AD9854.CRX_zero_hz"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.CRX_zero_hz">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">CRX_zero_hz</span><span class="p">(</span><span class="n">clr_acc2</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">CR</span><span class="o">.</span><span class="n">zero_hz</span></div>
+    
+<div class="viewcode-block" id="AD9854.CRX_power_down"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9854.CRX_power_down">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">CRX_power_down</span><span class="p">(</span><span class="n">clr_acc2</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">CR</span><span class="o">.</span><span class="n">power_down</span></div></div>
+  
+<div class="viewcode-block" id="AD9512"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9512">[docs]</a><span class="k">class</span> <span class="nc">AD9512</span><span class="p">:</span>
+<div class="viewcode-block" id="AD9512.DIVX"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9512.DIVX">[docs]</a>    <span class="k">class</span> <span class="nc">DIVX</span><span class="p">:</span>
+        <span class="n">div4</span> <span class="o">=</span> <span class="s1">&#39;1100&#39;</span>
+        <span class="n">passthru</span> <span class="o">=</span> <span class="s1">&#39;0080&#39;</span></div>
+        
+<div class="viewcode-block" id="AD9512.setDIVX"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9512.setDIVX">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">setDIVX</span><span class="p">(</span><span class="n">clkd</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">DIV0</span>     <span class="o">=</span> <span class="n">value</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">DIV1</span>     <span class="o">=</span> <span class="n">value</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">DIV2</span>     <span class="o">=</span> <span class="n">value</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">DIV3</span>     <span class="o">=</span> <span class="n">value</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">DIV4</span>     <span class="o">=</span> <span class="n">value</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">UPDATE</span>   <span class="o">=</span> <span class="s1">&#39;01&#39;</span></div>
+        
+<div class="viewcode-block" id="AD9512.clocksON"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.AD9512.clocksON">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">clocksON</span><span class="p">(</span><span class="n">clkd</span><span class="p">):</span>        
+        <span class="n">clkd</span><span class="o">.</span><span class="n">LVPECL1</span> <span class="o">=</span> <span class="s1">&#39;08&#39;</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">LVPECL0</span> <span class="o">=</span> <span class="s1">&#39;08&#39;</span>
+        <span class="n">clkd</span><span class="o">.</span><span class="n">UPDATE</span>  <span class="o">=</span> <span class="s1">&#39;01&#39;</span></div></div>
+         
+<div class="viewcode-block" id="RAD3DDS"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS">[docs]</a><span class="k">class</span> <span class="nc">RAD3DDS</span><span class="p">(</span><span class="n">acq400</span><span class="o">.</span><span class="n">Acq400</span><span class="p">):</span>
+    
+<div class="viewcode-block" id="RAD3DDS.best_clock_pps_sync"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.best_clock_pps_sync">[docs]</a>    <span class="nd">@staticmethod</span> 
+    <span class="k">def</span> <span class="nf">best_clock_pps_sync</span><span class="p">(</span><span class="n">fs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fs</span><span class="o">//</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">512</span><span class="p">;</span></div>
+    
+<div class="viewcode-block" id="RAD3DDS.ftw2ratio"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.ftw2ratio">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ftw2ratio</span><span class="p">(</span><span class="n">ftw</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">ftw2ratio</span><span class="p">(</span><span class="n">ftw</span><span class="p">)</span></div>
+    
+    
+<div class="viewcode-block" id="RAD3DDS.ratio2ftw"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.ratio2ftw">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ratio2ftw</span><span class="p">(</span><span class="n">ratio</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">ratio2ftw</span><span class="p">(</span><span class="n">ratio</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RAD3DDS.pulse"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.pulse">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">pulse</span><span class="p">(</span><span class="n">knob</span><span class="p">):</span>
+        <span class="n">knob</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">knob</span> <span class="o">=</span> <span class="mi">0</span></div>
+    
+<div class="viewcode-block" id="RAD3DDS.chirp_freq"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.chirp_freq">[docs]</a>    <span class="k">def</span> <span class="nf">chirp_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idds</span><span class="p">):</span>
+        <span class="c1"># idds 0: A, 1: B</span>
+        <span class="k">assert</span> <span class="n">idds</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">idds</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">acq400</span><span class="o">.</span><span class="n">freq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">get_knob</span><span class="p">(</span><span class="s1">&#39;SIG_TRG_S</span><span class="si">{}</span><span class="s1">_FREQ&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">2</span><span class="o">+</span><span class="n">idds</span><span class="p">)))</span></div>
+                                  
+<div class="viewcode-block" id="RAD3DDS.dds_freq"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.dds_freq">[docs]</a>    <span class="k">def</span> <span class="nf">dds_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idds</span><span class="p">):</span>
+        <span class="c1"># idds 0: A, 1: B, 2: C</span>
+        <span class="k">assert</span> <span class="n">idds</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">idds</span> <span class="o">&lt;=</span> <span class="mi">2</span> 
+        <span class="k">return</span> <span class="n">acq400</span><span class="o">.</span><span class="n">freq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">get_knob</span><span class="p">(</span><span class="s1">&#39;SIG_CLK_S</span><span class="si">{}</span><span class="s1">_FREQ&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="n">idds</span><span class="p">)))</span></div>
+    
+<div class="viewcode-block" id="RAD3DDS.radcelf_init"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.radcelf_init">[docs]</a>    <span class="k">def</span> <span class="nf">radcelf_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># port of original RADCELF_init shell script</span>
+    <span class="c1">#Reset the entire clock chain</span>
+        <span class="n">RAD3DDS</span><span class="o">.</span><span class="n">pulse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">clkd_hard_reset</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">CSPD</span>     <span class="o">=</span> <span class="s1">&#39;00&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">UPDATE</span>   <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+
+<span class="c1"># Set Primary Clock LVPECL 2 Off, set LVDS 3 to Off, Set LVDS 4 to TTL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">LVPECL2</span>  <span class="o">=</span> <span class="s1">&#39;0a&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">LVDS3</span>    <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">LVDS4</span>    <span class="o">=</span> <span class="s1">&#39;08&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">UPDATE</span>   <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+
+<span class="c1"># Set Secondary Clock LVPECL 2 Off, set LVDS 3 to TTL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="o">.</span><span class="n">LVPECL2</span>  <span class="o">=</span> <span class="s1">&#39;0a&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="o">.</span><span class="n">LVDS3</span>    <span class="o">=</span> <span class="s1">&#39;08&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="o">.</span><span class="n">UPDATE</span>   <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+<span class="c1">#Set all the clkdA AD9512 dividers to divide by 4 to avoid overheat</span>
+<span class="c1">#100MHz / 4 = 25Mhz source clock</span>
+        <span class="n">AD9512</span><span class="o">.</span><span class="n">setDIVX</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="p">,</span> <span class="n">AD9512</span><span class="o">.</span><span class="n">DIVX</span><span class="o">.</span><span class="n">div4</span><span class="p">)</span>       
+        <span class="c1"># set clkdB to pass-thru</span>
+        <span class="n">AD9512</span><span class="o">.</span><span class="n">setDIVX</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="p">,</span> <span class="n">AD9512</span><span class="o">.</span><span class="n">DIVX</span><span class="o">.</span><span class="n">passthru</span><span class="p">)</span>
+            
+<span class="c1"># Reset the DDS</span>
+        <span class="n">RAD3DDS</span><span class="o">.</span><span class="n">pulse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">ddsX_hard_reset</span><span class="p">)</span>
+    
+<span class="c1">#Switch the clocks off on the DDS Devices to stop I/O Updates</span>
+
+<span class="c1">#Clock Remapping DDS - Device clkA Output 1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">LVPECL1</span>  <span class="o">=</span> <span class="s1">&#39;0a&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="o">.</span><span class="n">UPDATE</span>   <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+
+<span class="c1">#The two Main DDS devices on device clkB Outputs 0 and 1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="o">.</span><span class="n">LVPECL0</span>  <span class="o">=</span> <span class="s1">&#39;0a&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="o">.</span><span class="n">LVPECL1</span>  <span class="o">=</span> <span class="s1">&#39;0a&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="o">.</span><span class="n">UPDATE</span>   <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+
+<span class="c1"># Write to the Control Registers on the 3 DDS devices - </span>
+<span class="c1"># External I/O Update and SDO On</span>
+<span class="c1"># Set the RefClk Multiplier on at x4 switch off the Inverse Sinc Filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddsA</span><span class="o">.</span><span class="n">CR</span> <span class="o">=</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">CR</span><span class="o">.</span><span class="n">low_power</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddsB</span><span class="o">.</span><span class="n">CR</span> <span class="o">=</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">CR</span><span class="o">.</span><span class="n">low_power</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddsC</span><span class="o">.</span><span class="n">CR</span> <span class="o">=</span> <span class="n">AD9854</span><span class="o">.</span><span class="n">CR</span><span class="o">.</span><span class="n">low_power</span>
+
+<span class="c1">#Switch the Clocks back on again</span>
+        <span class="n">AD9512</span><span class="o">.</span><span class="n">clocksON</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkdA</span><span class="p">)</span>
+        <span class="n">AD9512</span><span class="o">.</span><span class="n">clocksON</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkdB</span><span class="p">)</span>
+
+<span class="c1"># tell FPGA to take over the clocking</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">ddsA_upd_clk_fpga</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">ddsB_upd_clk_fpga</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">ddsC_upd_clk_fpga</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddsA</span><span class="o">.</span><span class="n">strobe_mode</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddsB</span><span class="o">.</span><span class="n">strobe_mode</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddsC</span><span class="o">.</span><span class="n">strobe_mode</span> <span class="o">=</span> <span class="mi">1</span></div>
+        
+
+<div class="viewcode-block" id="RAD3DDS.__init__"><a class="viewcode-back" href="../../acq400_hapi.rad_dds.html#acq400_hapi.rad_dds.RAD3DDS.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_uut</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">acq400</span><span class="o">.</span><span class="n">Acq400</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_uut</span><span class="p">,</span> <span class="n">monitor</span><span class="p">)</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="k">for</span> <span class="n">sm</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;ddsA&#39;</span><span class="p">,</span> <span class="s1">&#39;ddsB&#39;</span><span class="p">,</span> <span class="s1">&#39;ddsC&#39;</span><span class="p">]:</span>                
+                <span class="bp">self</span><span class="o">.</span><span class="n">svc</span><span class="p">[</span><span class="n">sm</span><span class="p">]</span> <span class="o">=</span> <span class="n">netclient</span><span class="o">.</span><span class="n">Siteclient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">acq400</span><span class="o">.</span><span class="n">AcqPorts</span><span class="o">.</span><span class="n">SITE0</span><span class="o">+</span><span class="n">site</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mod_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">site</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="mi">7</span>
+            <span class="k">for</span> <span class="n">sm</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;clkdA&#39;</span><span class="p">,</span> <span class="s1">&#39;clkdB&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">svc</span><span class="p">[</span><span class="n">sm</span><span class="p">]</span> <span class="o">=</span> <span class="n">netclient</span><span class="o">.</span><span class="n">Siteclient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">acq400</span><span class="o">.</span><span class="n">AcqPorts</span><span class="o">.</span><span class="n">SITE0</span><span class="o">+</span><span class="n">site</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mod_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">site</span> <span class="o">+=</span> <span class="mi">1</span>                </div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

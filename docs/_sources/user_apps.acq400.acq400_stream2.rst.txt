@@ -1,0 +1,25 @@
+acq400\_stream2
+===============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_stream2.get_parser
+      :prog: acq400_stream2.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_stream2
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

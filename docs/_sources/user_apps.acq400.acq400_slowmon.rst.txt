@@ -1,0 +1,25 @@
+acq400\_slowmon
+===============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_slowmon.get_parser
+      :prog: acq400_slowmon.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_slowmon
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

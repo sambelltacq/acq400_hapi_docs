@@ -1,0 +1,25 @@
+afhba\_mon
+==========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq2106.afhba_mon.get_parser
+      :prog: afhba_mon.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq2106.afhba_mon
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

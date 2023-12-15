@@ -1,0 +1,25 @@
+upsample
+========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.upsample.get_parser
+      :prog: upsample.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.upsample
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

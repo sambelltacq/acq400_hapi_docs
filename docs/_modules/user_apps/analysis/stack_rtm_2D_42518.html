@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.stack_rtm_2D_42518 &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.stack_rtm_2D_42518</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.stack_rtm_2D_42518</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">::</span>
+
+<span class="sd">    ./user_apps/acq400/acq400_upload.py --trace_upload=1 --plot_data=1 --capture=-1 --save_data=./DATA/ $UUTS</span>
+
+<span class="sd">Gives us::</span>
+
+<span class="sd">    pgm@hoy5 acq400_hapi]$ ls -l DATA</span>
+<span class="sd">    total 6276</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:19 acq1001_148_CH01</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:19 acq1001_148_CH02</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:19 acq1001_148_CH03</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:19 acq1001_148_CH04</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:19 acq1001_148_CH05</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:19 acq1001_148_CH06</span>
+<span class="sd">    ..</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:20 acq1001_279_CH05</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:20 acq1001_279_CH06</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:20 acq1001_279_CH07</span>
+<span class="sd">    -rw-rw-r-- 1 pgm pgm 200000 Sep 24 11:20 acq1001_279_CH08</span>
+
+
+<span class="sd">- then restack all the data as</span>
+
+<span class="sd">data[UUT][CHX][BURST][t]</span>
+
+<span class="sd">Then plot it any way you like.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">VERBOSE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;VERBOSE&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="get_src_names"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.get_src_names">[docs]</a><span class="k">def</span> <span class="nf">get_src_names</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;.*_CH[0-9][0-9]$&#39;</span><span class="p">)</span>
+    <span class="n">src_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span>  <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">src_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">src_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">VERBOSE</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">src_names</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">src_names</span></div>
+
+<div class="viewcode-block" id="get_esi"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.get_esi">[docs]</a><span class="k">def</span> <span class="nf">get_esi</span><span class="p">(</span><span class="n">chx</span><span class="p">):</span>
+<span class="c1"># calculate ES indices. Only look at ch2 on all boxes</span>
+<span class="c1"># remember the ES is double width..</span>
+    <span class="n">esn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">)</span><span class="o">/</span><span class="mi">8</span>
+    <span class="n">esi</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">esn</span><span class="p">)]</span>     <span class="c1"># index</span>
+    <span class="n">esc</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">esn</span><span class="p">)]</span>     <span class="c1"># count (ich+1)</span>
+
+    <span class="k">if</span> <span class="n">VERBOSE</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sanity check, check we are looking at real data, rows with 2857759060 are es, rest is data32&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="p">[</span><span class="n">chx</span><span class="p">[</span><span class="n">ic</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">))]))</span>
+
+    <span class="k">for</span> <span class="n">ich</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chx</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">VERBOSE</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ich </span><span class="si">{}</span><span class="s2"> len(chx) </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ich</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">ich</span><span class="o">%</span><span class="mi">8</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">esi</span><span class="p">[</span><span class="n">ich</span><span class="o">/</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ch</span> <span class="o">==</span> <span class="mh">0xaa55f154</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">esc</span><span class="p">[</span><span class="n">ich</span><span class="o">/</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">chx</span><span class="p">[</span><span class="n">ich</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">esi</span><span class="p">[</span><span class="n">ich</span><span class="o">/</span><span class="mi">8</span><span class="p">]]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;esi lengths </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">esi</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">esi</span><span class="p">))]))</span>
+
+    <span class="k">if</span> <span class="n">VERBOSE</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">es</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">esi</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ii </span><span class="si">{}</span><span class="s2"> es </span><span class="si">{}</span><span class="s2"> esc </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">es</span><span class="p">,</span> <span class="n">esc</span><span class="p">))</span>
+<span class="c1">#            deltac = [ es[jj]-esi[0][jj] for jj in range(esn) ]</span>
+<span class="c1">#            deltas = [ es[jj] - es[jj-1] for jj in range(1, esn)]</span>
+<span class="c1">#            print(&quot;difference between channels ii {} max {}&quot;.format(ii, max(deltac)))</span>
+<span class="c1">#            print(&quot;difference between bursts ii {} min {} max {}&quot;.format(ii, min(deltas), max(deltas)))</span>
+
+    <span class="n">errors</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;scanning embedded counts..&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">icount</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">esc</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">cv</span> <span class="o">=</span> <span class="p">[</span><span class="n">esc</span><span class="p">[</span><span class="n">ic</span><span class="p">][</span><span class="n">icount</span><span class="p">]</span> <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">esn</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">icount</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ic </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">icount</span><span class="p">,</span> <span class="n">cv</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">cv</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cv</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: count discrepancy at </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">icount</span><span class="p">,</span> <span class="n">cv</span><span class="p">))</span>
+            <span class="n">errors</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;scanned </span><span class="si">{}</span><span class="s2">*</span><span class="si">{}</span><span class="s2"> counts, errors </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">esn</span><span class="p">,</span> <span class="n">icount</span><span class="p">,</span> <span class="n">errors</span><span class="p">))</span>
+
+
+    <span class="n">lmin</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">esi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">truncate</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">ll</span> <span class="ow">in</span> <span class="p">[</span> <span class="nb">len</span><span class="p">(</span><span class="n">esi</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">esi</span><span class="p">))]:</span>
+        <span class="k">if</span> <span class="n">ll</span> <span class="o">!=</span> <span class="n">lmin</span><span class="p">:</span>
+            <span class="n">lmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ll</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: burst count mismatch, min is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lmin</span><span class="p">))</span>
+            <span class="n">truncate</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">bmin</span> <span class="o">=</span> <span class="n">esi</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">esi</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1">#    for bl in [ esi[0][ii]-esi[0][ii-1] for ii in range(2,len(esi))]:</span>
+<span class="c1">#        if bl != bmin:</span>
+<span class="c1">#            bmin = min(bl, bmin)</span>
+<span class="c1">#            print(&quot;WARNING bmin set {}&quot;.format(bmin))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;get_esi returns nbursts </span><span class="si">{}</span><span class="s2"> blen </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">bmin</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">bmin</span><span class="p">,</span> <span class="n">esi</span></div>
+
+<span class="c1">#FRONTPORCH = 30</span>
+<span class="n">FRONTPORCH</span><span class="o">=</span><span class="mi">0</span>
+
+<div class="viewcode-block" id="get_data"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.get_data">[docs]</a><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">srcs</span> <span class="o">=</span> <span class="n">get_src_names</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">nchan</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">srcs</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">srcs</span><span class="p">[</span><span class="n">ii</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nchan</span><span class="p">)]</span>
+    <span class="n">nbursts</span><span class="p">,</span> <span class="n">blen</span><span class="p">,</span> <span class="n">esi</span> <span class="o">=</span> <span class="n">get_esi</span><span class="p">([</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">srcs</span><span class="p">[</span><span class="n">ii</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nchan</span><span class="p">)])</span>
+    <span class="n">chx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nchan</span><span class="p">,</span> <span class="n">nbursts</span><span class="p">,</span> <span class="n">blen</span><span class="o">+</span><span class="n">FRONTPORCH</span><span class="p">))</span>
+    <span class="n">esi0</span> <span class="o">=</span> <span class="n">esi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chx 01 3 dimension </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchan</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ib</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbursts</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
+                <span class="n">chx</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="n">ib</span> <span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">right_shift</span><span class="p">(</span><span class="n">raw</span><span class="p">[</span><span class="n">ic</span><span class="p">][</span><span class="n">esi0</span><span class="p">[</span><span class="n">ib</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="p">:</span><span class="n">esi0</span><span class="p">[</span><span class="n">ib</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">+</span><span class="n">blen</span><span class="o">+</span><span class="n">FRONTPORCH</span><span class="p">],</span> <span class="mi">14</span><span class="p">)</span>
+
+
+    <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">ie</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;IndexError </span><span class="si">{}</span><span class="s2"> ic </span><span class="si">{}</span><span class="s2"> ib </span><span class="si">{}</span><span class="s2"> ii </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ie</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ii</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chx 99 3 dimension </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chx 99&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">chx</span></div>
+
+<span class="n">VALUE_ERRORS</span> <span class="o">=</span> <span class="mi">10</span>
+
+<div class="viewcode-block" id="fix_args"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.fix_args">[docs]</a><span class="k">def</span> <span class="nf">fix_args</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">nburst</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">VALUE_ERRORS</span>
+    <span class="n">bursts</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nburst</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_list</span><span class="p">:</span>
+        <span class="n">ubursts</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="n">args</span><span class="o">.</span><span class="n">burst_list</span><span class="o">+</span><span class="s1">&#39;, )&#39;</span><span class="p">)</span>
+        <span class="c1"># todo no range check</span>
+        <span class="n">bursts</span> <span class="o">=</span> <span class="n">ubursts</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_range</span><span class="p">:</span>
+        <span class="n">ubursts</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;range(&#39;</span><span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">burst_range</span> <span class="o">+</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">ubursts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">bursts</span><span class="p">):</span>
+            <span class="n">bursts</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">ubursts</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">bursts</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bursts</span> <span class="o">=</span> <span class="n">ubursts</span>
+
+    <span class="n">args</span><span class="o">.</span><span class="n">bursts</span> <span class="o">=</span> <span class="n">bursts</span></div>
+
+<div class="viewcode-block" id="plot_data"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.plot_data">[docs]</a><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">nchan</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">bursts</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bursts</span>
+
+    <span class="n">blen</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,:]),</span> <span class="n">args</span><span class="o">.</span><span class="n">maxlen</span><span class="p">)</span>
+    <span class="n">plotchan</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">plotchan</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">plotchan</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PLOT nchan </span><span class="si">{}</span><span class="s2"> nburst </span><span class="si">{}</span><span class="s2"> blen </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nburst</span><span class="p">,</span> <span class="n">blen</span><span class="p">))</span>
+    <span class="c1">#plt.figure(1)</span>
+
+    <span class="n">top_plot</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotchan</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="o">+</span><span class="mi">11</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">plotchan</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">top_plot</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Stack plot of </span><span class="si">{}</span><span class="s2"> bursts </span><span class="si">{}</span><span class="s2"> .. </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>\
+                      <span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bursts</span><span class="p">),</span> <span class="n">bursts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bursts</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">bursts</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">top_plot</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;CH</span><span class="si">{:0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch</span><span class="p">))</span>
+        <span class="n">sp</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">ich</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">ib</span> <span class="ow">in</span> <span class="n">bursts</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="n">ich</span><span class="p">,</span><span class="n">ib</span><span class="p">,:</span><span class="n">blen</span><span class="p">]</span><span class="o">+</span><span class="n">args</span><span class="o">.</span><span class="n">stack_offset</span><span class="o">*</span><span class="n">ib</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;B</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ib</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bursts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<span class="n">REBASE_COMP</span> <span class="o">=</span> <span class="p">(</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">REBASE_COMP</span> <span class="o">=</span> <span class="p">(</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<div class="viewcode-block" id="store_chan"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.store_chan">[docs]</a><span class="k">def</span> <span class="nf">store_chan</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">blen</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,:]),</span> <span class="n">args</span><span class="o">.</span><span class="n">maxlen</span><span class="p">)</span>
+    <span class="n">nchan</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">store_chan</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ignoring </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchan</span><span class="p">):</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/CH</span><span class="si">{:02d}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">store_chan</span><span class="p">,</span> <span class="n">ch</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">chx</span><span class="p">[</span><span class="n">ch</span><span class="p">,</span><span class="n">args</span><span class="o">.</span><span class="n">bursts</span><span class="p">,:</span><span class="n">blen</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int16&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="rebase"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.rebase">[docs]</a><span class="k">def</span> <span class="nf">rebase</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ith</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">VALUE_ERRORS</span>
+    <span class="n">nchan</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">)</span>
+    <span class="c1">#print(&quot;rebase {}&quot;.format(ib))</span>
+    <span class="n">blen</span> <span class="o">=</span>  <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ib</span><span class="p">])</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchan</span><span class="p">):</span>
+            <span class="n">ithc</span> <span class="o">=</span> <span class="n">ith</span> <span class="o">-</span> <span class="n">REBASE_COMP</span><span class="p">[</span><span class="n">ic</span><span class="o">/</span><span class="mi">8</span><span class="p">]</span>
+            <span class="n">chx</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">blen</span><span class="o">-</span><span class="n">ithc</span><span class="p">]</span> <span class="o">=</span> <span class="n">chx</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ithc</span><span class="p">:]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Value Error </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ve</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="n">ib</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="n">ib</span><span class="p">,</span><span class="n">ith</span><span class="p">:])))</span>
+        <span class="n">VALUE_ERRORS</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="realign_burst"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.realign_burst">[docs]</a><span class="k">def</span> <span class="nf">realign_burst</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">iref</span><span class="p">):</span>
+    <span class="c1">#print(&quot;realign on {}&quot;.format(iref))</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="n">iref</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+    <span class="n">tophat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="n">iref</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">FRONTPORCH</span><span class="p">:</span><span class="n">FRONTPORCH</span><span class="o">+</span><span class="mi">5</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">tophat</span> <span class="o">-</span> <span class="n">baseline</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">baseline</span> <span class="o">+</span> <span class="p">(</span><span class="n">tophat</span><span class="o">-</span><span class="n">baseline</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span>
+        <span class="c1">#print(&quot;iref {} baseline {} tophat {} th={}&quot;.format(iref, baseline, tophat, threshold))</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">FRONTPORCH</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">chx</span><span class="p">[</span><span class="n">iref</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+                <span class="c1">#print(&quot;iref {} ib {}  threshold crossed at {}&quot;.format(iref, ib, ii))</span>
+                <span class="n">rebase</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
+                <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;iref </span><span class="si">{}</span><span class="s2"> ERROR: enough amplitude baseline </span><span class="si">{}</span><span class="s2"> tophat </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iref</span><span class="p">,</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">tophat</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="realign"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.realign">[docs]</a><span class="k">def</span> <span class="nf">realign</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">iref</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">ib</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])):</span>
+        <span class="n">realign_burst</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">iref</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="process_data"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.process_data">[docs]</a><span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">chx</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">alignref</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">alignref</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># index from zero</span>
+        <span class="n">realign</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">alignref</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fix_args</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">plotchan</span> <span class="o">!=</span> <span class="s1">&#39;0&#39;</span><span class="p">:</span>
+        <span class="n">plot_data</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">store_chan</span><span class="p">:</span>
+        <span class="n">store_chan</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;using data from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">))</span>
+        <span class="n">process_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: --root </span><span class="si">{}</span><span class="s2"> is not a directory&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">))</span></div>
+
+
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.stack_rtm_2D_42518.html#user_apps.analysis.stack_rtm_2D_42518.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;acq425 2D data plotter&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plotchan&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;1,17&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list of channels to plot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--stack_offset&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;separate channels in plot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--burst_range&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;min, max, [stride] bursts to plot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--burst_list&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list of bursts to plot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--maxlen&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">999999</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;max length per burst to plot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--root&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./DATA&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;directory with data&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--alignref&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;realign on this channel [index from 1]&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--store_chan&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;directory to store result by channel&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

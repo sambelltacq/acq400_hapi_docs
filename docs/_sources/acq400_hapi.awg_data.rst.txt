@@ -1,0 +1,15 @@
+awg\_data
+=========
+
+
+
+
+
+
+
+.. automodule:: acq400_hapi.awg_data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

@@ -1,0 +1,15 @@
+netclient
+=========
+
+
+
+
+
+
+
+.. automodule:: acq400_hapi.netclient
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

@@ -1,0 +1,248 @@
+
+
+acq400 
+=======
+
+.. automodule:: user_apps.acq400
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+   
+      
+.. rst-class:: spaced_list
+
+
+
+* :doc:`user_apps.acq400.acq400_abort` **abort running or armed uuts**
+
+
+
+* :doc:`user_apps.acq400.acq400_ao_test` **Test AO**
+
+
+
+* :doc:`user_apps.acq400.acq400_arm` **Set uuts to arm**
+
+
+
+* :doc:`user_apps.acq400.acq400_awg_load1` **simple awg demo**
+
+
+
+* :doc:`user_apps.acq400.acq400_caploop_rtrig` **Shot looptest**
+
+
+
+* :doc:`user_apps.acq400.acq400_capture` **run capture, with optional transient configuration**
+
+
+
+* :doc:`user_apps.acq400.acq400_checkramp`
+
+
+
+* :doc:`user_apps.acq400.acq400_configure_transient` **Configure transient on multiple uuts**
+
+
+
+* :doc:`user_apps.acq400.acq400_continuous` **Start or stop stream**
+
+
+
+* :doc:`user_apps.acq400.acq400_continuous_burst_awg` **awg rainbow burst demo**
+
+
+
+* :doc:`user_apps.acq400.acq400_es_split` **Check data for Event Signature**
+
+
+
+* :doc:`user_apps.acq400.acq400_fullshot` **Run a shot and capture data**
+
+
+
+* :doc:`user_apps.acq400.acq400_hello_world` **remote test script**
+
+
+
+* :doc:`user_apps.acq400.acq400_load_awg` **load awg simplest**
+
+
+
+* :doc:`user_apps.acq400.acq400_load_dpg` **simple dpg demo**
+
+
+
+* :doc:`user_apps.acq400.acq400_pre_post` **config pre-post then capture**
+
+
+
+* :doc:`user_apps.acq400.acq400_reboot` **reboot uuts**
+
+
+
+* :doc:`user_apps.acq400.acq400_remote_eval` **eval script on UUTS**
+
+
+
+* :doc:`user_apps.acq400.acq400_reset_counters` **Reset UUT counters**
+
+
+
+* :doc:`user_apps.acq400.acq400_rtm_stream` **Start RTM stream**
+
+
+
+* :doc:`user_apps.acq400.acq400_set_clk_trg` **Set CLK and TRG on UUT**
+
+
+
+* :doc:`user_apps.acq400.acq400_set_gain` **Set UUT gains**
+
+
+
+* :doc:`user_apps.acq400.acq400_set_shot` **Set UUT shot number**
+
+
+
+* :doc:`user_apps.acq400.acq400_slowmon` **Config slowmon and run stream**
+
+
+
+* :doc:`user_apps.acq400.acq400_soft_trigger` **Fire soft trigger on UUT**
+
+
+
+* :doc:`user_apps.acq400.acq400_start_streamtonowhere` **Start stream to nowhere**
+
+
+
+* :doc:`user_apps.acq400.acq400_static_awg_restart` **Restart stopped AWG**
+
+
+
+* :doc:`user_apps.acq400.acq400_stop_streamtonowhere` **Stop stream to nowhere**
+
+
+
+* :doc:`user_apps.acq400.acq400_stream` **Stream data from UUT**
+
+
+
+* :doc:`user_apps.acq400.acq400_stream2` **Stream data from UUT**
+
+
+
+* :doc:`user_apps.acq400.acq400_stream_awg` **simple load awg**
+
+
+
+* :doc:`user_apps.acq400.acq400_stream_awg_multi` **simple load awg multi**
+
+
+
+* :doc:`user_apps.acq400.acq400_stream_multi` **Stream data from multiple UUTs**
+
+
+
+* :doc:`user_apps.acq400.acq400_streamtonowhere` **Start stream to nowhere for x samples**
+
+
+
+* :doc:`user_apps.acq400.acq400_upload` **Simple capture and get data**
+
+
+
+* :doc:`user_apps.acq400.config_437` **Config 437**
+
+
+
+* :doc:`user_apps.acq400.delay_trigger_setup` **Sets up delayed trigger for acq1001+480**
+
+
+
+* :doc:`user_apps.acq400.gpg_load_oneshot` **Run shot and load GPG**
+
+
+
+* :doc:`user_apps.acq400.hdmi_master_trg` **hdmi trigger**
+
+
+
+* :doc:`user_apps.acq400.make_clktrg_chain` **Sync routing chain**
+
+
+
+* :doc:`user_apps.acq400.mean_client` **Gets mean data from UUT**
+
+
+
+* :doc:`user_apps.acq400.set_burst` **Set burst and run shot**
+
+
+
+* :doc:`user_apps.acq400.sync_cluster` **Setup cluster of uuts**
+
+
+
+* :doc:`user_apps.acq400.sync_role` **set sync roles for a stack of modules**
+
+
+
+* :doc:`user_apps.acq400.wait_for_pulse` **Stop UUT after N triggers**
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   user_apps.acq400.acq400_abort
+   user_apps.acq400.acq400_ao_test
+   user_apps.acq400.acq400_arm
+   user_apps.acq400.acq400_awg_load1
+   user_apps.acq400.acq400_caploop_rtrig
+   user_apps.acq400.acq400_capture
+   user_apps.acq400.acq400_checkramp
+   user_apps.acq400.acq400_configure_transient
+   user_apps.acq400.acq400_continuous
+   user_apps.acq400.acq400_continuous_burst_awg
+   user_apps.acq400.acq400_es_split
+   user_apps.acq400.acq400_fullshot
+   user_apps.acq400.acq400_hello_world
+   user_apps.acq400.acq400_load_awg
+   user_apps.acq400.acq400_load_dpg
+   user_apps.acq400.acq400_pre_post
+   user_apps.acq400.acq400_reboot
+   user_apps.acq400.acq400_remote_eval
+   user_apps.acq400.acq400_reset_counters
+   user_apps.acq400.acq400_rtm_stream
+   user_apps.acq400.acq400_set_clk_trg
+   user_apps.acq400.acq400_set_gain
+   user_apps.acq400.acq400_set_shot
+   user_apps.acq400.acq400_slowmon
+   user_apps.acq400.acq400_soft_trigger
+   user_apps.acq400.acq400_start_streamtonowhere
+   user_apps.acq400.acq400_static_awg_restart
+   user_apps.acq400.acq400_stop_streamtonowhere
+   user_apps.acq400.acq400_stream
+   user_apps.acq400.acq400_stream2
+   user_apps.acq400.acq400_stream_awg
+   user_apps.acq400.acq400_stream_awg_multi
+   user_apps.acq400.acq400_stream_multi
+   user_apps.acq400.acq400_streamtonowhere
+   user_apps.acq400.acq400_upload
+   user_apps.acq400.config_437
+   user_apps.acq400.delay_trigger_setup
+   user_apps.acq400.gpg_load_oneshot
+   user_apps.acq400.hdmi_master_trg
+   user_apps.acq400.make_clktrg_chain
+   user_apps.acq400.mean_client
+   user_apps.acq400.set_burst
+   user_apps.acq400.sync_cluster
+   user_apps.acq400.sync_role
+   user_apps.acq400.wait_for_pulse
+      
+   

@@ -1,0 +1,123 @@
+
+
+special 
+========
+
+.. automodule:: user_apps.special
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+   
+      
+.. rst-class:: spaced_list
+
+
+
+* :doc:`user_apps.special.AquadB_analysis` **Wrapper for move aquadb and host demux**
+
+
+
+* :doc:`user_apps.special.IEC60601_reboot`
+
+
+
+* :doc:`user_apps.special.acq2106_mr` **Multirate shot**
+
+
+
+* :doc:`user_apps.special.acq2106_wr_reset` **acq2106 wr reset**
+
+
+
+* :doc:`user_apps.special.acq2106_wrpg_clkout_demo` ** wrpg clkout demo**
+
+
+
+* :doc:`user_apps.special.acq480_controls` **configure acq480**
+
+
+
+* :doc:`user_apps.special.amx_start_demo` **start amx demo**
+
+
+
+* :doc:`user_apps.special.analyse-repeating-wave` **make_awg_data**
+
+
+
+* :doc:`user_apps.special.awg_mgtdram_runner` **runs shots with one continuous AWG**
+
+
+
+* :doc:`user_apps.special.awg_oneshot_speed_test` **awg speed test**
+
+
+
+* :doc:`user_apps.special.bolo8_cal_cap_loop` **Bolo8 calibration and capture**
+
+
+
+* :doc:`user_apps.special.bolo8_host_calcs`
+
+
+
+* :doc:`user_apps.special.ddc_sync_role` **set sync roles for a stack of modules**
+
+
+
+* :doc:`user_apps.special.hy_stream` **acq400 stream**
+
+
+
+* :doc:`user_apps.special.mr_count` **acq2106_mr_count**
+
+
+
+* :doc:`user_apps.special.plot_acq2106_123`
+
+
+
+* :doc:`user_apps.special.quest_upload` **upload quest**
+
+
+
+* :doc:`user_apps.special.run_AquadB_movement` **Stream data from multiple UUTs**
+
+
+
+* :doc:`user_apps.special.tiga-stl-load` **TIGA stl load.**
+
+
+
+* :doc:`user_apps.special.wrtd_test` **wrtd_test**
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   user_apps.special.AquadB_analysis
+   user_apps.special.IEC60601_reboot
+   user_apps.special.acq2106_mr
+   user_apps.special.acq2106_wr_reset
+   user_apps.special.acq2106_wrpg_clkout_demo
+   user_apps.special.acq480_controls
+   user_apps.special.amx_start_demo
+   user_apps.special.analyse-repeating-wave
+   user_apps.special.awg_mgtdram_runner
+   user_apps.special.awg_oneshot_speed_test
+   user_apps.special.bolo8_cal_cap_loop
+   user_apps.special.bolo8_host_calcs
+   user_apps.special.ddc_sync_role
+   user_apps.special.hy_stream
+   user_apps.special.mr_count
+   user_apps.special.plot_acq2106_123
+   user_apps.special.quest_upload
+   user_apps.special.run_AquadB_movement
+   user_apps.special.tiga-stl-load
+   user_apps.special.wrtd_test
+      
+   

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq2106.run_hts_all &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq2106.run_hts_all</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq2106.run_hts_all</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+
+<div class="viewcode-block" id="Struct"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.Struct">[docs]</a><span class="k">class</span> <span class="nc">Struct</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Struct.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.Struct.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span></div></div>
+
+<span class="n">uut_port_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="map_uuts"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.map_uuts">[docs]</a><span class="k">def</span> <span class="nf">map_uuts</span><span class="p">():</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s2">&quot;get-ident-all&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">uut_port_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">maps</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">ids</span> <span class="p">]</span>
+    <span class="k">for</span> <span class="nb">map</span> <span class="ow">in</span> <span class="n">maps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">map</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="nb">map</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;acq2106&#39;</span><span class="p">):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">(</span><span class="n">uut</span><span class="o">=</span><span class="nb">map</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">lport</span><span class="o">=</span><span class="nb">map</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rport</span><span class="o">=</span><span class="nb">map</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">uut_port_map</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">uut</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
+
+    <span class="k">return</span> <span class="n">uut_port_map</span></div>
+
+<span class="n">UUTS</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="make_fifos"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.make_fifos">[docs]</a><span class="k">def</span> <span class="nf">make_fifos</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">fifos</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">:</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;/tmp/</span><span class="si">{}</span><span class="s2">.hts&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkfifo</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="mi">17</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR OSError, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="n">args</span><span class="o">.</span><span class="n">fifos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span></div>
+
+<span class="n">scmd</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;python&#39;</span><span class="p">,</span> <span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="s1">&#39;./user_apps/acq400/sync_role.py&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="set_sync_roles"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.set_sync_roles">[docs]</a><span class="k">def</span> <span class="nf">set_sync_roles</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;set_sync_roles&quot;</span><span class="p">)</span>
+    <span class="c1"># --toprole=master,fptrg --fclk=10M --enable_trigger=1 $UUTS</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">scmd</span><span class="p">)</span>
+    <span class="n">toprole</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">etrg</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">toprole</span> <span class="o">+=</span> <span class="s1">&#39;,fptrg&#39;</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--toprole=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">toprole</span><span class="p">))</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--fclk=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">fclk</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">:</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uut</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div>
+
+<span class="n">time0</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="wait_for_state"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.wait_for_state">[docs]</a><span class="k">def</span> <span class="nf">wait_for_state</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">time0</span>
+    <span class="k">if</span> <span class="n">time0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">time0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">UUTS</span><span class="p">:</span>
+        <span class="n">olds</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">dots</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pollcat</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">finished</span><span class="p">:</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">CONTINUOUS_STATE</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">finished</span> <span class="o">=</span> <span class="n">st</span> <span class="o">==</span> <span class="n">state</span>
+            <span class="n">news</span> <span class="o">=</span> <span class="s2">&quot;polling </span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> waiting for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="s1">&#39;DONE&#39;</span> <span class="k">if</span> <span class="n">finished</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">news</span> <span class="o">!=</span> <span class="n">olds</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{:06.2f}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time0</span><span class="p">,</span> <span class="n">news</span><span class="p">))</span>
+                <span class="n">olds</span> <span class="o">=</span> <span class="n">news</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">dots</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">dots</span> <span class="o">&gt;=</span> <span class="mi">20</span><span class="p">:</span>
+                    <span class="n">dots</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">olds</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">finished</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">timeout</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">timeout waiting for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">news</span><span class="p">))</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">pollcat</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="release_the_trigger"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.release_the_trigger">[docs]</a><span class="k">def</span> <span class="nf">release_the_trigger</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RELEASE the trigger REMOVEME when hardware fixed&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">scmd</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--enable_trigger=1&#39;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="init_shot"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.init_shot">[docs]</a><span class="k">def</span> <span class="nf">init_shot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">UUTS</span>
+    <span class="k">global</span> <span class="n">uut_port_map</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run_hts</span><span class="p">:</span>
+        <span class="n">uut_port_map</span> <span class="o">=</span> <span class="n">map_uuts</span><span class="p">()</span>
+        <span class="n">make_fifos</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">UUTS</span> <span class="o">=</span> <span class="p">[</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">UUTS</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">transient</span> <span class="o">=</span> <span class="s2">&quot;SOFT_TRIGGER=0&quot;</span>
+
+    <span class="k">if</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">intSI_cvt</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">fclk</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">40000000</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;fclk &gt; 40M, setting 2x4 mode&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">UUTS</span><span class="p">:</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">stack_480</span> <span class="o">=</span> <span class="s1">&#39;2x4&#39;</span>
+
+    <span class="n">set_sync_roles</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_store_shot</span><span class="p">(</span><span class="n">shot</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;store_shot </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shot</span><span class="p">))</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;HTSDATA&#39;</span><span class="p">)</span>
+    <span class="n">srcports</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/*&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;HTSARCHIVE&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+    <span class="n">shotbase</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/SHOTS/</span><span class="si">{:08d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;copy from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">shotbase</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">shotbase</span><span class="p">)</span>
+<span class="c1">#OSError: [Errno 17] File exists: &#39;/mnt/datastream/SHOTS/00000144&#39;</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">17</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;WARNING: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">refusing to overwrite duplicate shot, please backup by hand&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR OSError, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+
+    <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">srcports</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;sudo&#39;</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">shotbase</span><span class="p">]</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;du&#39;</span><span class="p">,</span> <span class="s1">&#39;-sh&#39;</span><span class="p">,</span> <span class="n">shotbase</span><span class="p">]</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+<div class="viewcode-block" id="store_shot"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.store_shot">[docs]</a><span class="k">def</span> <span class="nf">store_shot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">wait_for_state</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;IDLE&#39;</span><span class="p">)</span>
+    <span class="n">shot</span> <span class="o">=</span> <span class="p">[</span> <span class="n">u</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">UUTS</span><span class="p">]</span>
+
+    <span class="n">s0</span> <span class="o">=</span> <span class="n">shot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">s1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shot</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="k">if</span> <span class="n">s0</span> <span class="o">!=</span> <span class="n">s1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: uut </span><span class="si">{}</span><span class="s2"> shot </span><span class="si">{}</span><span class="s2"> does not equal master </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">UUTS</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s0</span><span class="p">))</span>
+
+    <span class="n">_store_shot</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">shot</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="run_hts"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.run_hts">[docs]</a><span class="k">def</span> <span class="nf">run_hts</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mate-terminal&#39;</span><span class="p">]</span>
+    <span class="n">tabdef</span> <span class="o">=</span> <span class="s1">&#39;--window-with-profile=Default&#39;</span>
+
+    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">uut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">):</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="n">uut_port_map</span><span class="p">[</span><span class="n">uut</span><span class="p">]</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tabdef</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--title=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="p">))</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--command=run-hts </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span>\
+                   <span class="nb">format</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">ports</span><span class="o">.</span><span class="n">lport</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">secs</span><span class="p">,</span> <span class="n">ports</span><span class="o">.</span><span class="n">rport</span><span class="p">))</span>
+        <span class="n">tabdef</span> <span class="o">=</span> <span class="s1">&#39;--tab-with-profile=Default&#39;</span>
+
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tabdef</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--title=</span><span class="si">{}</span><span class="s1">.hts&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="p">))</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--command=cat </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">fifos</span><span class="p">[</span><span class="n">ii</span><span class="p">]))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_run_mgt_cmd</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">blocks</span><span class="p">):</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mate-terminal&#39;</span><span class="p">]</span>
+
+    <span class="n">tabdef</span> <span class="o">=</span> <span class="s1">&#39;--window-with-profile=Default&#39;</span>
+
+    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">uut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">):</span>
+        <span class="n">spawned_cmd</span> <span class="o">=</span> <span class="s2">&quot;python -u ./user_apps/acq2106/mgtdramshot.py --captureblocks=</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">uut</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tabdef</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--title=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="p">))</span>
+        <span class="c1"># spawned_cmd = &#39;powershell pwd&#39;</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--command=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spawned_cmd</span><span class="p">))</span>
+        <span class="n">tabdef</span> <span class="o">=</span> <span class="s1">&#39;--tab-with-profile=Default&#39;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="c1"># subprocess.check_call(cmd)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span> <span class="c1"># Popen runs asynchronously. </span>
+
+
+<div class="viewcode-block" id="run_mgt_command"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.run_mgt_command">[docs]</a><span class="k">def</span> <span class="nf">run_mgt_command</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">UUTS</span>
+    <span class="n">BLOCKSZ</span> <span class="o">=</span> <span class="mh">0x400000</span>
+    <span class="n">nchan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">UUTS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">NCHAN</span><span class="p">)</span>
+    <span class="n">mbps</span> <span class="o">=</span> <span class="n">nchan</span> <span class="o">*</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">intSI_cvt</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">fclk</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="n">mbps</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">secs</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCKSZ</span>
+    <span class="n">_run_mgt_cmd</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">blocks</span><span class="p">)</span></div>
+
+<span class="c1"># sudo mv /mnt/datastream/ACQ400DATA/* /mnt/datastream/SHOT_0134/</span>
+<div class="viewcode-block" id="run_shot"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.run_shot">[docs]</a><span class="k">def</span> <span class="nf">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run_hts</span><span class="p">:</span>
+        <span class="n">run_hts</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">run_mgt_command</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="n">wait_for_state</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;ARM&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">etrg</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">release_the_trigger</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">store</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">store_shot</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">init_shot</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq2106.run_hts_all.html#user_apps.acq2106.run_hts_all.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Run HTS on mulitple UUTs&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--secs&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;seconds to run&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--etrg&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;1: enable external trg&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--fclk&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;10M&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;sample clock before decimation&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--store&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;1: store shot after capture&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--run_hts&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;1: run the hts-helper, 0: do not run&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uutnames&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;uut&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

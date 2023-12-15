@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.plot_sample_from_burst &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.plot_sample_from_burst</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.plot_sample_from_burst</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="sd">&quot;&quot;&quot;UUT is running in Burst/RTM, eg at 50Hz.</span>
+
+
+<span class="sd">Stream the data to host, then </span>
+<span class="sd">- pick out all the Start Of Burst ES, then store the next sample</span>
+<span class="sd">- program plots time series for channel 1</span>
+
+<span class="sd">Capture data example::</span>
+
+<span class="sd">    [pgm@harlosh RGM]$ nc acq1001_343 4210 | pv &gt; burst32-50Hz-512-3.bin</span>
+
+<span class="sd">    [pgm@harlosh RGM]$ hexdump -e &#39;32/4 &quot;%08x,&quot; &quot;\\n&quot;&#39; burst32-50Hz-512-3.bin | cut -d, -f1-8 | grep -n aa55f154 | head</span>
+<span class="sd">    425:aa55f154,aa55f154,aa55f154,aa55f154,00000001,00000001,000002a0,000002a0</span>
+<span class="sd">    940:aa55f154,aa55f154,aa55f154,aa55f154,00000002,00000002,000005c0,000005c0</span>
+<span class="sd">    1455:aa55f154,aa55f154,aa55f154,aa55f154,00000003,00000003,000008e0,000008e0</span>
+<span class="sd">    1970:aa55f154,aa55f154,aa55f154,aa55f154,00000004,00000004,00000c00,00000c00</span>
+<span class="sd">    2485:aa55f154,aa55f154,aa55f154,aa55f154,00000005,00000005,00000f20,00000f20</span>
+<span class="sd">    3000:aa55f154,aa55f154,aa55f154,aa55f154,00000006,00000006,00001240,00001240</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<div class="viewcode-block" id="raw2volts"><a class="viewcode-back" href="../../../user_apps.analysis.plot_sample_from_burst.html#user_apps.analysis.plot_sample_from_burst.raw2volts">[docs]</a><span class="k">def</span> <span class="nf">raw2volts</span><span class="p">(</span><span class="n">xx</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">xx</span><span class="o">/</span><span class="mi">256</span> <span class="o">*</span> <span class="mf">10.0</span> <span class="o">/</span> <span class="mh">0x1000000</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="plot_data"><a class="viewcode-back" href="../../../user_apps.analysis.plot_sample_from_burst.html#user_apps.analysis.plot_sample_from_burst.plot_data">[docs]</a><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># int32&#39;s are easier for math, uint&#39;s easier for ES detect.</span>
+    <span class="c1"># wasting memory keeping a copy, but, memory is cheap..</span>
+    <span class="n">rawi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">rawu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+    <span class="n">ll</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rawi</span><span class="p">)</span><span class="o">/</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span>
+    <span class="n">lltrunc</span> <span class="o">=</span> <span class="n">ll</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span>
+    <span class="n">chxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rawi</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">lltrunc</span><span class="p">],</span> <span class="p">(</span><span class="n">ll</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">))</span>
+    <span class="n">chxu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rawu</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">lltrunc</span><span class="p">],</span> <span class="p">(</span><span class="n">ll</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">))</span>
+    <span class="c1"># extract the first sample in each burst. Approx ll/rtm_translen, ll is safe ..</span>
+    <span class="n">chx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">,</span> <span class="n">ll</span><span class="p">))</span>
+    <span class="n">ss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ll</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">chxu</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0xaa55f154</span> <span class="ow">and</span> <span class="n">chxu</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0xaa55f154</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">):</span>
+                <span class="n">chx</span><span class="p">[</span><span class="n">cc</span><span class="p">][</span><span class="n">ss</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw2volts</span><span class="p">(</span><span class="n">chxi</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">cc</span><span class="p">])</span>
+            <span class="n">ss</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">ss</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">raw2volts</span><span class="p">(</span><span class="n">chxi</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number of samples: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ss</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">chx</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">ss</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.plot_sample_from_burst.html#user_apps.analysis.plot_sample_from_burst.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Plot data from burst&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nchan&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;data &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">plot_data</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

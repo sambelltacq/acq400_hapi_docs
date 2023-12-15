@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>netclient &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="propellor" href="acq400_hapi.propellor.html" />
+    <link rel="prev" title="intSI" href="acq400_hapi.intSI.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="acq400_hapi.html">acq400_hapi</a></li>
+      <li class="breadcrumb-item active">netclient</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-acq400_hapi.netclient">
+<span id="netclient"></span><h1>netclient<a class="headerlink" href="#module-acq400_hapi.netclient" title="Permalink to this heading"></a></h1>
+<p>netclient.py interface to client tcp socket with
+- sr() send/receive a command</p>
+<p>Created on Sun Jan  8 12:36:38 2017</p>
+<p>&#64;author: pgm</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Netclient</span></span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>connects and holds open a socket to defined port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> (<em>str</em>) – ip-address or dns name on network</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – server port number.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.trace">
+<span class="sig-name descname"><span class="pre">trace</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#acq400_hapi.netclient.Netclient.trace" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.connect_timeout">
+<span class="sig-name descname"><span class="pre">connect_timeout</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#acq400_hapi.netclient.Netclient.connect_timeout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.receive_message">
+<span class="sig-name descname"><span class="pre">receive_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">termex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.receive_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.receive_message" title="Permalink to this definition"></a></dt>
+<dd><p>Read the information from the socket line at a time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>termex</strong> (<em>str</em>) – regex defines line terminator</p></li>
+<li><p><strong>maxlen</strong> (<em>int</em>) – max read size</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>string representing message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.send" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.has_data">
+<span class="sig-name descname"><span class="pre">has_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.has_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.has_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.instances">
+<span class="sig-name descname"><span class="pre">instances</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#acq400_hapi.netclient.Netclient.instances" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.addr">
+<span class="sig-name descname"><span class="pre">addr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.addr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.addr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.port">
+<span class="sig-name descname"><span class="pre">port</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.port" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Netclient.closeall">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">closeall</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Netclient.closeall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Netclient.closeall" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Logclient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Logclient</span></span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Logclient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Logclient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#acq400_hapi.netclient.Netclient" title="acq400_hapi.netclient.Netclient"><code class="xref py py-class docutils literal notranslate"><span class="pre">Netclient</span></code></a></p>
+<p>Netclient optimised for logging, line by line</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Logclient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Logclient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Logclient.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Logclient.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Logclient.poll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Logclient.poll" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Siteclient</span></span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#acq400_hapi.netclient.Netclient" title="acq400_hapi.netclient.Netclient"><code class="xref py py-class docutils literal notranslate"><span class="pre">Netclient</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.synchronized">
+<span class="sig-name descname"><span class="pre">synchronized</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient.synchronized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.synchronized" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.pat">
+<span class="sig-name descname"><span class="pre">pat</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">re.compile('[:.]')</span></em><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.pat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.sr">
+<span class="sig-name descname"><span class="pre">sr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient.sr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.sr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.build_knobs">
+<span class="sig-name descname"><span class="pre">build_knobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">knobstr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient.build_knobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.build_knobs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.*'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient.help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.help" title="Permalink to this definition"></a></dt>
+<dd><p>list available knobs, optionally filtered by regex.</p>
+<p>eg</p>
+<ul class="simple">
+<li><p>help()  : list all</p></li>
+<li><p>help(“SIG) : list all knobs with SIG</p></li>
+<li><p>help(“SIG*FREQ”) list all knobs SIG*FREQ</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.get_knob">
+<span class="sig-name descname"><span class="pre">get_knob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient.get_knob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.get_knob" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.set_knob">
+<span class="sig-name descname"><span class="pre">set_knob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient.set_knob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.set_knob" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#Siteclient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.knobs">
+<span class="sig-name descname"><span class="pre">knobs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.knobs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.trace">
+<span class="sig-name descname"><span class="pre">trace</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.trace" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.Siteclient.prevent_autocreate">
+<span class="sig-name descname"><span class="pre">prevent_autocreate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#acq400_hapi.netclient.Siteclient.prevent_autocreate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acq400_hapi.netclient.run_unit_test">
+<span class="sig-name descname"><span class="pre">run_unit_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/netclient.html#run_unit_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.netclient.run_unit_test" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

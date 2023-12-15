@@ -1,0 +1,25 @@
+hts\_multistream
+================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq2106.hts_multistream.get_parser
+      :prog: hts_multistream.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq2106.hts_multistream
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

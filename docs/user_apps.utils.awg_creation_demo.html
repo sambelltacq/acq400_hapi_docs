@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>awg_creation_demo &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bigplot" href="user_apps.utils.bigplot.html" />
+    <link rel="prev" title="aliases" href="user_apps.utils.aliases.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.utils.html">utils</a></li>
+      <li class="breadcrumb-item active">awg_creation_demo</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="awg-creation-demo">
+<h1>awg_creation_demo<a class="headerlink" href="#awg-creation-demo" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">awg_creation_demo</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fn</span> <span class="n">FN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">w</span> <span class="n">W</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nsam</span> <span class="n">NSAM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nchan</span> <span class="n">NCHAN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">even_ch_to_zeros</span> <span class="n">EVEN_CH_TO_ZEROS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">dir</span> <span class="n">DIR</span><span class="p">]</span>
+                            <span class="p">[</span><span class="o">--</span><span class="n">scale</span> <span class="n">SCALE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ds</span> <span class="n">DS</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--fn</kbd></dt>
+<dd><p class="sd-card-text">Generator function default:np.sin()</p>
+<p class="sd-card-text">Default: “np.sin”</p>
+</dd>
+<dt><kbd>--w</kbd></dt>
+<dd><p class="sd-card-text">Angular frequency</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--nsam</kbd></dt>
+<dd><p class="sd-card-text">Size of wave to generate.</p>
+<p class="sd-card-text">Default: 30000</p>
+</dd>
+<dt><kbd>--nchan</kbd></dt>
+<dd><p class="sd-card-text">Number of channels in AO module.</p>
+<p class="sd-card-text">Default: 32</p>
+</dd>
+<dt><kbd>--even_ch_to_zeros</kbd></dt>
+<dd><p class="sd-card-text">Whether to set even channels to zero.</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--dir</kbd></dt>
+<dd><p class="sd-card-text">Location to save files</p>
+<p class="sd-card-text">Default: “waves”</p>
+</dd>
+<dt><kbd>--scale</kbd></dt>
+<dd><p class="sd-card-text">Raw Scale Factor</p>
+<p class="sd-card-text">Default: 32767</p>
+</dd>
+<dt><kbd>--ds</kbd></dt>
+<dd><p class="sd-card-text">Data size in bits</p>
+<p class="sd-card-text">Default: 16</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.utils.awg_creation_demo">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.utils.awg_creation_demo" title="Permalink to this heading"></a></h2>
+<p>This script will generate a binary file that can be used to output a waveform on D-TACQ AO modules.</p>
+<p>To have the UUT output a single sample the file should have 32 int16s ie (CH1 CH2 … CH32) where the value for each
+channel can be different (they will not be different for this example). The user can extend this to as many samples as
+necessary and to any value necessary i.e the values do not need to be the same across channels (channel 1 could be a
+sine wave, channel 2 could be a sinc wave etc).</p>
+<p>In this script we are outputting the same identical sine wave across all 32 channels for nsam number of samples.
+There is also an argument called even_ch_to_zeros that, if set, will set all of the even channels to zero to illustrate
+how the channels are ordered.</p>
+<p>Example usage:</p>
+<p>To create the default file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">awg_creation_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>To create binary file with even channels set to 0 and a wave size of 3000 samples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">awg_creation_demo</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">nsam</span><span class="o">=</span><span class="mi">3000</span> <span class="o">--</span><span class="n">even_ch_to_zeros</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>To upload awg files once it has been generated use the following python script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">acq1001_awg_demo</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">files</span><span class="o">=</span><span class="s2">&quot;../acq400/waves/example_awg&quot;</span> <span class="o">--</span><span class="n">capture</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="n">awglen</span><span class="o">=&lt;</span><span class="n">awg_length</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">UUT</span> <span class="n">name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.awg_creation_demo.create_array">
+<span class="sig-name descname"><span class="pre">create_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/awg_creation_demo.html#create_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.awg_creation_demo.create_array" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.awg_creation_demo.generate_awg">
+<span class="sig-name descname"><span class="pre">generate_awg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/awg_creation_demo.html#generate_awg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.awg_creation_demo.generate_awg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.awg_creation_demo.run_main">
+<span class="sig-name descname"><span class="pre">run_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/awg_creation_demo.html#run_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.awg_creation_demo.run_main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.awg_creation_demo.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/awg_creation_demo.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.awg_creation_demo.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+cpsc2\_host\_demux
+==================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.cpsc2_host_demux.get_parser
+      :prog: cpsc2_host_demux.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.cpsc2_host_demux
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

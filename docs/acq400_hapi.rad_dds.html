@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rad_dds &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="shotcontrol" href="acq400_hapi.shotcontrol.html" />
+    <link rel="prev" title="propellor" href="acq400_hapi.propellor.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="acq400_hapi.html">acq400_hapi</a></li>
+      <li class="breadcrumb-item active">rad_dds</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-acq400_hapi.rad_dds">
+<span id="rad-dds"></span><h1>rad_dds<a class="headerlink" href="#module-acq400_hapi.rad_dds" title="Permalink to this heading"></a></h1>
+<p>raddds.py specializes Acq400 for RADCELF triple DDS device</p>
+<ul class="simple">
+<li><p>enumerates all site services, available as uut.sX.knob</p></li>
+<li><p>monitors transient status on uut, provides blocking events</p></li>
+<li><p>read_channels() reads all data from channel data service.</p></li>
+<li><p>simple property interface allows natural “script-like” usage</p></li>
+</ul>
+<blockquote>
+<div><ul>
+<li><p>eg:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">uut1</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_arm</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</li>
+<li><p>equivalent to running this on a logged in shell session on the UUT:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="o">.</span><span class="n">site1</span> <span class="n">set_arm</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>Created on Sun Jan  8 12:36:38 2017</p>
+<p>&#64;author: pgm</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AD9854</span></span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CR">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CR</span></span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.CR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CR" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CR.regular_en">
+<span class="sig-name descname"><span class="pre">regular_en</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0061'</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CR.regular_en" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CR.chirp_en">
+<span class="sig-name descname"><span class="pre">chirp_en</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'8761'</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CR.chirp_en" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CR.low_power">
+<span class="sig-name descname"><span class="pre">low_power</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0041'</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CR.low_power" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CR.power_down">
+<span class="sig-name descname"><span class="pre">power_down</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1F000001'</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CR.power_down" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CR.zero_hz">
+<span class="sig-name descname"><span class="pre">zero_hz</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'00044041'</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CR.zero_hz" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CR.CLR_ACC2">
+<span class="sig-name descname"><span class="pre">CLR_ACC2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16384</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CR.CLR_ACC2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CRX">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CRX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0041'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clr_acc2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.CRX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CRX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.UCR">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UCR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chirps_per_sec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intclk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300000000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.UCR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.UCR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.ftw2ratio">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ftw2ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ftw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.ftw2ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.ftw2ratio" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.ratio2ftw">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ratio2ftw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratio</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.ratio2ftw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.ratio2ftw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CRX_chirp_off">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CRX_chirp_off</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.CRX_chirp_off"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CRX_chirp_off" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CRX_zero_hz">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CRX_zero_hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clr_acc2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.CRX_zero_hz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CRX_zero_hz" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9854.CRX_power_down">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CRX_power_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clr_acc2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9854.CRX_power_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9854.CRX_power_down" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9512">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AD9512</span></span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9512"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9512" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9512.DIVX">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DIVX</span></span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9512.DIVX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9512.DIVX" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9512.DIVX.div4">
+<span class="sig-name descname"><span class="pre">div4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1100'</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9512.DIVX.div4" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9512.DIVX.passthru">
+<span class="sig-name descname"><span class="pre">passthru</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0080'</span></em><a class="headerlink" href="#acq400_hapi.rad_dds.AD9512.DIVX.passthru" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9512.setDIVX">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setDIVX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clkd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9512.setDIVX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9512.setDIVX" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.AD9512.clocksON">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clocksON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clkd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#AD9512.clocksON"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.AD9512.clocksON" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RAD3DDS</span></span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="acq400_hapi.acq400.html#acq400_hapi.acq400.Acq400" title="acq400_hapi.acq400.Acq400"><code class="xref py py-class docutils literal notranslate"><span class="pre">Acq400</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.best_clock_pps_sync">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">best_clock_pps_sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.best_clock_pps_sync"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.best_clock_pps_sync" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.ftw2ratio">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ftw2ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ftw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.ftw2ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.ftw2ratio" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.ratio2ftw">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ratio2ftw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratio</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.ratio2ftw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.ratio2ftw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.pulse">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">knob</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.pulse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.pulse" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.chirp_freq">
+<span class="sig-name descname"><span class="pre">chirp_freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.chirp_freq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.chirp_freq" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.dds_freq">
+<span class="sig-name descname"><span class="pre">dds_freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.dds_freq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.dds_freq" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.radcelf_init">
+<span class="sig-name descname"><span class="pre">radcelf_init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.radcelf_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.radcelf_init" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acq400_hapi.rad_dds.RAD3DDS.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acq400_hapi/rad_dds.html#RAD3DDS.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acq400_hapi.rad_dds.RAD3DDS.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

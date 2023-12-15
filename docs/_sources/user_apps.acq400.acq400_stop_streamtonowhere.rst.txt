@@ -1,0 +1,25 @@
+acq400\_stop\_streamtonowhere
+=============================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_stop_streamtonowhere.get_parser
+      :prog: acq400_stop_streamtonowhere.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_stop_streamtonowhere
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.cs_demux &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.cs_demux</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.cs_demux</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A python script to demux the data from the cs system.</span>
+
+<span class="sd">The data is supposed to come out in the following way:</span>
+
+<span class="sd">=====  =====  ======  ======  ======  ======  =========  ==========</span>
+<span class="sd">CH01   CH02   CH03    CH04    INDEX   FACET   SAM COUNT  usec COUNT</span>
+<span class="sd">=====  =====  ======  ======  ======  ======  =========  ==========</span>
+<span class="sd">short  short  short   short   long    long    long       long</span>
+<span class="sd">=====  =====  ======  ======  ======  ======  =========  ==========</span>
+
+<span class="sd">Example:</span>
+
+<span class="sd">Linux::</span>
+
+<span class="sd">    python cs_demux.py --data_file=&quot;/home/sean/PROJECTS/workspace/acq400_hapi-1/user_apps/acq400/acq1001_068/000001/0000&quot;</span>
+
+<span class="sd">Windows::</span>
+
+<span class="sd">    python .\cs_demux.py --plot_facets=4 --data_file=&quot;C:/acq2106_112/000001/0000&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+
+
+<span class="c1"># Sample in u32</span>
+<span class="c1"># &lt;ACQ420    &gt;&lt;QEN         &gt;&lt;AGG        &gt;</span>
+<span class="c1"># &lt;AI12&gt;&lt;AI34&gt;&lt;FACET&gt;&lt;INDEX&gt;&lt;AGSAM&gt;&lt;USEC&gt;</span>
+
+<span class="c1"># msb_direct: msb of FACET, INDEX is an embedded digital value</span>
+
+
+<span class="n">LPS</span> <span class="o">=</span> <span class="mi">6</span>       <span class="c1"># longs per sample</span>
+<span class="n">ESS</span> <span class="o">=</span> <span class="mi">4</span>       <span class="c1"># EVENT signature length in samples</span>
+<span class="n">ESL</span> <span class="o">=</span> <span class="n">LPS</span><span class="o">*</span><span class="n">ESS</span> <span class="c1"># ES length in LW</span>
+<span class="n">SPS</span> <span class="o">=</span> <span class="n">LPS</span><span class="o">*</span><span class="mi">2</span>   <span class="c1"># shorts per sample</span>
+
+<span class="c1"># function offsets in longs</span>
+<span class="n">IX_AI0102</span> <span class="o">=</span> <span class="mi">0</span> 
+<span class="n">IX_AI0304</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">IX_FACET</span>  <span class="o">=</span> <span class="mi">2</span>
+<span class="n">IX_INDEX</span>  <span class="o">=</span> <span class="mi">3</span>
+<span class="n">IX_AGSAM</span>  <span class="o">=</span> <span class="mi">4</span>
+<span class="n">IX_USEC</span>   <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># logical channel offsets</span>
+
+<span class="n">CH_AI01</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">CH_AI02</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">CH_AI03</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">CH_AI04</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">CH_FACET</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">CH_INDEX</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">CH_AGSAM</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">CH_USEC</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">CH_DI2</span>  <span class="o">=</span> <span class="mi">8</span>
+<span class="n">CH_DI4</span>  <span class="o">=</span> <span class="mi">9</span>
+
+<span class="n">PREV_INDEX</span> <span class="o">=</span> <span class="n">LPS</span><span class="o">-</span><span class="n">IX_INDEX</span>   <span class="c1"># look back to INDEX in previous sample</span>
+<span class="n">NEXT_INDEX</span> <span class="o">=</span> <span class="n">ESL</span><span class="o">+</span><span class="n">IX_INDEX</span>   <span class="c1"># look forward to next INDEX from beginning of ES</span>
+
+
+
+<span class="k">def</span> <span class="nf">_isES</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0xaa55f154</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0xaa55f154</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0xaa55f15f</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0xaa55f15f</span>
+
+<span class="c1"># ES spans two samples, check the lot.</span>
+
+<div class="viewcode-block" id="isES"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.isES">[docs]</a><span class="k">def</span> <span class="nf">isES</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_isES</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">:])</span> <span class="ow">and</span> <span class="n">_isES</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">6</span><span class="p">:])</span></div>
+
+<div class="viewcode-block" id="find_zero_index"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.find_zero_index">[docs]</a><span class="k">def</span> <span class="nf">find_zero_index</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="c1"># This function finds the first 0xaa55f154 short value in the data and then</span>
+    <span class="c1"># uses its position to check the index before this event sample and the</span>
+    <span class="c1"># index after this event sample and checks the latter is one greater</span>
+    <span class="c1"># than the former. If the values do not increment then go to the next</span>
+    <span class="c1"># event sample and repeat.</span>
+    
+    <span class="n">hits</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">lvnu</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isES</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">[</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="o">+</span><span class="n">ESL</span><span class="p">]):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG ES found at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span>
+            <span class="n">hits</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c1"># Check current index</span>
+            <span class="k">if</span> <span class="n">hits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">first_es_position</span> <span class="o">=</span> <span class="n">pos</span>
+                    <span class="k">break</span>            <span class="c1"># ES at zero good.</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>             <span class="c1"># first hit not zero .. bad</span>
+            <span class="k">else</span><span class="p">:</span>            <span class="c1"># ES comes in pairs, skip #2 as well</span>
+                <span class="n">first_es_position</span> <span class="o">=</span> <span class="n">pos</span>
+                <span class="k">break</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: hits: </span><span class="si">{}</span><span class="s2"> first_es_position </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hits</span><span class="p">,</span> <span class="n">first_es_position</span><span class="p">))</span>
+    <span class="c1"># loop over all the event samples. Look at the &quot;index&quot; value before and</span>
+    <span class="c1"># after and check they have incremented.</span>
+    <span class="n">next_es</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">transient_length</span><span class="o">*</span><span class="n">LPS</span> <span class="o">+</span> <span class="n">ESL</span>
+    
+    <span class="c1"># normalise to first_es_pos</span>
+    <span class="n">normal32</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">[</span><span class="n">first_es_position</span><span class="p">:]</span>
+    <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">lvnu</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">normal32</span><span class="p">):</span>        
+        <span class="k">if</span> <span class="n">pos</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">pos</span> <span class="o">%</span> <span class="n">next_es</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isES</span><span class="p">(</span><span class="n">normal32</span><span class="p">[</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="o">+</span><span class="n">ESL</span><span class="p">]):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: expected ES at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: counter </span><span class="si">{}</span><span class="s2"> samples </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="o">//</span><span class="n">LPS</span><span class="p">))</span>            
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">isNewIndex</span><span class="p">(</span><span class="n">normal32</span><span class="p">[</span><span class="n">pos</span> <span class="o">-</span> <span class="n">PREV_INDEX</span><span class="p">],</span> <span class="n">normal32</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="n">NEXT_INDEX</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="n">pos</span><span class="o">+</span><span class="n">first_es_position</span>    <span class="c1"># relative to original data..</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: we do not want to be here&quot;</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="find_all_es"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.find_all_es">[docs]</a><span class="k">def</span> <span class="nf">find_all_es</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">pos0</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">lvnu</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isES</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">[</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="o">+</span><span class="n">ESL</span><span class="p">]):</span>
+            <span class="n">hits</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ES#</span><span class="si">{:4d}</span><span class="s2">: </span><span class="si">{:6d}</span><span class="s2"> </span><span class="si">{:8.1f}</span><span class="s2">  len:</span><span class="si">{:6.1f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hits</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="o">/</span><span class="n">LPS</span><span class="p">,</span> <span class="p">(</span><span class="n">pos</span><span class="o">-</span><span class="n">pos0</span><span class="p">)</span><span class="o">/</span><span class="n">LPS</span><span class="p">))</span>
+            <span class="n">pos0</span> <span class="o">=</span> <span class="n">pos</span> </div>
+
+<div class="viewcode-block" id="extract_bursts"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.extract_bursts">[docs]</a><span class="k">def</span> <span class="nf">extract_bursts</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">burst32</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">transient_length</span><span class="o">*</span><span class="n">LPS</span>
+    <span class="n">burst16</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">transient_length</span><span class="o">*</span><span class="n">SPS</span>
+    <span class="n">burst_es</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">transient_length</span><span class="o">*</span><span class="n">LPS</span> <span class="o">+</span> <span class="n">ESL</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;extract_bursts() </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">zero_index</span><span class="o">+</span><span class="n">ESL</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">),</span> <span class="n">burst_es</span><span class="p">))</span>
+    <span class="n">first_time</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">bxx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">zero_index</span><span class="o">+</span><span class="n">ESL</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">),</span> <span class="n">burst_es</span><span class="p">):</span>        
+        <span class="n">b32</span> <span class="o">=</span> <span class="n">bxx</span> <span class="o">+</span> <span class="mi">2</span>       <span class="c1"># skip AI</span>
+        <span class="n">b16</span> <span class="o">=</span> <span class="n">bxx</span> <span class="o">*</span> <span class="mi">2</span>       <span class="c1"># scale to data16</span>
+        <span class="k">if</span> <span class="n">first_time</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data16</span><span class="p">[</span><span class="n">b16</span><span class="p">:</span><span class="n">b16</span><span class="o">+</span><span class="n">burst16</span><span class="p">:</span><span class="n">SPS</span><span class="p">])</span>
+                <span class="n">b16</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">[</span><span class="n">b32</span><span class="p">:</span><span class="n">b32</span><span class="o">+</span><span class="n">burst32</span><span class="p">:</span><span class="n">LPS</span><span class="p">])</span>
+                <span class="n">b32</span> <span class="o">+=</span><span class="mi">1</span>
+            <span class="c1">#print(data)</span>
+            <span class="n">first_time</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="n">ic</span><span class="p">],</span> <span class="n">args</span><span class="o">.</span><span class="n">data16</span><span class="p">[</span><span class="n">b16</span><span class="p">:</span><span class="n">b16</span><span class="o">+</span><span class="n">burst16</span><span class="p">:</span><span class="n">SPS</span><span class="p">]))</span>
+                <span class="n">b16</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">ic</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="n">ic</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span> <span class="n">args</span><span class="o">.</span><span class="n">data32</span><span class="p">[</span><span class="n">b32</span><span class="p">:</span><span class="n">b32</span><span class="o">+</span><span class="n">burst32</span><span class="p">:</span><span class="n">LPS</span><span class="p">]))</span>
+                <span class="n">b32</span> <span class="o">+=</span><span class="mi">1</span>
+    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">msb_direct</span><span class="p">:</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">CH_FACET</span><span class="p">],</span> <span class="mh">0x80000000</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">tmp</span><span class="p">))</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">CH_INDEX</span><span class="p">],</span> <span class="mh">0x80000000</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">tmp</span><span class="p">))</span>
+        
+        <span class="n">data</span><span class="p">[</span><span class="n">CH_FACET</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">CH_FACET</span><span class="p">],</span> <span class="mh">0x7fffffff</span><span class="p">)</span>        
+        <span class="n">data</span><span class="p">[</span><span class="n">CH_INDEX</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">CH_INDEX</span><span class="p">],</span> <span class="mh">0x7fffffff</span><span class="p">)</span>
+         
+    <span class="k">for</span> <span class="n">ic</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="n">ch</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+        
+<div class="viewcode-block" id="save_data"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.save_data">[docs]</a><span class="k">def</span> <span class="nf">save_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_cooked&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">,</span> <span class="n">ch</span><span class="p">),</span> <span class="n">data</span><span class="p">[</span><span class="n">ch</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="get_plot_timebase"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.get_plot_timebase">[docs]</a><span class="k">def</span> <span class="nf">get_plot_timebase</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">maxlen</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+ 
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">plot_facets</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">plen</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">transient_length</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">plot_facets</span>
+        <span class="k">if</span> <span class="n">plen</span> <span class="o">&gt;</span> <span class="n">maxlen</span><span class="p">:</span>
+            <span class="n">plen</span> <span class="o">=</span> <span class="n">maxlen</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plen</span> <span class="o">=</span> <span class="n">maxlen</span>
+    <span class="n">tt</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">plen</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">plen</span><span class="p">,</span> <span class="n">tt</span> </div>
+   
+<div class="viewcode-block" id="plot_data"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.plot_data">[docs]</a><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Demuxed channels from acq1001&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; rev2 with embedded D1,D2&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">msb_direct</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">file:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">),</span>
+        <span class="s2">&quot;CH01 </span><span class="se">\n</span><span class="s2"> (Sampled </span><span class="se">\n</span><span class="s2"> FACET)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CH02 </span><span class="se">\n</span><span class="s2"> (Sampled </span><span class="se">\n</span><span class="s2"> INDEX)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CH03 </span><span class="se">\n</span><span class="s2"> (Sampled </span><span class="se">\n</span><span class="s2"> Sine Wave)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CH04 </span><span class="se">\n</span><span class="s2"> (Sampled </span><span class="se">\n</span><span class="s2"> D2)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FACET </span><span class="se">\n</span><span class="s2"> (u32)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;INDEX </span><span class="se">\n</span><span class="s2"> (u32)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Sample Count</span><span class="se">\n</span><span class="s2"> (u32)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;usec Count</span><span class="se">\n</span><span class="s2"> (u32)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;D1</span><span class="se">\n</span><span class="s2"> (bool)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;D2</span><span class="se">\n</span><span class="s2"> (bool)&quot;</span>    
+    <span class="p">]</span>
+
+    <span class="n">nsp</span> <span class="o">=</span> <span class="mi">8</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">msb_direct</span> <span class="k">else</span> <span class="mi">10</span>    
+    <span class="n">plen</span><span class="p">,</span> <span class="n">tt</span> <span class="o">=</span> <span class="n">get_plot_timebase</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+          
+    <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nsp</span><span class="p">):</span>        
+        <span class="k">if</span> <span class="n">sp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ax0</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">nsp</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">sp</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">ax0</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">ax0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">nsp</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">sp</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax0</span><span class="p">)</span>
+        <span class="n">lastplot</span> <span class="o">=</span> <span class="n">sp</span> <span class="o">==</span> <span class="n">nsp</span><span class="o">-</span><span class="mi">1</span>
+            
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">sp</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>                  
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">sp</span><span class="p">][:</span><span class="n">plen</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelbottom</span><span class="o">=</span><span class="n">lastplot</span><span class="p">)</span>
+ 
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Samples&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="print_stats"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.print_stats">[docs]</a><span class="k">def</span> <span class="nf">print_stats</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">CH_INDEX</span><span class="p">])</span><span class="o">//</span><span class="n">args</span><span class="o">.</span><span class="n">transient_length</span>
+    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_stats</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">bursts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nb</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bursts</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;FILE&quot;</span><span class="p">,</span> <span class="s2">&quot;BURST&quot;</span><span class="p">,</span> <span class="s2">&quot;INDEX&quot;</span><span class="p">,</span> <span class="s2">&quot;FACET&quot;</span><span class="p">,</span> <span class="s2">&quot;SAMPLE&quot;</span><span class="p">,</span> <span class="s2">&quot;USEC&quot;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">bb</span> <span class="ow">in</span> <span class="n">bursts</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="p">[</span><span class="n">bb</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">transient_length</span><span class="p">,</span> <span class="p">(</span><span class="n">bb</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">transient_length</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">,</span> <span class="n">bb</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">CH_INDEX</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">CH_FACET</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">CH_AGSAM</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">CH_USEC</span><span class="p">][</span><span class="n">ii</span><span class="p">]))</span></div>
+        
+
+<div class="viewcode-block" id="isNewIndex_default"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.isNewIndex_default">[docs]</a><span class="k">def</span> <span class="nf">isNewIndex_default</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">w1</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="n">w2</span></div>
+
+<div class="viewcode-block" id="isNewIndex_msb_direct"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.isNewIndex_msb_direct">[docs]</a><span class="k">def</span> <span class="nf">isNewIndex_msb_direct</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">w1</span><span class="o">&amp;</span><span class="mh">0x7fffffff</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="p">(</span><span class="n">w2</span><span class="o">&amp;</span><span class="mh">0x7fffffff</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">isNewIndex</span> <span class="o">=</span> <span class="n">isNewIndex_msb_direct</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">msb_direct</span> <span class="k">else</span> <span class="n">isNewIndex_default</span>
+    
+    <span class="n">args</span><span class="o">.</span><span class="n">data32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">data16</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">find_all_es</span><span class="p">:</span>
+        <span class="n">find_all_es</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="n">args</span><span class="o">.</span><span class="n">zero_index</span> <span class="o">=</span> <span class="n">find_zero_index</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">extract_bursts</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">plot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">save_data</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_stats</span><span class="p">:</span>
+        <span class="n">print_stats</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.cs_demux.html#user_apps.analysis.cs_demux.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Demux for cs system&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plot&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plot_facets&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;No of facets&quot;</span>
+                                                                    <span class="s2">&quot;to plot&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--save&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Save data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--transient_length&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8192</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;transient length&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--data_file&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./shot_data&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of&quot;</span>
+                                                                    <span class="s2">&quot;data file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--msb_direct&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;new msb_direct feature, d2/d4 embedded in count d31&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--find_all_es&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;find all ES markers&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--print_stats&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;print burst statistics, 1:top/tail 2:all bursts&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

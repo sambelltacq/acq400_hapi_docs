@@ -1,0 +1,25 @@
+hdmi\_master\_trg
+=================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.hdmi_master_trg.get_parser
+      :prog: hdmi_master_trg.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.hdmi_master_trg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

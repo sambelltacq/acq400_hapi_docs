@@ -1,0 +1,25 @@
+acq400\_arm
+===========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_arm.get_parser
+      :prog: acq400_arm.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_arm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

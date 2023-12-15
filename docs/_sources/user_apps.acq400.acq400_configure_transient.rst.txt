@@ -1,0 +1,25 @@
+acq400\_configure\_transient
+============================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_configure_transient.get_parser
+      :prog: acq400_configure_transient.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_configure_transient
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

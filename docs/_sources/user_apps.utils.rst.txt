@@ -1,0 +1,98 @@
+
+
+utils 
+======
+
+.. automodule:: user_apps.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+   
+      
+.. rst-class:: spaced_list
+
+
+
+* :doc:`user_apps.utils.aliases`
+
+
+
+* :doc:`user_apps.utils.awg_creation_demo` **generate awg waveform**
+
+
+
+* :doc:`user_apps.utils.bigplot`
+
+
+
+* :doc:`user_apps.utils.bigplot4`
+
+
+
+* :doc:`user_apps.utils.bigplota` **plots selected pulses**
+
+
+
+* :doc:`user_apps.utils.bin2csv` **input raw binary, output csv**
+
+
+
+* :doc:`user_apps.utils.bin2xlsx` **input raw binary, output xlsx**
+
+
+
+* :doc:`user_apps.utils.fixup_css_ws` **acq400_remote_script**
+
+
+
+* :doc:`user_apps.utils.getmonitor` **parse and print monitor files**
+
+
+
+* :doc:`user_apps.utils.hexdump` **hexdump**
+
+
+
+* :doc:`user_apps.utils.make_awg_data`
+
+
+
+* :doc:`user_apps.utils.make_awg_data_id_set` **make_awg_data**
+
+
+
+* :doc:`user_apps.utils.make_waves` **Make set of waveforms**
+
+
+
+* :doc:`user_apps.utils.rawplot` **rawplot**
+
+
+
+* :doc:`user_apps.utils.wait_for_ready` **Wait until UUT booted**
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   user_apps.utils.aliases
+   user_apps.utils.awg_creation_demo
+   user_apps.utils.bigplot
+   user_apps.utils.bigplot4
+   user_apps.utils.bigplota
+   user_apps.utils.bin2csv
+   user_apps.utils.bin2xlsx
+   user_apps.utils.fixup_css_ws
+   user_apps.utils.getmonitor
+   user_apps.utils.hexdump
+   user_apps.utils.make_awg_data
+   user_apps.utils.make_awg_data_id_set
+   user_apps.utils.make_waves
+   user_apps.utils.rawplot
+   user_apps.utils.wait_for_ready
+      
+   

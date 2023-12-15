@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>run_AquadB_movement &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tiga-stl-load" href="user_apps.special.tiga-stl-load.html" />
+    <link rel="prev" title="quest_upload" href="user_apps.special.quest_upload.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.special.html">special</a></li>
+      <li class="breadcrumb-item active">run_AquadB_movement</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="run-aquadb-movement">
+<h1>run_AquadB_movement<a class="headerlink" href="#run-aquadb-movement" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">run_AquadB_movement</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">callback</span> <span class="n">CALLBACK</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">burst_on_demand</span> <span class="n">BURST_ON_DEMAND</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trigger_from_here</span> <span class="n">TRIGGER_FROM_HERE</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">subset</span> <span class="n">SUBSET</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">filesize</span> <span class="n">FILESIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">filesamples</span> <span class="n">FILESAMPLES</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">files_per_cycle</span> <span class="n">FILES_PER_CYCLE</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">force_delete</span> <span class="n">FORCE_DELETE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nowrite</span> <span class="n">NOWRITE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">totaldata</span> <span class="n">TOTALDATA</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">root</span> <span class="n">ROOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">runtime</span> <span class="n">RUNTIME</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="n">VERBOSE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">display</span> <span class="n">DISPLAY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">combine</span> <span class="n">COMBINE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stim</span> <span class="n">STIM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dwg</span> <span class="n">DWG</span><span class="p">]</span>
+                              <span class="n">uuts</span> <span class="p">[</span><span class="n">uuts</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>uuts</kbd></dt>
+<dd><p class="sd-card-text">uuts</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--callback</kbd></dt>
+<dd><p class="sd-card-text">not for users, client programs can install a callback here</p>
+</dd>
+<dt><kbd>--burst_on_demand</kbd></dt>
+<dd><p class="sd-card-text">Burst Size in Samples[,./plotjob]</p>
+</dd>
+<dt><kbd>--trigger_from_here</kbd></dt>
+<dd><p class="sd-card-text">action soft trigger from this application</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--subset</kbd></dt>
+<dd><p class="sd-card-text">subset command if present eg 1,5 :: strips first 5 channels</p>
+</dd>
+<dt><kbd>--filesize</kbd></dt>
+<dd><p class="sd-card-text">file size in bytes</p>
+<p class="sd-card-text">Default: 1048576</p>
+</dd>
+<dt><kbd>--filesamples</kbd></dt>
+<dd><p class="sd-card-text">file size in samples (overrides filesize)</p>
+</dd>
+<dt><kbd>--files_per_cycle</kbd></dt>
+<dd><p class="sd-card-text">files per cycle (directory)</p>
+<p class="sd-card-text">Default: 100</p>
+</dd>
+<dt><kbd>--force_delete</kbd></dt>
+<dd><p class="sd-card-text">silently delete any existing data files</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--nowrite</kbd></dt>
+<dd><p class="sd-card-text">do not write file</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--totaldata</kbd></dt>
+<dd><p class="sd-card-text">Default: 10000000000</p>
+</dd>
+<dt><kbd>--root</kbd></dt>
+<dd><p class="sd-card-text">Location to save files. Default dir is UUT name.</p>
+<p class="sd-card-text">Default: “”</p>
+</dd>
+<dt><kbd>--runtime</kbd></dt>
+<dd><p class="sd-card-text">How long to stream data for</p>
+<p class="sd-card-text">Default: 1000000</p>
+</dd>
+<dt><kbd>--verbose</kbd></dt>
+<dd><p class="sd-card-text">Prints status messages as the stream is running</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--display</kbd></dt>
+<dd><p class="sd-card-text">Render display</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--combine</kbd></dt>
+<dd><p class="sd-card-text">Combine all cycle files into one</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--stim</kbd></dt>
+<dd><p class="sd-card-text">stimulator uut</p>
+</dd>
+<dt><kbd>--dwg</kbd></dt>
+<dd><p class="sd-card-text">stimulator dwg file to load</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.special.run_AquadB_movement">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.special.run_AquadB_movement" title="Permalink to this heading"></a></h2>
+<p>run_AquadB_movement [ –monitor VALUE] [acq400_upload opts] uut  …</p>
+<dl class="simple">
+<dt>Run a stream capture while monitoring AquadB position.</dt><dd><p>WAIT_START: wait for position to change
+WAIT_END : wait for position to stop changing</p>
+</dd>
+</dl>
+<p>The UUT is assumed to trigger a stimulator box that will run a movement simulation.
+OR, it could be a real movement. We don’t care.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AquadB_callback</span></span><a class="reference internal" href="_modules/user_apps/special/run_AquadB_movement.html#AquadB_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.State">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">State</span></span><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.State" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.State.WaitCountActive">
+<span class="sig-name descname"><span class="pre">WaitCountActive</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.State.WaitCountActive" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.State.WaitCountStop">
+<span class="sig-name descname"><span class="pre">WaitCountStop</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.State.WaitCountStop" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.State.Finished">
+<span class="sig-name descname"><span class="pre">Finished</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.State.Finished" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.aqb_count">
+<span class="sig-name descname"><span class="pre">aqb_count</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.aqb_count" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.onChanges">
+<span class="sig-name descname"><span class="pre">onChanges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/run_AquadB_movement.html#AquadB_callback.onChanges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.onChanges" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/run_AquadB_movement.html#AquadB_callback.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.BUFFERS_PER_EPICS_CB">
+<span class="sig-name descname"><span class="pre">BUFFERS_PER_EPICS_CB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.BUFFERS_PER_EPICS_CB" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.AquadB_callback.COUNT_DEADBAND">
+<span class="sig-name descname"><span class="pre">COUNT_DEADBAND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#user_apps.special.run_AquadB_movement.AquadB_callback.COUNT_DEADBAND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.load_stim">
+<span class="sig-name descname"><span class="pre">load_stim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dwg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/run_AquadB_movement.html#load_stim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.run_AquadB_movement.load_stim" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/run_AquadB_movement.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.run_AquadB_movement.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.run_AquadB_movement.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/run_AquadB_movement.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.run_AquadB_movement.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

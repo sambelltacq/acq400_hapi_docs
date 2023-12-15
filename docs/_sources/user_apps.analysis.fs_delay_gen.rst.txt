@@ -1,0 +1,25 @@
+fs\_delay\_gen
+==============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.fs_delay_gen.get_parser
+      :prog: fs_delay_gen.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.fs_delay_gen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

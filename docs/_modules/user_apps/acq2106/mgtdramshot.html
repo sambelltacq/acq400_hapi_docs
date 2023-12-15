@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq2106.mgtdramshot &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq2106.mgtdramshot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq2106.mgtdramshot</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot; mgtdramshot.py Capture to MGTDRAM</span>
+
+<span class="sd">- optional capture to mgtdram</span>
+<span class="sd">- manage upload</span>
+<span class="sd">- optional validation</span>
+
+<span class="sd">assumes that clocking has been pre-assigned.</span>
+
+<span class="sd">example usage::</span>
+
+<span class="sd">       ./mgtdramshot.py --loop=100 --simulate=1 --validate=validate-6x480 --captureblocks=2000 --offloadblocks=0-1999 acq2106_007</span>
+
+<span class="sd">.. rst-class:: hidden</span>
+<span class="sd">    </span>
+<span class="sd">    usage: mgtdramshot.py [-h] [--clk CLK] [--trg TRG] [--sim SIM] [--trace TRACE]</span>
+<span class="sd">                        [--auto_soft_trigger AUTO_SOFT_TRIGGER]</span>
+<span class="sd">                        [--clear_counters] [--loop LOOP]</span>
+<span class="sd">                        [--captureblocks CAPTUREBLOCKS]</span>
+<span class="sd">                        [--offloadblocks OFFLOADBLOCKS] [--validate VALIDATE]</span>
+<span class="sd">                        [--wait_user WAIT_USER] [--wait_shot WAIT_SHOT]</span>
+<span class="sd">                        [--save_data SAVE_DATA] [--shot SHOT] [--twa TWA]</span>
+<span class="sd">                        [--logprint LOGPRINT]</span>
+<span class="sd">                        uuts [uuts ...]</span>
+
+<span class="sd">    acq2106 mgtdram test</span>
+
+<span class="sd">    positional arguments:</span>
+<span class="sd">    uuts                  uut</span>
+
+<span class="sd">    optional arguments:</span>
+<span class="sd">    -h, --help            show this help message and exit</span>
+<span class="sd">    --clk CLK             int|ext|zclk|xclk,fpclk,SR,[FIN]</span>
+<span class="sd">    --trg TRG             int|ext,rising|falling</span>
+<span class="sd">    --sim SIM             s1[,s2,s3..] list of sites to run in simulate mode</span>
+<span class="sd">    --trace TRACE         1 : enable command tracing</span>
+<span class="sd">    --auto_soft_trigger AUTO_SOFT_TRIGGER  force soft trigger generation</span>
+<span class="sd">    --clear_counters      clear all counters SLOW</span>
+<span class="sd">    --loop LOOP           loop count</span>
+<span class="sd">    --captureblocks CAPTUREBLOCKS  number of 4MB blocks to capture</span>
+<span class="sd">    --offloadblocks OFFLOADBLOCKS  block list to upload nnn-nnn</span>
+<span class="sd">    --validate VALIDATE   program to validate data</span>
+<span class="sd">    --wait_user WAIT_USER  1: force user input each shot</span>
+<span class="sd">    --wait_shot WAIT_SHOT  1: wait for some external agent to run the shot, then offload all</span>
+<span class="sd">    --save_data SAVE_DATA  Whether or not to save data to a file in 4MB chunks. Default: 1</span>
+<span class="sd">    --shot SHOT           set a shot number</span>
+<span class="sd">    --twa TWA             trigger_when_armed</span>
+<span class="sd">    --logprint LOGPRINT   1: Print log messages. 2: Save reduced log to log file.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">future</span> <span class="kn">import</span> <span class="n">builtins</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">input</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="n">HAS_PLOT</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">HAS_PLOT</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">MGT_BLOCK_BYTES</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq2106_Mgtdram8</span><span class="o">.</span><span class="n">MGT_BLOCK_BYTES</span>
+
+<div class="viewcode-block" id="logprint"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.logprint">[docs]</a><span class="k">def</span> <span class="nf">logprint</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    logprint = 1: Print output only to stdout</span>
+<span class="sd">    logprint = 2: Print output to stdout, also save to config file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">_logprint</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_logprint</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;./mgt_</span><span class="si">{}</span><span class="s2">.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut_name</span><span class="p">))</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="make_data_dir"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.make_data_dir">[docs]</a><span class="k">def</span> <span class="nf">make_data_dir</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tried to create dir but dir already exists&quot;</span><span class="p">)</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="validate_streamed_data"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.validate_streamed_data">[docs]</a><span class="k">def</span> <span class="nf">validate_streamed_data</span><span class="p">(</span><span class="n">good_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+    <span class="c1"># Using this method there is no detectable overhead.</span>
+
+    <span class="n">compare_data</span> <span class="o">=</span> <span class="n">good_data</span> <span class="o">+</span> <span class="p">((</span><span class="n">cycle</span><span class="p">)</span> <span class="o">*</span> <span class="n">good_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">compare_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">test_data</span><span class="o">.</span><span class="n">size</span><span class="p">]):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Discrepency in data found in cycle: </span><span class="si">{}</span><span class="s2">, quitting now.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Length good: </span><span class="si">{}</span><span class="s2">, length test: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">good_data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">test_data</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">HAS_PLOT</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">compare_data</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">compare_data</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;plot not available&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="UploadStatus"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.UploadStatus">[docs]</a><span class="k">def</span> <span class="nf">UploadStatus</span><span class="p">(</span><span class="n">report_interval</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="n">new_buf</span><span class="p">):</span>
+        <span class="nb">filter</span><span class="o">.</span><span class="n">currentbytes</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_buf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">filter</span><span class="o">.</span><span class="n">currentbytes</span> <span class="o">-</span> <span class="nb">filter</span><span class="o">.</span><span class="n">lastreport</span> <span class="o">&gt;</span> <span class="n">report_interval</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="nb">filter</span><span class="o">.</span><span class="n">lastreport</span> <span class="o">=</span> <span class="nb">filter</span><span class="o">.</span><span class="n">currentbytes</span>
+    <span class="nb">filter</span><span class="o">.</span><span class="n">currentbytes</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="nb">filter</span><span class="o">.</span><span class="n">lastreport</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="nb">filter</span></div>
+
+<div class="viewcode-block" id="host_pull"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.host_pull">[docs]</a><span class="k">def</span> <span class="nf">host_pull</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">shot</span><span class="p">):</span>
+    <span class="c1"># set up a RawClient to pull data from the mgtdram host_pull port.</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">create_mgtdram_pull_client</span><span class="p">()</span>
+    <span class="n">uut_name</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">uut</span>
+    <span class="n">first_run</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">nchan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">NCHAN</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">nchan</span><span class="o">%</span><span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">16</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span><span class="o">%</span><span class="n">group</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">nblocks</span> <span class="o">=</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span><span class="o">//</span><span class="n">group</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">group</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nblocks</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span>
+
+    <span class="n">nbytes</span> <span class="o">=</span> <span class="n">nblocks</span><span class="o">*</span><span class="n">MGT_BLOCK_BYTES</span>
+    <span class="n">nread</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_data_size</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">data_size</span><span class="p">()</span>
+    <span class="n">bn</span> <span class="o">=</span> <span class="mi">0</span> 
+                             <span class="c1"># block number. redundant, there will be only one block.</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting host pull </span><span class="si">{}</span><span class="s2"> bytes now data size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nbytes</span><span class="p">,</span> <span class="n">_data_size</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">buffer</span> <span class="ow">in</span> <span class="n">rc</span><span class="o">.</span><span class="n">get_blocks</span><span class="p">(</span><span class="n">nbytes</span><span class="p">,</span> <span class="n">data_size</span><span class="o">=</span><span class="n">_data_size</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">first_run</span><span class="p">:</span>
+            <span class="n">good_data</span> <span class="o">=</span> <span class="n">buffer</span>
+            <span class="n">first_run</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save_data</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;./</span><span class="si">{}</span><span class="s2">/</span><span class="si">{:04d}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut_name</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span>
+            <span class="n">make_data_dir</span><span class="p">(</span><span class="n">uut_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">buffer</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Block </span><span class="si">{}</span><span class="s2"> pulled, size bytes : </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bn</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">validate</span> <span class="o">!=</span> <span class="s1">&#39;no&#39;</span><span class="p">:</span>
+            <span class="n">validate_streamed_data</span><span class="p">(</span><span class="n">good_data</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">bn</span><span class="p">)</span>
+
+        <span class="n">bn</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">nread</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">*</span> <span class="n">_data_size</span>
+        <span class="k">if</span> <span class="n">nread</span> <span class="o">&gt;=</span> <span class="n">nbytes</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">buffer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data offload failed.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pulled </span><span class="si">{}</span><span class="s2"> blocks.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bn</span><span class="p">))</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+    <span class="n">rc</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">logprint</span><span class="p">(</span><span class="s2">&quot;Data offloaded </span><span class="si">{}</span><span class="s2"> blocks </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">bn</span><span class="p">,</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">validate</span> <span class="o">==</span> <span class="s1">&#39;no&#39;</span> <span class="k">else</span> <span class="s2">&quot;and all data validation passed.&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">nread</span></div>
+
+
+<div class="viewcode-block" id="write_console"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.write_console">[docs]</a><span class="k">def</span> <span class="nf">write_console</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="c1"># explicit flush needed to avoid lockup on Windows.</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="UploadFilter"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.UploadFilter">[docs]</a><span class="k">class</span> <span class="nc">UploadFilter</span><span class="p">:</span>
+<div class="viewcode-block" id="UploadFilter.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.UploadFilter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">okregex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;axi0 start OK ([0-9]</span><span class="si">{4}</span><span class="s2">) OK&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">st</span><span class="p">):</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">st</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">okregex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">write_console</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">write_console</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">/</span><span class="mi">10</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="n">write_console</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">write_console</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">write_console</span><span class="p">(</span><span class="s2">&quot;&gt;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">st</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="AtFilter"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.AtFilter">[docs]</a><span class="k">class</span> <span class="nc">AtFilter</span><span class="p">:</span>
+<div class="viewcode-block" id="AtFilter.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.AtFilter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_regex_set</span> <span class="o">=</span> <span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;@@@&quot;</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;process&quot;</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;log file&quot;</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">st</span><span class="p">):</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+      
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_regex_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+        <span class="n">write_console</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">st</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="run_shot"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.run_shot">[docs]</a><span class="k">def</span> <span class="nf">run_shot</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="c1"># always capture over. The offload is zero based anyway, so add another one</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s14</span><span class="o">.</span><span class="n">mgt_run_shot</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">captureblocks</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">run_mgt</span><span class="p">(</span><span class="n">AtFilter</span><span class="p">())</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="wait_shot"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.wait_shot">[docs]</a><span class="k">def</span> <span class="nf">wait_shot</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks</span> <span class="o">!=</span> <span class="s1">&#39;capture&#39;</span><span class="p">:</span> 
+        <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">intpv</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">BLT_BUFFERS_M</span><span class="p">)</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">run_mgt</span><span class="p">(</span><span class="n">AtFilter</span><span class="p">(),</span> <span class="n">set_arm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span><span class="p">)</span></div>
+        
+     
+<div class="viewcode-block" id="run_offload"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.run_offload">[docs]</a><span class="k">def</span> <span class="nf">run_offload</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">shot</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">host_pull</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span>        </div>
+
+<div class="viewcode-block" id="run_shots"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.run_shots">[docs]</a><span class="k">def</span> <span class="nf">run_shots</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">LOG</span>
+    <span class="k">global</span> <span class="n">_logprint</span>
+<span class="c1">#    print(&quot;run_shots {}&quot;.format(args))</span>
+    <span class="n">_logprint</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">logprint</span>
+    <span class="k">global</span> <span class="n">uut_name</span>
+    <span class="n">uut_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span>
+    <span class="n">nbytes</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_shots </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut_name</span><span class="p">))</span>
+    <span class="n">LOG</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;mgtdramshot-</span><span class="si">{}</span><span class="s2">.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut_name</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq2106_Mgtdram8</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">exec_args</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">captureblocks</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">BLT_BUFFERS</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">captureblocks</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">captureblocks</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">intpv</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">BLT_BUFFERS_M</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks</span> <span class="o">!=</span> <span class="s1">&#39;capture&#39;</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">offloadblocks</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">intpv</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">BLT_BUFFERS_M</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;offload </span><span class="si">{}</span><span class="s2"> buffers from uut&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span><span class="p">))</span>
+    
+    <span class="n">uut</span><span class="o">.</span><span class="n">s14</span><span class="o">.</span><span class="n">mgt_taskset</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">validate</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">validate</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">simulate</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">actions</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">captureblocks</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="s2">&quot;cap&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions</span><span class="p">):</span>
+                 <span class="n">actions</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">+</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="s2">&quot;offload&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                 <span class="n">actions</span> <span class="o">=</span> <span class="s2">&quot;offload&quot;</span>
+
+        <span class="k">for</span> <span class="n">shot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">loop</span><span class="p">):</span>
+            <span class="n">shot_number</span> <span class="o">=</span> <span class="n">shot</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;shot: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shot</span><span class="p">,</span> <span class="n">t1</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)))</span>
+            <span class="n">mbps</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">captureblocks</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">shot_number</span> <span class="o">=</span> <span class="n">run_shot</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">wait_shot</span><span class="p">:</span>
+                <span class="n">shot_number</span> <span class="o">=</span> <span class="n">wait_shot</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">offloadblocks_count</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">nbytes</span> <span class="o">=</span> <span class="n">run_offload</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">shot_number</span><span class="p">)</span>
+            <span class="n">t2</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">et</span> <span class="o">=</span> <span class="p">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">.</span><span class="n">seconds</span>
+            <span class="k">if</span> <span class="n">nbytes</span><span class="p">:</span>
+                <span class="n">mb</span> <span class="o">=</span> <span class="n">nbytes</span><span class="o">/</span><span class="mh">0x100000</span>
+                <span class="n">mbps</span> <span class="o">=</span> <span class="s2">&quot;offload </span><span class="si">{}</span><span class="s2"> MB, </span><span class="si">{:.2f}</span><span class="s2"> MB/s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mb</span><span class="p">,</span> <span class="n">mb</span><span class="o">/</span><span class="n">et</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;shot: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> done in </span><span class="si">{}</span><span class="s2"> seconds </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shot_number</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">et</span><span class="p">,</span> <span class="n">mbps</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">wait_user</span><span class="p">:</span>
+                <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;hit return to continue&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Keyboard Interrupt, take it all down NOW&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="run_shots1"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.run_shots1">[docs]</a><span class="k">def</span> <span class="nf">run_shots1</span><span class="p">(</span><span class="n">targs</span><span class="p">):</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;mgtdram_</span><span class="si">{}</span><span class="s2">.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">targs</span><span class="o">.</span><span class="n">uut</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">run_shots</span><span class="p">(</span><span class="n">targs</span><span class="p">)</span></div>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<div class="viewcode-block" id="trigger_when_armed"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.trigger_when_armed">[docs]</a><span class="k">def</span> <span class="nf">trigger_when_armed</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">]</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+    <span class="n">all_armed</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">all_armed</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;checking&quot;</span><span class="p">)</span>
+        <span class="c1">#armed = [ acq400_hapi.Acq400.pv(u.s0.BLT_ACT_STATE) for u in uuts ]</span>
+        <span class="n">armed</span> <span class="o">=</span> <span class="p">[</span> <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">BLT_ACT_STATE</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">uuts</span> <span class="p">]</span>        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">armed</span><span class="p">))</span>
+        <span class="n">arm_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">armed</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;ARM&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">arm_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                  
+        <span class="k">if</span> <span class="n">arm_count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">):</span>
+            <span class="n">all_armed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+     
+    <span class="n">top</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;EXT&#39;</span>    </div>
+
+<div class="viewcode-block" id="prep_many"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.prep_many">[docs]</a><span class="k">def</span> <span class="nf">prep_many</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">]</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">shot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">shot</span>
+    <span class="n">top</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;NONE&#39;</span>
+    <span class="n">top</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SYNC_OUT_TRG_DX</span> <span class="o">=</span> <span class="s1">&#39;d0&#39;</span></div>
+        
+<div class="viewcode-block" id="control_many"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.control_many">[docs]</a><span class="k">def</span> <span class="nf">control_many</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">prep_many</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="c1">#    ps = [mp.Process(target=trigger_when_armed, args=(args,))]</span>
+    <span class="n">u_args</span> <span class="o">=</span> <span class="p">[</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span> <span class="p">]</span>
+    <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">):</span>
+        <span class="n">u_args</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="o">.</span><span class="n">uut</span> <span class="o">=</span> <span class="n">u</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ps.append </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+        <span class="n">ps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">run_shots1</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">u_args</span><span class="p">[</span><span class="n">ix</span><span class="p">],)))</span>
+         
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;start me up&quot;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ps</span><span class="p">:</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;all started&quot;</span><span class="p">)</span>
+   
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ps</span><span class="p">:</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">wait_shot</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">captureblocks</span> <span class="o">=</span> <span class="mi">0</span>
+       
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">twa</span><span class="p">:</span>
+        <span class="n">trigger_when_armed</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">control_many</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">uut</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">run_shots</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq2106.mgtdramshot.html#user_apps.acq2106.mgtdramshot.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;mgtdram test&#39;</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--loop&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;loop count&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--captureblocks&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;2000&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;number of 4MB blocks to capture&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--offloadblocks&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;capture&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;block list to upload nnn-nnn&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--validate&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;program to validate data&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--wait_user&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;1: force user input each shot&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--wait_shot&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: wait for some external agent to run the shot, then offload all&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--save_data&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Whether or not to save data to a file in 4MB chunks. Default: 1&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--shot&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set a shot number&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--twa&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;trigger_when_armed&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--logprint&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                              <span class="n">help</span><span class="o">=</span><span class="s1">&#39;1: Print log messages. &#39;</span>
+                              <span class="s1">&#39;2: Save reduced log to log file.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uuts&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uut &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+    
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

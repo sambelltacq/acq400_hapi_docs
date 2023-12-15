@@ -1,0 +1,68 @@
+
+
+acq2106 
+========
+
+.. automodule:: user_apps.acq2106
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+   
+      
+.. rst-class:: spaced_list
+
+
+
+* :doc:`user_apps.acq2106.acq2106_hts` **High Throughput Stream using AFHBA**
+
+
+
+* :doc:`user_apps.acq2106.acq2106_set_sync_role` **set sync roles for a stack of modules**
+
+
+
+* :doc:`user_apps.acq2106.afhba_mon` **AFHBA stream monitor webapp**
+
+
+
+* :doc:`user_apps.acq2106.hts_multistream` **High Throughput Stream using AFHBA for up to 16 UUTS**
+
+
+
+* :doc:`user_apps.acq2106.hudp_setup` **Setup HUDP for UUTs**
+
+
+
+* :doc:`user_apps.acq2106.load_wrpg_stl` **Load WR STL**
+
+
+
+* :doc:`user_apps.acq2106.mgtdramshot` **mgtdram test**
+
+
+
+* :doc:`user_apps.acq2106.run_hts_all` **Run HTS on mulitple UUTs**
+
+
+
+* :doc:`user_apps.acq2106.ustc_set_sync_role` **Sync role ustc stack**
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   user_apps.acq2106.acq2106_hts
+   user_apps.acq2106.acq2106_set_sync_role
+   user_apps.acq2106.afhba_mon
+   user_apps.acq2106.hts_multistream
+   user_apps.acq2106.hudp_setup
+   user_apps.acq2106.load_wrpg_stl
+   user_apps.acq2106.mgtdramshot
+   user_apps.acq2106.run_hts_all
+   user_apps.acq2106.ustc_set_sync_role
+      
+   

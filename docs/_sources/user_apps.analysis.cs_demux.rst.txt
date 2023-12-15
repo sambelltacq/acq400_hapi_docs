@@ -1,0 +1,25 @@
+cs\_demux
+=========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.cs_demux.get_parser
+      :prog: cs_demux.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.cs_demux
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

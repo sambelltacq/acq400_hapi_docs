@@ -1,0 +1,25 @@
+awg\_oneshot\_speed\_test
+=========================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.awg_oneshot_speed_test.get_parser
+      :prog: awg_oneshot_speed_test.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.awg_oneshot_speed_test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

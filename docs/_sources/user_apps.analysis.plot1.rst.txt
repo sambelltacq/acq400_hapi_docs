@@ -1,0 +1,25 @@
+plot1
+=====
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.plot1.get_parser
+      :prog: plot1.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.plot1
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

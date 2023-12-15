@@ -1,0 +1,25 @@
+acq400\_reset\_counters
+=======================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_reset_counters.get_parser
+      :prog: acq400_reset_counters.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_reset_counters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

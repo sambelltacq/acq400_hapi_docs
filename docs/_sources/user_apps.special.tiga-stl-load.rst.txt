@@ -1,0 +1,25 @@
+tiga\-stl\-load
+===============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.tiga-stl-load.get_parser
+      :prog: tiga-stl-load.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.tiga-stl-load
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

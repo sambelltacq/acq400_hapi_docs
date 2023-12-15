@@ -1,0 +1,25 @@
+stack\_rtm\_2D
+==============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.stack_rtm_2D.get_parser
+      :prog: stack_rtm_2D.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.stack_rtm_2D
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

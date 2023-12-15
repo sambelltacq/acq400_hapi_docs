@@ -1,0 +1,25 @@
+acq400\_static\_awg\_restart
+============================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_static_awg_restart.get_parser
+      :prog: acq400_static_awg_restart.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_static_awg_restart
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

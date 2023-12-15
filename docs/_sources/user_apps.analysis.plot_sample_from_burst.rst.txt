@@ -1,0 +1,25 @@
+plot\_sample\_from\_burst
+=========================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.plot_sample_from_burst.get_parser
+      :prog: plot_sample_from_burst.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.plot_sample_from_burst
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

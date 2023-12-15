@@ -1,0 +1,25 @@
+ustc\_set\_sync\_role
+=====================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq2106.ustc_set_sync_role.get_parser
+      :prog: ustc_set_sync_role.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq2106.ustc_set_sync_role
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

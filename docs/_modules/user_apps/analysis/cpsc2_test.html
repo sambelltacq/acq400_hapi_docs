@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.cpsc2_test &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.cpsc2_test</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.cpsc2_test</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is a script used to analyse CPSC2 data.</span>
+
+<span class="sd">Example usage::</span>
+
+<span class="sd">    python3.6 cpsc2_test.py --data /home/sean/PROJECTS/workspace/cpsc2_data/small/bigrawlogfile2 --zoom 36000 36500</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="c1">#if sys.version_info &lt; (3, 0):</span>
+<span class="c1">#    from __future__ import print_function</span>
+<span class="c1">#    from future import builtins</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<div class="viewcode-block" id="get_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_test.html#user_apps.analysis.cpsc2_test.get_data">[docs]</a><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="c1"># reshape the data to be an 64 x N matrix where i is 64 and j is N in</span>
+    <span class="c1"># traditional matrix nomenclature. This means channels are rows.</span>
+    <span class="n">number_of_elements_to_remove</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span>
+    <span class="k">if</span> <span class="n">number_of_elements_to_remove</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="n">number_of_elements_to_remove</span><span class="p">]</span> <span class="c1"># Need to do this to reshape.</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="c1"># Now we can access whole channels by doing: data[ch,0:] and access parts</span>
+    <span class="c1"># of channels by doing: data[ch, index1 : index2]</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="check_counters"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_test.html#user_apps.analysis.cpsc2_test.check_counters">[docs]</a><span class="k">def</span> <span class="nf">check_counters</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">skip_on_val</span><span class="o">=</span><span class="s2">&quot;disable&quot;</span><span class="p">,</span> <span class="n">skip_on_zero</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">):</span>
+    <span class="n">skipped_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">last_sample</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">last_sample</span> <span class="o">=</span> <span class="n">sample</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">skip_on_zero</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sample</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">last_sample</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">last_sample</span> <span class="o">=</span> <span class="n">sample</span>
+                <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">skip_on_val</span> <span class="o">!=</span> <span class="s2">&quot;disable&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sample</span> <span class="o">==</span> <span class="n">skip_on_val</span><span class="p">:</span>
+                <span class="n">skipped_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">last_sample</span> <span class="o">==</span> <span class="n">skip_on_val</span><span class="p">:</span>
+                <span class="n">last_sample</span> <span class="o">=</span> <span class="n">sample</span>
+                <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">sample</span> <span class="o">==</span> <span class="n">last_sample</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">last_sample</span> <span class="o">=</span> <span class="n">sample</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">skipped_counter</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipped counter reached 10, resetting now.&quot;</span><span class="p">)</span>
+            <span class="n">skipped_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error found in column: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col_name</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sample gap found @ index &quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sample gap: &quot;</span><span class="p">,</span> <span class="n">sample</span> <span class="o">-</span> <span class="n">last_sample</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current sample = &quot;</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">sample</span><span class="p">),</span> <span class="n">sample</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Last sample = &quot;</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">last_sample</span><span class="p">),</span> <span class="n">last_sample</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">last_sample</span> <span class="o">=</span> <span class="n">sample</span></div>
+            <span class="c1"># exit()</span>
+
+
+<div class="viewcode-block" id="analyse_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_test.html#user_apps.analysis.cpsc2_test.analyse_data">[docs]</a><span class="k">def</span> <span class="nf">analyse_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+
+    <span class="n">sample_counter_col</span> <span class="o">=</span> <span class="mi">49</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">sfp_seq_num</span> <span class="o">=</span> <span class="mi">33</span><span class="o">-</span><span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking sample counters.&quot;</span><span class="p">)</span>
+    <span class="n">check_counters</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">sample_counter_col</span><span class="p">::</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">],</span>
+    <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;sample counter&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking SFP seq numbers.&quot;</span><span class="p">)</span>
+    <span class="n">check_counters</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">sfp_seq_num</span><span class="p">::</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">],</span>
+    <span class="n">skip_on_val</span><span class="o">=-</span><span class="mh">0x11111112</span><span class="p">,</span> <span class="n">skip_on_zero</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;sfp sequence counter&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="plot_data"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_test.html#user_apps.analysis.cpsc2_test.plot_data">[docs]</a><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+
+    <span class="n">zoom</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">zoom</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Zoom = &quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">zoom</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;data[0].size&#39;</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">f</span><span class="p">,</span> <span class="n">plots</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+   
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="n">zoom</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;CPSC2 data columns 1-4 (AI)&quot;</span><span class="p">)</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="s1">&#39;01&#39;</span><span class="p">,</span> <span class="s1">&#39;02&#39;</span><span class="p">,</span> <span class="s1">&#39;03&#39;</span><span class="p">,</span> <span class="s1">&#39;04&#39;</span><span class="p">))</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">33</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">41</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="c1"># plots[0].plot(data[col::args.nchan])</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="n">zoom</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;CPSC2 data columns 33, 41&quot;</span><span class="p">)</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="s1">&#39;33&#39;</span><span class="p">,</span> <span class="s1">&#39;41&#39;</span><span class="p">))</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">34</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">35</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">36</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">37</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="n">zoom</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;CPSC2 data columns 34, 35, 36, 37&quot;</span><span class="p">)</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="s1">&#39;34&#39;</span><span class="p">,</span> <span class="s1">&#39;35&#39;</span><span class="p">,</span> <span class="s1">&#39;36&#39;</span><span class="p">,</span> <span class="s1">&#39;37&#39;</span><span class="p">))</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">42</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">43</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">44</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">45</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="n">zoom</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;CPSC2 data columns 42, 43, 44, 45&quot;</span><span class="p">)</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="s1">&#39;42&#39;</span><span class="p">,</span> <span class="s1">&#39;43&#39;</span><span class="p">,</span> <span class="s1">&#39;44&#39;</span><span class="p">,</span> <span class="s1">&#39;45&#39;</span><span class="p">))</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">49</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="n">zoom</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">zoom</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;CPSC2 SPAD[0]&quot;</span><span class="p">)</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">((</span><span class="s1">&#39;49&#39;</span><span class="p">))</span>
+        <span class="n">plots</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="analyse_stdin"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_test.html#user_apps.analysis.cpsc2_test.analyse_stdin">[docs]</a><span class="k">def</span> <span class="nf">analyse_stdin</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># Do stuff here</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">32</span><span class="o">*</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span> <span class="c1"># 32 bytes * 1024^2</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">analyse_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stopping python analysis now.&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="run_test"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_test.html#user_apps.analysis.cpsc2_test.run_test">[docs]</a><span class="k">def</span> <span class="nf">run_test</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">analyse</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">stdin</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">analyse_stdin</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">analyse_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+<span class="c1">#    import code</span>
+<span class="c1">#    code.interact(local=locals())</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.cpsc2_test.html#user_apps.analysis.cpsc2_test.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;CPSC2 data validity test.&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--data&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./cpsc2_002_raw_001.dat&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Which data file to load.&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nchan&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How many channels in one sample (including SPAD).&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--analyse&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run analysis on the data Default=0.&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--stdin&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Pull the data to be analysed from STDIN instead of a file.&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--zoom&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;data[0].size&#39;</span><span class="p">],</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Allows the user to zoom into a portion of the data. To use </span><span class="se">\</span>
+<span class="s2">    the user must provide two numbers: --zoom 25000 35000. Default is whole </span><span class="se">\</span>
+<span class="s2">    dataset.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_test</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

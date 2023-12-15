@@ -1,0 +1,25 @@
+sync\_role
+==========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.sync_role.get_parser
+      :prog: sync_role.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.sync_role
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

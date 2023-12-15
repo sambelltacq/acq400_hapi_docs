@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_hapi Package &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="acq400_hapi" href="acq400_hapi.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">acq400_hapi Package</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="toctree-wrapper compound">
+</div>
+<section id="acq400-hapi-package">
+<h1>acq400_hapi Package<a class="headerlink" href="#acq400-hapi-package" title="Permalink to this heading"></a></h1>
+<p>acq400_hapi is a Host API that provides scripting functionality to <a class="reference external" href="https://www.d-tacq.com/">D-Tacq</a>  acq400 uuts</p>
+<dl class="simple">
+<dt>Contents:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="acq400_hapi.html"><span class="doc">acq400_hapi</span></a>: source code for the connectivity package</p></li>
+<li><p><a class="reference internal" href="user_apps.html"><span class="doc">user_apps</span></a> : example user client applications</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+Linux</label><div class="sd-tab-content docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">PROJECTS</span><span class="p">;</span> <span class="n">cd</span> <span class="n">PROJECTS</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">D</span><span class="o">-</span><span class="n">TACQ</span><span class="o">/</span><span class="n">acq400_hapi</span>
+<span class="n">cd</span> <span class="n">acq400_hapi</span>
+<span class="n">source</span> <span class="o">./</span><span class="n">setpath2</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+Windows</label><div class="sd-tab-content docutils">
+<p>On windows we recommend using <a class="reference external" href="https://github.com/git-for-windows/git/releases/latest">GITBASH</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">PROJECTS</span><span class="p">;</span> <span class="n">cd</span> <span class="n">PROJECTS</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">D</span><span class="o">-</span><span class="n">TACQ</span><span class="o">/</span><span class="n">acq400_hapi</span>
+<span class="n">cd</span> <span class="n">acq400_hapi</span>
+<span class="n">source</span> <span class="o">./</span><span class="n">setpath2</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-2">
+Pip</label><div class="sd-tab-content docutils">
+<p><strong>Currently Deprecated</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">acq400_hapi</span>
+</pre></div>
+</div>
+<p>This way, “import acq400_hapi” is available from wherever the program is run.</p>
+</div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>HAPI uses regular DNS for name resolution. Ideally your UUT has a DNS name that matches the hostname. How to tell? ping acq2106_123</p>
+<p>If you dont have a DNS HAPI <em>can</em> work with a raw ip but it is better to setup a ‘local DNS’ all you need to do is to set the name mapping in your system’s hosts file:</p>
+<ul class="simple">
+<li><p>Linux : /etc/hosts/</p></li>
+<li><p>Windows : C:\Windows\System32\Drivers\etc\hosts</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#D-Tacq name mapping</span>
+<span class="mf">192.168.0.001</span> <span class="n">acq2106_001</span>
+<span class="mf">192.168.0.002</span> <span class="n">acq2106_002</span>
+<span class="mf">192.168.0.003</span> <span class="n">acq2106_003</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="how-it-works">
+<h1>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading"></a></h1>
+<p>The acq400 class nails up a socket connections to various <a class="reference external" href="acq400_hapi.acq400.html#acq400_hapi.acq400.AcqPorts">ports</a>
+on the uut allowing each knob to be available as a property of the connection object, so that simple bash-script-like syntax can be used.</p>
+<dl class="simple">
+<dt>Example ports:</dt><dd><ul class="simple">
+<li><p>each site on 4220 + site</p></li>
+<li><p>status monitor thread on 2235</p></li>
+<li><p>stream data on 4210</p></li>
+<li><p>post-shot data on 53000 + chan</p></li>
+</ul>
+</dd>
+</dl>
+<p>Basic Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s2">&quot;acq1001_000&quot;</span><span class="p">)</span>
+<span class="n">siggen</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Agilent33210A</span><span class="p">(</span><span class="s1">&#39;SG1234&#39;</span><span class="p">)</span>
+<span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_abort</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">transient</span> <span class="o">=</span> <span class="s2">&quot;POST=100000 SOFT_TRIGGER=0 DEMUX=1&quot;</span>
+<span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_arm</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;arming&#39;</span><span class="p">)</span>
+
+<span class="n">uut</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">wait_armed</span><span class="p">()</span>
+<span class="n">siggen</span><span class="o">.</span><span class="n">trigger</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;triggered&#39;</span><span class="p">)</span>
+
+<span class="n">uut</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">wait_stopped</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The factory method is the preferred way to init a uut</p>
+</div>
+<p>Its also easy to remote-script multiple uuts:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="n">uut1</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s2">&quot;acq1001_001&quot;</span><span class="p">)</span>
+<span class="n">uut2</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s2">&quot;acq1001_002&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">pv</span><span class="p">(</span><span class="n">uut1</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">SIG_SAMPLE_COUNT_COUNT</span><span class="p">)</span>
+    <span class="n">c2</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">pv</span><span class="p">(</span><span class="n">uut1</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">SIG_SAMPLE_COUNT_COUNT</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c1</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="w"> </span><span class="n">c2</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span>
+<span class="mi">11078689363247</span> <span class="mi">11078689363247</span>
+<span class="mi">11078689363247</span> <span class="mi">11078689363247</span>
+<span class="mi">11078739404360</span> <span class="mi">11078739404360</span>
+<span class="mi">11078739404360</span> <span class="mi">11078739404360</span>
+<span class="mi">11078739404360</span> <span class="mi">11078789398809</span>
+<span class="mi">11078789398809</span> <span class="mi">11078789398809</span>
+<span class="mi">11078789398809</span> <span class="mi">11078789398809</span>
+<span class="mi">11078839399330</span> <span class="mi">11078839399330</span>
+<span class="mi">11078839399330</span> <span class="mi">11078839399330</span>
+</pre></div>
+</div>
+<p>and Yes, these are EPICS PV’s, so we could use capy. But, this way, it’s all vanilla python, no other installs required.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Epics  knob names are auto converted to valid python identifiers:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SIG</span><span class="p">:</span><span class="n">SAMPLE_COUNT</span><span class="p">:</span><span class="n">COUNT</span> <span class="o">-&gt;</span> <span class="n">SIG_SAMPLE_COUNT_COUNT</span>
+</pre></div>
+</div>
+</div>
+<p>You can enumerate all the knobs with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+<span class="o">..</span>
+<span class="n">uut</span><span class="o">.</span><span class="n">s6</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+
+<span class="n">Help</span> <span class="n">can</span> <span class="n">also</span> <span class="n">takes</span> <span class="n">a</span> <span class="n">regex</span><span class="o">.</span>
+<span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">help</span><span class="p">(</span><span class="o">*</span><span class="n">COUNT</span><span class="p">)</span>
+
+<span class="n">Example</span><span class="p">:</span>
+
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="s2">&quot;acq1001_000&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">help</span><span class="p">(</span><span class="s1">&#39;.*FREQ&#39;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">get_knob</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="n">SIG</span><span class="p">:</span><span class="n">CLK_EXT</span><span class="p">:</span><span class="n">FREQ</span> <span class="mi">25007219</span>
+<span class="n">SIG</span><span class="p">:</span><span class="n">CLK_MB</span><span class="p">:</span><span class="n">FREQ</span> <span class="mi">50012464</span>
+<span class="n">SIG</span><span class="p">:</span><span class="n">CLK_S1</span><span class="p">:</span><span class="n">FREQ</span> <span class="mi">50010624</span>
+<span class="n">SIG</span><span class="p">:</span><span class="n">CLK_S2</span><span class="p">:</span><span class="n">FREQ</span> <span class="mi">0</span>
+<span class="n">SIG</span><span class="p">:</span><span class="n">EVT_EXT</span><span class="p">:</span><span class="n">FREQ</span> <span class="mi">0</span>
+<span class="n">SIG</span><span class="p">:</span><span class="n">EVT_MB</span><span class="p">:</span><span class="n">FREQ</span> <span class="mi">0</span>
+<span class="n">SIG</span><span class="p">:</span><span class="n">EVT_S1</span><span class="p">:</span><span class="n">FREQ</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The acq400 class can be fairly slow to instantiate (imagine an ACQ2106 with 6 sites populated), but once the connections are nailed up, then control links are fast. The use case is: make the connection at the beginning,
+then operate over long periods.</p>
+</div>
+<p><a class="reference external" href="https://github.com/D-TACQ/acq400_hapi/tree/aae86601b7b4611f2feb451bfafd648b6a2022e7">Doc generated from commit aae86601b7b4611f2feb451bfafd648b6a2022e7</a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

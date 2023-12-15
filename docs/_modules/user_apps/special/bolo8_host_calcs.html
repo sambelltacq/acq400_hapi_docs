@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.special.bolo8_host_calcs &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.special.bolo8_host_calcs</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.special.bolo8_host_calcs</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.special.bolo8_host_calcs.html#user_apps.special.bolo8_host_calcs.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">():</span>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Read and reshape the data.</span>
+    <span class="c1">########################################################################</span>
+    <span class="n">SOURCE</span> <span class="o">=</span> <span class="s1">&#39;./DATA/acq2106_123_CH00&#39;</span>
+    <span class="n">NBOLO</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">NPHYSICAL</span> <span class="o">=</span> <span class="n">NBOLO</span> <span class="o">*</span> <span class="mi">8</span>
+    <span class="n">NLOGICAL</span> <span class="o">=</span> <span class="n">NPHYSICAL</span> <span class="o">*</span> <span class="mi">3</span>
+    <span class="n">FS</span> <span class="o">=</span> <span class="mf">1e4</span>  <span class="c1"># Sample rate is 10 kSPS</span>
+
+    <span class="c1"># Multiplexed data</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">SOURCE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+    <span class="c1"># Demuxed into logical channels</span>
+    <span class="n">raw2d</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">NLOGICAL</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+    <span class="c1"># Demuxed and unpacked into physical quantities</span>
+    <span class="n">mag</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">pwr</span> <span class="o">=</span> <span class="n">raw2d</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">NPHYSICAL</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Convert to physical units</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">mag</span> <span class="o">*</span> <span class="mf">1.25</span> <span class="o">*</span> <span class="mf">5.688e-8</span>  <span class="c1"># Assume 1V25 gain setting</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">phase</span> <span class="o">*</span> <span class="mf">1.863e-9</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">pwr</span> <span class="o">*</span> <span class="mf">1.25</span> <span class="o">*</span> <span class="mf">3.64e-6</span>
+
+    <span class="n">time_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mag</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">FS</span>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Plot the magnitude to verify we&#39;ve read the correct data.</span>
+    <span class="c1">########################################################################</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_vector</span><span class="p">[</span><span class="mi">20</span><span class="p">:],</span> <span class="n">A</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">20</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Magnitude [V]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Calculate the incident power using the bolometer equation.</span>
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Smooth the derivative a bit.</span>
+    <span class="n">dA</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">FS</span>
+    <span class="n">dAdt</span> <span class="o">=</span> <span class="n">dA</span> <span class="o">/</span> <span class="n">dt</span>
+    <span class="c1"># Could also do dAdt = np.gradient(A, FS, axis=-1) if not concerned with noise.</span>
+
+    <span class="n">sens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">NPHYSICAL</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">sens</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.72</span><span class="p">,</span> <span class="mf">4.22</span><span class="p">]</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">NPHYSICAL</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">tau</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.046</span><span class="p">,</span> <span class="mf">0.046</span><span class="p">]</span>
+
+    <span class="c1"># Give sens and tau the right broadcasting behaviour.</span>
+    <span class="n">sens</span> <span class="o">=</span> <span class="n">sens</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">tau</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="n">Pcalc</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sens</span> <span class="o">*</span> <span class="p">(</span><span class="n">A</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">dAdt</span><span class="p">)</span>
+
+    <span class="c1"># First 20 samples are contaminated by the filter warm up.</span>
+    <span class="n">Pcalc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_vector</span><span class="p">,</span> <span class="n">Pcalc</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Absorbed power [W]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Fix the offset correction.</span>
+    <span class="c1">########################################################################</span>
+
+    <span class="c1"># Offset correction is not quite right, particularly for channel 10, which</span>
+    <span class="c1"># is why we don&#39;t get a perfect square wave. If offset correction was perfect</span>
+    <span class="c1"># the phase would be constant, but it varies slightly with the magnitude.</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_vector</span><span class="p">[</span><span class="mi">20</span><span class="p">:],</span> <span class="n">phi</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">20</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Phase [radians]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Try improving the offset correction in post-processing. Here I&#39;m doing it</span>
+    <span class="c1"># by trial and error, but in a tokamak environment one would record some data</span>
+    <span class="c1"># before the start of the plasma and use that to re-baseline.</span>
+    <span class="c1"># I&#39;m planning to add a &#39;/usr/local/bin/remove_bolo_offset&#39; script to do</span>
+    <span class="c1"># this automatically when I get the time.</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span>
+    <span class="n">I0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">NPHYSICAL</span><span class="p">)</span>
+    <span class="n">Q0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">NPHYSICAL</span><span class="p">)</span>
+    <span class="n">I0</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">7e-4</span><span class="p">,</span> <span class="mf">4.3e-3</span><span class="p">]</span>
+    <span class="n">Q0</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2e-4</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.5e-3</span><span class="p">]</span>
+
+    <span class="n">offsets</span> <span class="o">=</span> <span class="n">I0</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">Q0</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="n">offsets</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">Vcorr</span> <span class="o">=</span> <span class="n">V</span> <span class="o">-</span> <span class="n">offsets</span>
+
+    <span class="c1"># If the offset correction is accurate, the phase should be more constant.</span>
+    <span class="c1"># At least, it shouldn&#39;t vary significantly with the amplitude.</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_vector</span><span class="p">[</span><span class="mi">20</span><span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">Vcorr</span><span class="p">)[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">20</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Phase with offset correction [radians]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
+
+    <span class="c1">########################################################################</span>
+    <span class="c1"># Recalculate the power with the offset correction done more accurately.</span>
+    <span class="c1">########################################################################</span>
+
+    <span class="c1"># Match how BOLODSP calculates the real time PWR signal: smooth and differentiate</span>
+    <span class="c1"># the real and complex parts of the voltage seprately, then take the magnitude at</span>
+    <span class="c1"># the end.</span>
+    <span class="n">Pccorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Vcorr</span><span class="p">)</span>
+    <span class="n">Pccorr</span><span class="o">.</span><span class="n">real</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">sens</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Vcorr</span><span class="o">.</span><span class="n">real</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">Vcorr</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">Pccorr</span><span class="o">.</span><span class="n">imag</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">sens</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Vcorr</span><span class="o">.</span><span class="n">imag</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span><span class="n">Vcorr</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">Pccorr</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">Pcorr</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Pccorr</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_vector</span><span class="p">,</span> <span class="n">Pcorr</span><span class="p">[[</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Absorbed power, offset corrected [W]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

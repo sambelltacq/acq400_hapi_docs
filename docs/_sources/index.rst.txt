@@ -1,0 +1,160 @@
+.. include:: modules.rst
+
+acq400_hapi Package
+===================
+
+acq400_hapi is a Host API that provides scripting functionality \
+to `D-Tacq <https://www.d-tacq.com/>`_  acq400 uuts
+
+Contents:
+    * :doc:`acq400_hapi <acq400_hapi>`: source code for the connectivity package
+    * :doc:`user_apps <user_apps>` : example user client applications
+
+
+Installation
+==============
+
+.. tab-set::
+
+    .. tab-item:: Linux
+
+        ::
+
+            mkdir PROJECTS; cd PROJECTS
+            git clone https://github.com/D-TACQ/acq400_hapi
+            cd acq400_hapi
+            source ./setpath2
+
+    .. tab-item:: Windows
+
+        On windows we recommend using `GITBASH <https://github.com/git-for-windows/git/releases/latest>`_ 
+        ::
+
+            mkdir PROJECTS; cd PROJECTS
+            git clone https://github.com/D-TACQ/acq400_hapi
+            cd acq400_hapi
+            source ./setpath2
+
+    .. tab-item:: Pip
+
+        **Currently Deprecated**
+        ::
+
+            pip3 install acq400_hapi
+
+        This way, "import acq400_hapi" is available from wherever the program is run.
+
+
+.. Important:: 
+    HAPI uses regular DNS for name resolution. Ideally your UUT has a DNS name that matches the hostname. How to tell? ping acq2106_123
+
+    If you dont have a DNS HAPI *can* work with a raw ip but it is better to setup a 'local DNS' all you need to do is to set the name mapping in your system's hosts file:
+
+    * Linux : /etc/hosts/
+    * Windows : C:\\Windows\\System32\\Drivers\\etc\\hosts
+
+    ::
+
+        #D-Tacq name mapping
+        192.168.0.001 acq2106_001
+        192.168.0.002 acq2106_002
+        192.168.0.003 acq2106_003
+
+
+
+
+How it works
+=============
+
+The acq400 class nails up a socket connections to various `ports <acq400_hapi.acq400.html#acq400_hapi.acq400.AcqPorts>`_ 
+on the uut allowing each knob to be available as a property of the connection object, so that simple bash-script-like syntax can be used.
+
+Example ports:
+    * each site on 4220 + site
+    * status monitor thread on 2235
+    * stream data on 4210
+    * post-shot data on 53000 + chan
+
+
+Basic Example::
+
+    import acq400_hapi
+    uut = acq400_hapi.factory("acq1001_000")
+    siggen = acq400_hapi.Agilent33210A('SG1234')
+    uut.s0.set_abort = 1
+
+    uut.s0.transient = "POST=100000 SOFT_TRIGGER=0 DEMUX=1"
+    uut.s0.set_arm = '1'
+    print('arming')
+
+    uut.statmon.wait_armed()
+    siggen.trigger()
+    print('triggered')
+
+    uut.statmon.wait_stopped()
+    data = uut.read_channels()
+    print(data)
+
+.. Note:: 
+   The factory method is the preferred way to init a uut 
+
+Its also easy to remote-script multiple uuts::
+
+    import acq400_hapi
+    uut1 = acq400_hapi.factory("acq1001_001")
+    uut2 = acq400_hapi.factory("acq1001_002")
+
+    for ii in range(0,10):
+        c1 = acq400_hapi.pv(uut1.s1.SIG_SAMPLE_COUNT_COUNT)
+        c2 = acq400_hapi.pv(uut1.s1.SIG_SAMPLE_COUNT_COUNT)
+        print(f"{c1} { c2}" )
+
+    >>>
+    11078689363247 11078689363247
+    11078689363247 11078689363247
+    11078739404360 11078739404360
+    11078739404360 11078739404360
+    11078739404360 11078789398809
+    11078789398809 11078789398809
+    11078789398809 11078789398809
+    11078839399330 11078839399330
+    11078839399330 11078839399330
+
+and Yes, these are EPICS PV's, so we could use capy. But, this way, it's all vanilla python, no other installs required.
+
+.. Note:: 
+   Epics  knob names are auto converted to valid python identifiers::
+
+        SIG:SAMPLE_COUNT:COUNT -> SIG_SAMPLE_COUNT_COUNT
+
+You can enumerate all the knobs with::
+
+    uut.s0.help()
+    ..
+    uut.s6.help()
+
+    Help can also takes a regex.
+    uut.s0.help(*COUNT)
+
+    Example:
+    
+    import acq400_hapi
+    uut = acq400_hapi.factory("acq1001_000")
+    for f in uut.s0.help('.*FREQ'):
+        print(uut.s0.get_knob(f))
+    >>>
+    SIG:CLK_EXT:FREQ 25007219
+    SIG:CLK_MB:FREQ 50012464
+    SIG:CLK_S1:FREQ 50010624
+    SIG:CLK_S2:FREQ 0
+    SIG:EVT_EXT:FREQ 0
+    SIG:EVT_MB:FREQ 0
+    SIG:EVT_S1:FREQ 0
+
+.. Note:: 
+    The acq400 class can be fairly slow to instantiate (imagine an ACQ2106 with 6 sites populated), \
+    but once the connections are nailed up, then control links are fast. The use case is: make the connection at the beginning,
+    then operate over long periods.
+
+
+`Doc generated from commit aae86601b7b4611f2feb451bfafd648b6a2022e7 <https://github.com/D-TACQ/acq400_hapi/tree/aae86601b7b4611f2feb451bfafd648b6a2022e7>`_ 

@@ -1,0 +1,25 @@
+acq400\_stream\_awg\_multi
+==========================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_stream_awg_multi.get_parser
+      :prog: acq400_stream_awg_multi.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_stream_awg_multi
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

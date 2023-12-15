@@ -1,0 +1,25 @@
+amx\_start\_demo
+================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.amx_start_demo.get_parser
+      :prog: amx_start_demo.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.amx_start_demo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

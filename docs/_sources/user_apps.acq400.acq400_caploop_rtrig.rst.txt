@@ -1,0 +1,25 @@
+acq400\_caploop\_rtrig
+======================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_caploop_rtrig.get_parser
+      :prog: acq400_caploop_rtrig.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_caploop_rtrig
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

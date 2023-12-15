@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_upload &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="config_437" href="user_apps.acq400.config_437.html" />
+    <link rel="prev" title="acq400_streamtonowhere" href="user_apps.acq400.acq400_streamtonowhere.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.acq400.html">acq400</a></li>
+      <li class="breadcrumb-item active">acq400_upload</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="acq400-upload">
+<h1>acq400_upload<a class="headerlink" href="#acq400-upload" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">acq400_upload</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">save_data</span> <span class="n">SAVE_DATA</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">plot_data</span> <span class="n">PLOT_DATA</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">one_plot</span> <span class="n">ONE_PLOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trace_upload</span> <span class="n">TRACE_UPLOAD</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">channels</span> <span class="n">CHANNELS</span><span class="p">]</span>
+                        <span class="n">uuts</span> <span class="p">[</span><span class="n">uuts</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>uuts</kbd></dt>
+<dd><p class="sd-card-text">uut[s]</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--save_data</kbd></dt>
+<dd><p class="sd-card-text">store data to specified directory, suffix {} for shot #</p>
+</dd>
+<dt><kbd>--plot_data</kbd></dt>
+<dd><p class="sd-card-text">0: plot data, all channels. N: first N, -N: first N, all one plot</p>
+</dd>
+<dt><kbd>--one_plot</kbd></dt>
+<dd><p class="sd-card-text">1: plot data</p>
+</dd>
+<dt><kbd>--trace_upload</kbd></dt>
+<dd><p class="sd-card-text">1: verbose upload</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--channels</kbd></dt>
+<dd><p class="sd-card-text">comma separated channel list</p>
+<p class="sd-card-text">Default: “()”</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.acq400.acq400_upload">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.acq400.acq400_upload" title="Permalink to this heading"></a></h2>
+<p>acq400_upload.py :: simplified upload-only program.</p>
+<p>For fullshot capture and upload, see acq400_fullshot.py</p>
+<p>example: upload data from previous “DEMUX=0” shot:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[pgm@hoy5 acq400_hapi]$ ./user_apps/acq400/acq400_upload.py --save_data BOLO --trace_upload 1 acq2106_123
+INFO: Shotcontroller.handle_data() acq2106_123 data valid: UNKNOWN
+TIMING:func:&#39;handle_data&#39; took: 11.63 sec
+RAW DATA BOLO/acq2106_123_CH00 size 19200000
+TIMING:func:&#39;upload&#39; took: 23.67 sec
+TIMING:func:&#39;run_main&#39; took: 23.67 sec
+[pgm@hoy5 acq400_hapi]$ ls -l BOLO
+BOLO/        BOLO_README
+[pgm@hoy5 acq400_hapi]$ ls -l BOLO/
+acq2106_123_CH00  format
+[pgm@hoy5 acq400_hapi]$ ls -l BOLO/acq2106_123_CH00
+-rw-r--r-- 1 pgm pgm 19200000 Jul  2 20:27 BOLO/acq2106_123_CH00
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_upload.TimedShotController">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TimedShotController</span></span><a class="reference internal" href="_modules/user_apps/acq400/acq400_upload.html#TimedShotController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_upload.TimedShotController" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="acq400_hapi.shotcontrol.html#acq400_hapi.shotcontrol.ShotControllerWithDataHandler" title="acq400_hapi.shotcontrol.ShotControllerWithDataHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShotControllerWithDataHandler</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_upload.TimedShotController.handle_data">
+<span class="sig-name descname"><span class="pre">handle_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_upload.html#TimedShotController.handle_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_upload.TimedShotController.handle_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_upload.TimedShotController.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_uuts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_upload.html#TimedShotController.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_upload.TimedShotController.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_upload.upload">
+<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doClose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_upload.html#upload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_upload.upload" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_upload.uniq">
+<span class="sig-name descname"><span class="pre">uniq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_upload.html#uniq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_upload.uniq" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_upload.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argStr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_upload.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_upload.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_upload.run_main">
+<span class="sig-name descname"><span class="pre">run_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_upload.html#run_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_upload.run_main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

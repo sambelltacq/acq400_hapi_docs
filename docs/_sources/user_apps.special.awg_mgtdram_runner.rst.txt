@@ -1,0 +1,25 @@
+awg\_mgtdram\_runner
+====================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.awg_mgtdram_runner.get_parser
+      :prog: awg_mgtdram_runner.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.awg_mgtdram_runner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

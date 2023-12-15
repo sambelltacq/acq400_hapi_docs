@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq2106.acq2106_set_sync_role &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq2106.acq2106_set_sync_role</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq2106.acq2106_set_sync_role</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot; acq2106_set_sync_role uuts</span>
+
+<span class="sd">**DEPRECATION WARNING: please consider using user_apps/acq400/sync_role.py**</span>
+
+<span class="sd">.. rst-class:: hidden</span>
+
+<span class="sd">    acq2106_set_sync_role</span>
+
+<span class="sd">    positional arguments:</span>
+<span class="sd">    uuts                  uuts m1 [s1 s2 ...]</span>
+
+<span class="sd">    optional arguments:</span>
+<span class="sd">    -h, --help            show this help message and exit</span>
+<span class="sd">    --master_clk MASTER_CLK  master_clk role alt fp,sysclk,sampleclk</span>
+<span class="sd">    --master_trg MASTER_TRG  master_trg src alt: fp</span>
+<span class="sd">    --clkdiv CLKDIV       clock divider, each module</span>
+<span class="sd">    --test TEST           test link</span>
+<span class="sd">    --trace TRACE         set command tracing</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">future</span> <span class="kn">import</span> <span class="n">builtins</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">input</span>
+
+<div class="viewcode-block" id="set_mb_clk"><a class="viewcode-back" href="../../../user_apps.acq2106.acq2106_set_sync_role.html#user_apps.acq2106.acq2106_set_sync_role.set_mb_clk">[docs]</a><span class="k">def</span> <span class="nf">set_mb_clk</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">clkdef</span><span class="p">):</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">intSI_cvt</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">clkdef</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">hz</span><span class="p">,</span> <span class="n">fin</span><span class="p">)</span> <span class="o">=</span> <span class="n">clkdef</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">set_mb_clk</span><span class="p">(</span><span class="n">hz</span><span class="o">=</span><span class="n">fmt</span><span class="p">(</span><span class="n">hz</span><span class="p">),</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span> <span class="n">fin</span><span class="o">=</span><span class="n">fmt</span><span class="p">(</span><span class="n">fin</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">hz</span><span class="p">)</span> <span class="o">=</span> <span class="n">clkdef</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">set_mb_clk</span><span class="p">(</span><span class="n">hz</span><span class="o">=</span><span class="n">fmt</span><span class="p">(</span><span class="n">hz</span><span class="p">),</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rf"><a class="viewcode-back" href="../../../user_apps.acq2106.acq2106_set_sync_role.html#user_apps.acq2106.acq2106_set_sync_role.rf">[docs]</a><span class="k">def</span> <span class="nf">rf</span><span class="p">(</span><span class="n">edge</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">edge</span> <span class="o">==</span> <span class="s2">&quot;rising&quot;</span> <span class="k">else</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="run_link_test"><a class="viewcode-back" href="../../../user_apps.acq2106.acq2106_set_sync_role.html#user_apps.acq2106.acq2106_set_sync_role.run_link_test">[docs]</a><span class="k">def</span> <span class="nf">run_link_test</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">uutm</span><span class="p">,</span> <span class="n">uuts</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cable test:&quot;</span><span class="p">)</span>
+    <span class="n">uutm</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SYNC_BUS_OUT_CABLE_DET</span>
+    <span class="n">uutm</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_CLK_MB_FREQ</span>
+    <span class="n">uuts</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_CLK_MB_FREQ</span>
+    <span class="k">if</span> <span class="n">parser</span><span class="o">.</span><span class="n">master_trg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;soft&quot;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Soft Trigger test:&quot;</span><span class="p">)</span>
+        <span class="n">uuts</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_TRG_EXT_COUNT</span>
+        <span class="n">uutm</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">soft_trigger</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">uuts</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_TRG_EXT_COUNT</span></div>
+
+<div class="viewcode-block" id="sync_trg_to_clk"><a class="viewcode-back" href="../../../user_apps.acq2106.acq2106_set_sync_role.html#user_apps.acq2106.acq2106_set_sync_role.sync_trg_to_clk">[docs]</a><span class="k">def</span> <span class="nf">sync_trg_to_clk</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">sync_trg_to_clk</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> failed to set sync_trg_to_clk </span><span class="si">{}</span><span class="s2"> .. old firmware&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;NOTE&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq2106.acq2106_set_sync_role.html#user_apps.acq2106.acq2106_set_sync_role.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq2106</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span> <span class="k">for</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">uuts</span> <span class="p">]</span>      
+    <span class="n">role</span> <span class="o">=</span> <span class="s2">&quot;master&quot;</span>
+
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">trace</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">trace</span>
+
+        <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s2">&quot;master&quot;</span><span class="p">:</span>                        
+            <span class="c1"># ensure there are two values to unpack, provide a default for the 2nd value..</span>
+            <span class="n">mtrg</span><span class="p">,</span> <span class="n">edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">master_trg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span> <span class="s2">&quot;rising&quot;</span> <span class="p">])[:</span><span class="mi">2</span><span class="p">]</span>             
+            <span class="n">parser</span><span class="o">.</span><span class="n">trg_edge</span> <span class="o">=</span> <span class="n">edge</span>                     
+            <span class="n">set_mb_clk</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">master_clk</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+            <span class="c1"># use Si5326 direct output where possible (almost always!)</span>
+            <span class="n">_clk_dx</span> <span class="o">=</span> <span class="s2">&quot;d2&quot;</span> <span class="k">if</span> <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">CLKDIV</span> <span class="o">!=</span> <span class="s1">&#39;CLKDIV 1&#39;</span> <span class="k">else</span> <span class="s2">&quot;d1&quot;</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">set_sync_routing_master</span><span class="p">(</span> <span class="n">trg_dx</span><span class="o">=</span><span class="s2">&quot;d2&quot;</span><span class="p">,</span> <span class="n">clk_dx</span><span class="o">=</span><span class="n">_clk_dx</span><span class="p">)</span>
+
+            <span class="n">uut</span><span class="o">.</span><span class="n">set_master_trg</span><span class="p">(</span><span class="n">mtrg</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="s2">&quot;slave&quot;</span>
+            <span class="n">trg</span> <span class="o">=</span> <span class="s2">&quot;1,</span><span class="si">%d</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">mtrg</span><span class="o">==</span><span class="s2">&quot;soft&quot;</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rf</span><span class="p">(</span><span class="n">edge</span><span class="p">))</span>
+            <span class="n">clkdiv</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">clkdiv</span>
+            <span class="n">sync_trg_to_clk</span><span class="p">(</span><span class="n">uut</span><span class="p">)</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">clkdiv</span> <span class="o">=</span> <span class="n">clkdiv</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SYNC_OUT_CLK</span> <span class="o">=</span> <span class="s2">&quot;CLK&quot;</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SYNC_OUT_CLK_DX</span> <span class="o">=</span> <span class="s2">&quot;d2&quot;</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SYNC_OUT_TRG</span> <span class="o">=</span> <span class="s2">&quot;TRG&quot;</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SYNC_OUT_TRG_DX</span> <span class="o">=</span> <span class="s2">&quot;d1&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trg</span> <span class="o">=</span> <span class="s2">&quot;1,</span><span class="si">%d</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rf</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">trg_edge</span><span class="p">))</span>
+            <span class="n">clkdiv</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">set_sync_routing_slave</span><span class="p">()</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">CLKDIV</span> <span class="o">=</span> <span class="n">clkdiv</span>
+            <span class="n">sync_trg_to_clk</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">slave_sync_trg_to_clk</span><span class="p">)</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s2">&quot;HDMI&quot;</span>
+
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_TRG_EXT_RESET</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>  <span class="c1"># self-clears. clear trigger count for easy ref </span>
+
+        <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">trg</span> <span class="o">=</span> <span class="n">trg</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">clk</span> <span class="o">=</span> <span class="s1">&#39;1,1,1&#39;</span>
+
+    <span class="k">if</span> <span class="n">parser</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+        <span class="n">run_link_test</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">uuts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parser</span><span class="o">.</span><span class="n">master_trg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;soft&quot;</span><span class="p">):</span>
+        <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;say when&quot;</span><span class="p">)</span>
+        <span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_master_trg</span><span class="p">(</span><span class="n">mtrg</span><span class="p">,</span> <span class="n">edge</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>       </div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq2106.acq2106_set_sync_role.html#user_apps.acq2106.acq2106_set_sync_role.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;set sync roles for a stack of modules&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--master_clk&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;zclk,2000000&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;master_clk role alt fp,sampleclk[,sysclk]&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--master_trg&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;soft,rising&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;master_trg src alt: fp&quot;</span><span class="p">)</span>    
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--clkdiv&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;clock divider, each module&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--test&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;test link&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--trace&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set command tracing&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--slave_sync_trg_to_clk&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;0: do NOT retime the trg on the slave&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;uuts&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uuts m1 [s1 s2 ...]&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+    
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

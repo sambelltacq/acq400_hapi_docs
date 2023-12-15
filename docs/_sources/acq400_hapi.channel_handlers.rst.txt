@@ -1,0 +1,28 @@
+
+
+channel\_handlers 
+==================
+
+.. automodule:: acq400_hapi.channel_handlers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+   
+      
+.. rst-class:: spaced_list
+
+
+
+* :doc:`acq400_hapi.channel_handlers.channel_handlers`
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   acq400_hapi.channel_handlers.channel_handlers
+      
+   

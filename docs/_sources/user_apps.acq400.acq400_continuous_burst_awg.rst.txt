@@ -1,0 +1,25 @@
+acq400\_continuous\_burst\_awg
+==============================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_continuous_burst_awg.get_parser
+      :prog: acq400_continuous_burst_awg.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_continuous_burst_awg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

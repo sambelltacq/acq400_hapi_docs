@@ -1,0 +1,25 @@
+set\_burst
+==========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.set_burst.get_parser
+      :prog: set_burst.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.set_burst
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

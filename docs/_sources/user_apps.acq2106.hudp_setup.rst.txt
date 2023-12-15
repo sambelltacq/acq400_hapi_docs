@@ -1,0 +1,25 @@
+hudp\_setup
+===========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq2106.hudp_setup.get_parser
+      :prog: hudp_setup.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq2106.hudp_setup
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

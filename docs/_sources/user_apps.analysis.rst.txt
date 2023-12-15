@@ -1,0 +1,133 @@
+
+
+analysis 
+=========
+
+.. automodule:: user_apps.analysis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+   
+      
+.. rst-class:: spaced_list
+
+
+
+* :doc:`user_apps.analysis.analyse_burst` **rgm plot demo**
+
+
+
+* :doc:`user_apps.analysis.analyse_stored_buffers`
+
+
+
+* :doc:`user_apps.analysis.bigplot`
+
+
+
+* :doc:`user_apps.analysis.bigplot_dirfile` **plot a dirfile**
+
+
+
+* :doc:`user_apps.analysis.cluster_plotter` **Plot data from a cluster of UUTs**
+
+
+
+* :doc:`user_apps.analysis.cpsc2_host_demux` **CPSC2 host demux and plot**
+
+
+
+* :doc:`user_apps.analysis.cpsc2_test` **CPSC2 data validity test.**
+
+
+
+* :doc:`user_apps.analysis.cs_demux` **Demux for cs system**
+
+
+
+* :doc:`user_apps.analysis.demux_plot`
+
+
+
+* :doc:`user_apps.analysis.dwg_paste`
+
+
+
+* :doc:`user_apps.analysis.fs_delay_gen` **generate delays for GPG and plot**
+
+
+
+* :doc:`user_apps.analysis.go_demux` **Demux for go system**
+
+
+
+* :doc:`user_apps.analysis.host_demux` **Host side data demuxing and plotting**
+
+
+
+* :doc:`user_apps.analysis.make_waves` **create host site multi-channel AWG file**
+
+
+
+* :doc:`user_apps.analysis.multiplot` **Plot multiple data files**
+
+
+
+* :doc:`user_apps.analysis.plot1` **plots a single channel data file**
+
+
+
+* :doc:`user_apps.analysis.plot_sample_from_burst` **Plot data from burst**
+
+
+
+* :doc:`user_apps.analysis.stack_rtm_2D` **acq480 2D data plotter**
+
+
+
+* :doc:`user_apps.analysis.stack_rtm_2D_42518` **acq425 2D data plotter**
+
+
+
+* :doc:`user_apps.analysis.stack_rtm_2D_435` **acq435 2D data plotter**
+
+
+
+* :doc:`user_apps.analysis.upsample` **plots a single channel data file**
+
+
+
+* :doc:`user_apps.analysis.wrtd_analysis` **Analyse white rabbit logs**
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   user_apps.analysis.analyse_burst
+   user_apps.analysis.analyse_stored_buffers
+   user_apps.analysis.bigplot
+   user_apps.analysis.bigplot_dirfile
+   user_apps.analysis.cluster_plotter
+   user_apps.analysis.cpsc2_host_demux
+   user_apps.analysis.cpsc2_test
+   user_apps.analysis.cs_demux
+   user_apps.analysis.demux_plot
+   user_apps.analysis.dwg_paste
+   user_apps.analysis.fs_delay_gen
+   user_apps.analysis.go_demux
+   user_apps.analysis.host_demux
+   user_apps.analysis.make_waves
+   user_apps.analysis.multiplot
+   user_apps.analysis.plot1
+   user_apps.analysis.plot_sample_from_burst
+   user_apps.analysis.stack_rtm_2D
+   user_apps.analysis.stack_rtm_2D_42518
+   user_apps.analysis.stack_rtm_2D_435
+   user_apps.analysis.upsample
+   user_apps.analysis.wrtd_analysis
+      
+   

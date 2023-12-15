@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bin2xlsx &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fixup_css_ws" href="user_apps.utils.fixup_css_ws.html" />
+    <link rel="prev" title="bin2csv" href="user_apps.utils.bin2csv.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.utils.html">utils</a></li>
+      <li class="breadcrumb-item active">bin2xlsx</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bin2xlsx">
+<h1>bin2xlsx<a class="headerlink" href="#bin2xlsx" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">bin2xlsx</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nchan</span> <span class="n">NCHAN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">word</span> <span class="n">WORD</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">outroot</span> <span class="n">OUTROOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">out</span> <span class="n">OUT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">paste</span> <span class="n">PASTE</span><span class="p">]</span> <span class="n">binfiles</span> <span class="p">[</span><span class="n">binfiles</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>binfiles</kbd></dt>
+<dd><p class="sd-card-text">file[s] to convert</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--nchan</kbd></dt>
+<dd><p class="sd-card-text">number of channels</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--word</kbd></dt>
+<dd><p class="sd-card-text">int16|int32</p>
+<p class="sd-card-text">Default: “int16”</p>
+</dd>
+<dt><kbd>--outroot</kbd></dt>
+<dd><p class="sd-card-text">output root directory</p>
+<p class="sd-card-text">Default: “”</p>
+</dd>
+<dt><kbd>--out</kbd></dt>
+<dd><p class="sd-card-text">explicit output name</p>
+<p class="sd-card-text">Default: “”</p>
+</dd>
+<dt><kbd>--paste</kbd></dt>
+<dd><p class="sd-card-text">1: paste multiple files * 1 chan</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.utils.bin2xlsx">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.utils.bin2xlsx" title="Permalink to this heading"></a></h2>
+<p>bin2xlsx - input raw binary, output xlsx</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">user_apps</span><span class="o">/</span><span class="n">utils</span><span class="o">/</span><span class="n">bin2xlsx</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">out</span> <span class="n">out_dir</span> <span class="n">file1</span> <span class="n">file2</span>
+</pre></div>
+</div>
+<dl class="simple hidden">
+<dt>usage: bin2xlsx.py [-h] [–nchan NCHAN] [–word WORD] [–outroot OUTROOT]</dt><dd><p>[–out OUT] [–paste PASTE]
+binfiles [binfiles …]</p>
+</dd>
+</dl>
+<p class="hidden">bin2xlsx</p>
+<p class="hidden">positional arguments:
+binfiles           file[s] to convert</p>
+<p class="hidden">optional arguments:
+-h, –help         show this help message and exit
+–nchan NCHAN      number of channels
+–word WORD        int16|int32
+–outroot OUTROOT  output root directory
+–out OUT          explicit output name
+–paste PASTE      1: paste multiple files * 1 chan</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.bin2xlsx.get_word_type">
+<span class="sig-name descname"><span class="pre">get_word_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/bin2xlsx.html#get_word_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.bin2xlsx.get_word_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.bin2xlsx.xlsx_name">
+<span class="sig-name descname"><span class="pre">xlsx_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/bin2xlsx.html#xlsx_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.bin2xlsx.xlsx_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.bin2xlsx.bin2xlsx_onesource_manychan">
+<span class="sig-name descname"><span class="pre">bin2xlsx_onesource_manychan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/bin2xlsx.html#bin2xlsx_onesource_manychan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.bin2xlsx.bin2xlsx_onesource_manychan" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.bin2xlsx.bin2xlsx_many_onechan_sources">
+<span class="sig-name descname"><span class="pre">bin2xlsx_many_onechan_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/bin2xlsx.html#bin2xlsx_many_onechan_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.bin2xlsx.bin2xlsx_many_onechan_sources" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.bin2xlsx.bin2xlsx">
+<span class="sig-name descname"><span class="pre">bin2xlsx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/bin2xlsx.html#bin2xlsx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.bin2xlsx.bin2xlsx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.utils.bin2xlsx.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/utils/bin2xlsx.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.utils.bin2xlsx.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

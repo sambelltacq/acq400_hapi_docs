@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq2106.afhba_mon &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq2106.afhba_mon</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq2106.afhba_mon</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Web interface to monitor AFHBA connections&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">afhba404</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<div class="viewcode-block" id="globals"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.globals">[docs]</a><span class="k">class</span> <span class="nc">globals</span><span class="p">:</span>
+    <span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
+    <span class="n">gatherer</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">last_request</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">last_ident</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">connected_uuts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;AFHBA stream monitor webapp&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--port&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Port to run webserver on&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--profile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;1: enabled profiling&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;werkzeug&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting afhba mon&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;http://</span><span class="si">{</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;http://</span><span class="si">{</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">())</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">)</span>
+    <span class="n">run_webserver</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_devices_states"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.get_devices_states">[docs]</a><span class="k">def</span> <span class="nf">get_devices_states</span><span class="p">():</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1">#print(&quot;Getting states&quot;)</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="nb">globals</span><span class="o">.</span><span class="n">last_ident</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">:</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">last_ident</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">threads</span><span class="p">[</span><span class="s1">&#39;ident&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_connected_uuts</span><span class="p">)</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">threads</span><span class="p">[</span><span class="s1">&#39;ident&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">dev</span> <span class="ow">in</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">uut_name</span> <span class="o">=</span> <span class="n">dev</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">threads</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_remote_state</span><span class="p">,</span>  <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">uut_name</span><span class="p">,</span> <span class="p">))</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">threads</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">lport</span> <span class="ow">in</span> <span class="n">dev</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">]:</span>
+                <span class="n">dev</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">][</span><span class="n">lport</span><span class="p">][</span><span class="s1">&#39;job_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_stream_state</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span>
+        <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="nb">globals</span><span class="o">.</span><span class="n">last_request</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Monitor idle halting&#39;</span><span class="p">)</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">gatherer</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">exit</span><span class="p">()</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_connected_uuts"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.get_connected_uuts">[docs]</a><span class="k">def</span> <span class="nf">get_connected_uuts</span><span class="p">():</span>
+    <span class="n">devs</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_connections</span><span class="p">()</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">devs</span><span class="p">:</span>
+        <span class="n">dev</span> <span class="o">=</span> <span class="n">devs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">lport</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">dev</span><span class="p">)</span>
+        <span class="n">uut_name</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">uut</span>
+        <span class="k">if</span> <span class="n">uut_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">:</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;uut_status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;last_query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">lport</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">]:</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">][</span><span class="n">lport</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">][</span><span class="n">lport</span><span class="p">][</span><span class="s1">&#39;job_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">][</span><span class="n">lport</span><span class="p">][</span><span class="s1">&#39;connected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">][</span><span class="n">lport</span><span class="p">][</span><span class="s1">&#39;rport&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">cx</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">][</span><span class="n">lport</span><span class="p">][</span><span class="s1">&#39;buffer_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_buffer_len</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1048576</span>
+        <span class="k">if</span> <span class="n">uut_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">globals</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">globals</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">uut</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="get_remote_state"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.get_remote_state">[docs]</a><span class="k">def</span> <span class="nf">get_remote_state</span><span class="p">(</span><span class="n">uut_name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;last_query&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="n">exit</span><span class="p">()</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;last_query&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">uut_status</span> <span class="o">=</span> <span class="nb">globals</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">CONTINUOUS_STATE</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;uut_status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uut_status</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+    <span class="n">exit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="check_still_connected"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.check_still_connected">[docs]</a><span class="k">def</span> <span class="nf">check_still_connected</span><span class="p">():</span>
+    <span class="n">devs</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_connections</span><span class="p">()</span>
+    <span class="n">connections</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">devs</span><span class="p">:</span>
+        <span class="n">dev</span> <span class="o">=</span> <span class="n">devs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dev</span><span class="o">.</span><span class="n">uut</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="n">connections</span><span class="p">[</span><span class="n">dev</span><span class="o">.</span><span class="n">uut</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">connections</span><span class="p">[</span><span class="n">dev</span><span class="o">.</span><span class="n">uut</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">dev</span><span class="p">))</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">uut_name</span> <span class="ow">in</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">uut_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;removing </span><span class="si">{</span><span class="n">uut_name</span><span class="si">}</span><span class="s1"> as not connected&#39;</span><span class="p">)</span>
+            <span class="k">del</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">del</span> <span class="nb">globals</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">lport</span> <span class="ow">in</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">lport</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">[</span><span class="n">uut_name</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;removing </span><span class="si">{</span><span class="n">uut_name</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">lport</span><span class="si">}</span><span class="s1"> as not connected&#39;</span><span class="p">)</span>
+                <span class="k">del</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">[</span><span class="n">uut_name</span><span class="p">][</span><span class="s1">&#39;ports&#39;</span><span class="p">][</span><span class="n">lport</span><span class="p">]</span>
+    <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="run_webserver"><a class="viewcode-back" href="../../../user_apps.acq2106.afhba_mon.html#user_apps.acq2106.afhba_mon.run_webserver">[docs]</a><span class="k">def</span> <span class="nf">run_webserver</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,)</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_index</span><span class="p">():</span>
+        <span class="nb">globals</span><span class="o">.</span><span class="n">last_ident</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="nb">globals</span><span class="o">.</span><span class="n">last_request</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">globals</span><span class="o">.</span><span class="n">gatherer</span><span class="p">:</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">gatherer</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_devices_states</span><span class="p">)</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">gatherer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">check_still_connected</span><span class="p">)</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="c1">#page = open(&quot;test.html&quot;, &quot;r&quot;).read()</span>
+        <span class="k">return</span> <span class="n">page</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/state.json&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_state</span><span class="p">():</span>
+        <span class="nb">globals</span><span class="o">.</span><span class="n">last_request</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">globals</span><span class="o">.</span><span class="n">gatherer</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running&#39;</span><span class="p">)</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">gatherer</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_devices_states</span><span class="p">)</span>
+            <span class="nb">globals</span><span class="o">.</span><span class="n">gatherer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="n">load1</span><span class="p">,</span> <span class="n">load5</span><span class="p">,</span> <span class="n">load15</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">getloadavg</span><span class="p">()</span>
+        <span class="n">num_cpu</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;cpu_usage1&#39;</span> <span class="p">:</span> <span class="nb">round</span><span class="p">((</span><span class="n">load1</span> <span class="o">/</span> <span class="n">num_cpu</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s1">&#39;cpu_usage5&#39;</span> <span class="p">:</span> <span class="nb">round</span><span class="p">((</span><span class="n">load5</span> <span class="o">/</span> <span class="n">num_cpu</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s1">&#39;cpu_usage15&#39;</span> <span class="p">:</span> <span class="nb">round</span><span class="p">((</span><span class="n">load15</span> <span class="o">/</span> <span class="n">num_cpu</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s1">&#39;num_cpu&#39;</span> <span class="p">:</span> <span class="n">num_cpu</span><span class="p">,</span>
+            <span class="s1">&#39;state&#39;</span>		<span class="p">:</span> <span class="nb">globals</span><span class="o">.</span><span class="n">connected_uuts</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="nb">globals</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<span class="n">page</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;!DOCTYPE html&gt;</span>
+<span class="s2">&lt;html lang=&quot;en&quot;&gt;</span>
+<span class="s2">&lt;head&gt;</span>
+<span class="s2">    &lt;meta name=&quot;google&quot; value=&quot;notranslate&quot;&gt;</span>
+<span class="s2">    &lt;title&gt;afhba monitor&lt;/title&gt;</span>
+<span class="s2">    &lt;style&gt;</span>
+<span class="s2">        body {</span>
+<span class="s2">            background-color: #E8E9F3;</span>
+<span class="s2">            font-family: &quot;Courier New&quot;, Courier, monospace;</span>
+<span class="s2">        }</span>
+<span class="s2">        #template, .job_template{</span>
+<span class="s2">            display: none;</span>
+<span class="s2">        }</span>
+<span class="s2">        .IDLE {</span>
+<span class="s2">            color: red;</span>
+<span class="s2">        }</span>
+<span class="s2">        .RUN {</span>
+<span class="s2">            color: greenyellow;</span>
+<span class="s2">        }</span>
+<span class="s2">        .ARM {</span>
+<span class="s2">            color: orange;</span>
+<span class="s2">        }</span>
+<span class="s2">        header{</span>
+<span class="s2">            padding: 0px 10px;</span>
+<span class="s2">            display: flex;</span>
+<span class="s2">            align-items: center;</span>
+<span class="s2">            justify-content: space-between;</span>
+<span class="s2">        }</span>
+<span class="s2">        .button{</span>
+<span class="s2">            border: 1px solid black;</span>
+<span class="s2">            padding: 4px;</span>
+<span class="s2">            cursor: pointer;</span>
+<span class="s2">        }</span>
+<span class="s2">        #detailToggle{</span>
+<span class="s2">            display: none;</span>
+<span class="s2">        }</span>
+<span class="s2">        #subtitle{</span>
+<span class="s2">            margin-left: 5px;</span>
+<span class="s2">            font-size: 16px;</span>
+<span class="s2">        }</span>
+<span class="s2">        #container{</span>
+<span class="s2">            display: flex;</span>
+<span class="s2">            flex-flow: row wrap;</span>
+<span class="s2">            padding: 10px;</span>
+<span class="s2">        }</span>
+<span class="s2">        .summary .conn_box{</span>
+<span class="s2">            width: 100%;</span>
+<span class="s2">        }</span>
+<span class="s2">        .summary .device{</span>
+<span class="s2">            display: flex;</span>
+<span class="s2">            gap: 10px;</span>
+<span class="s2">        }</span>
+<span class="s2">        .summary .state{</span>
+<span class="s2">            display: none;</span>
+<span class="s2">        }</span>
+<span class="s2">        .summary .spi{</span>
+<span class="s2">            display: block;</span>
+<span class="s2">        }</span>
+<span class="s2">        .conn_box{</span>
+<span class="s2">            background-color: #8395a7;</span>
+<span class="s2">            font-size: 20px;</span>
+<span class="s2">            margin: 2px;</span>
+<span class="s2">            padding: 5px;</span>
+<span class="s2">            color: #130f40;</span>
+<span class="s2">        }</span>
+<span class="s2">        .device{</span>
+<span class="s2">            align-items: center;</span>
+<span class="s2">        }</span>
+<span class="s2">        .device a{</span>
+<span class="s2">            text-decoration: none;</span>
+<span class="s2">            color: #130f40;</span>
+<span class="s2">        }</span>
+<span class="s2">        .device a:hover{</span>
+<span class="s2">            color: #f9ca24;</span>
+<span class="s2">        }</span>
+<span class="s2">        .spi{</span>
+<span class="s2">            color: #130f40;</span>
+<span class="s2">            display: none;</span>
+<span class="s2">            line-height: 0px;</span>
+<span class="s2">            font-weight: bold;</span>
+<span class="s2">            font-size: 16px;</span>
+<span class="s2">        }</span>
+<span class="s2">        .speed{</span>
+<span class="s2">            display: inline;</span>
+<span class="s2">            border: 2px solid;</span>
+<span class="s2">            border-color: inherit;</span>
+<span class="s2">            padding: 2px 5px;</span>
+<span class="s2">            background-color: #C8D6E5;</span>
+<span class="s2">            color: #130f40;</span>
+<span class="s2">        }</span>
+<span class="s2">        sup{</span>
+<span class="s2">            line-height: 0px;</span>
+<span class="s2">            vertical-align: bottom;</span>
+<span class="s2">        }</span>
+<span class="s2">        #RUN .spi{</span>
+<span class="s2">            animation-name: pulse;</span>
+<span class="s2">            animation-duration: 0.5s;</span>
+<span class="s2">            animation-iteration-count: infinite;</span>
+<span class="s2">            animation-direction: alternate;</span>
+<span class="s2">        }</span>
+<span class="s2">        @keyframes pulse {</span>
+<span class="s2">              from {color: #130f40;border-color: #130f40}</span>
+<span class="s2">              to {color: #05c46b;border-color: #05c46b}</span>
+<span class="s2">        }</span>
+<span class="s2">        .state{</span>
+<span class="s2">            background-color: #c8d6e5;</span>
+<span class="s2">            box-sizing: border-box;</span>
+<span class="s2">            padding: 2px;</span>
+<span class="s2">            width: 100%;</span>
+<span class="s2">            font-size: 16px;</span>
+<span class="s2">        }</span>
+<span class="s2">        .MBPS{</span>
+<span class="s2">            font-weight: bold;</span>
+<span class="s2">        }</span>
+<span class="s2">        footer{</span>
+<span class="s2">            padding: 10px;</span>
+<span class="s2">        }</span>
+<span class="s2">        #cpuInfo {</span>
+<span class="s2">            background-color: #c8d6e5;</span>
+<span class="s2">            padding: 5px;</span>
+<span class="s2">        }</span>
+<span class="s2">    &lt;/style&gt;</span>
+<span class="s2">    &lt;script&gt;</span>
+<span class="s2">        function main(){</span>
+<span class="s2">            url = &quot;state.json&quot;</span>
+<span class="s2">            if(document.visibilityState != &quot;hidden&quot;){</span>
+<span class="s2">                get_state(url, build_conn_boxes);</span>
+<span class="s2">            }</span>
+<span class="s2">            setTimeout(main, 1000);</span>
+<span class="s2">        }</span>
+<span class="s2">        function get_state(url, callback){</span>
+<span class="s2">            var xhr = new XMLHttpRequest();</span>
+<span class="s2">            xhr.open(&#39;GET&#39;, url, true);</span>
+<span class="s2">            xhr.responseType = &#39;json&#39;;</span>
+<span class="s2">            xhr.onreadystatechange = function() {</span>
+<span class="s2">                if(xhr.readyState == 4 &amp;&amp; xhr.status == 200) {</span>
+<span class="s2">                    callback(xhr.response);</span>
+<span class="s2">                }</span>
+<span class="s2">                if(xhr.readyState == 4 &amp;&amp; xhr.status == 0) {</span>
+<span class="s2">                    callback(null);</span>
+<span class="s2">                }</span>
+<span class="s2">            }</span>
+<span class="s2">            xhr.send();</span>
+<span class="s2">        }</span>
+<span class="s2">        function build_conn_boxes(data){</span>
+<span class="s2">            container = document.getElementById(&#39;container&#39;);</span>
+<span class="s2">            template = document.getElementById(&#39;template&#39;);</span>
+<span class="s2">            if(data == null){</span>
+<span class="s2">                return;</span>
+<span class="s2">            }</span>
+<span class="s2">            container.innerHTML = &quot;&quot;;</span>
+<span class="s2">            cpu_string = `Cpu: $</span><span class="si">{data[&#39;num_cpu&#39;]}</span><span class="s2"> Cores Usage: $</span><span class="si">{data[&#39;cpu_usage1&#39;]}</span><span class="s2">\% 15min average: $</span><span class="si">{data[&#39;cpu_usage15&#39;]}</span><span class="s2">\%`;</span>
+<span class="s2">            document.getElementById(&#39;cpuInfo&#39;).innerText = cpu_string;</span>
+<span class="s2">            for (const [key, value] of Object.entries(data[&#39;state&#39;])) {</span>
+<span class="s2">                for (const [lport, lvalues] of Object.entries(value[&#39;ports&#39;])) {</span>
+<span class="s2">                    new_row = template.cloneNode(true);</span>
+<span class="s2">                    new_row.id = value[&#39;uut_status&#39;];</span>
+<span class="s2">                    new_row.getElementsByClassName(&#39;uut_name&#39;)[0].innerText = key;</span>
+<span class="s2">                    new_row.getElementsByClassName(&#39;uut_name&#39;)[0].href = `http://$</span><span class="si">{key}</span><span class="s2">`;</span>
+<span class="s2">                    new_row.getElementsByClassName(&#39;uut_status&#39;)[0].innerText = value[&#39;uut_status&#39;];</span>
+<span class="s2">                    new_row.getElementsByClassName(&#39;uut_status&#39;)[0].className = value[&#39;uut_status&#39;];</span>
+<span class="s2">                    new_row.getElementsByClassName(&#39;rport&#39;)[0].innerText = lvalues[&#39;rport&#39;];</span>
+<span class="s2">                    new_row.getElementsByClassName(&#39;hostname&#39;)[0].innerText = location.hostname;</span>
+<span class="s2">                    new_row.getElementsByClassName(&#39;lport&#39;)[0].innerText = lport;</span>
+<span class="s2">                    state = &quot;&quot;;</span>
+<span class="s2">                    job_template = new_row.getElementsByClassName(&#39;job_template&#39;)[0]</span>
+<span class="s2">                    for (var [job_key, job_value] of Object.entries(lvalues[&#39;job_state&#39;])) {</span>
+<span class="s2">                        if(job_key == &#39;MBPS&#39;){</span>
+<span class="s2">                            job_value = Math.round(job_value * 1.093);</span>
+<span class="s2">                            new_row.getElementsByClassName(&#39;speed&#39;)[0].innerHTML = `$</span><span class="si">{job_value}</span><span class="s2">&lt;sup&gt;e6&lt;/sup&gt; B/s`;</span>
+<span class="s2">                        }</span>
+<span class="s2">                        new_state = job_template.cloneNode(true);</span>
+<span class="s2">                        new_state.className = job_key</span>
+<span class="s2">                        new_state.firstChild.innerHTML = job_key</span>
+<span class="s2">                        new_state.lastChild.innerHTML = job_value</span>
+<span class="s2">                        new_row.getElementsByClassName(&#39;state&#39;)[0].appendChild(new_state);</span>
+<span class="s2">                    }</span>
+<span class="s2">                    container.appendChild(new_row);</span>
+<span class="s2">                }</span>
+<span class="s2">            }</span>
+<span class="s2">        }</span>
+<span class="s2">        function toggle_detail(event){</span>
+<span class="s2">            event.target.labels[0].textContent = event.srcElement.checked ? &#39;Details..&#39; : &#39;Summary..&#39;;</span>
+<span class="s2">            document.getElementById(&#39;subtitle&#39;).textContent = event.srcElement.checked ? &#39;summary&#39; : &#39;details&#39;;</span>
+<span class="s2">            document.getElementById(&#39;container&#39;).className = event.srcElement.checked ? &#39;summary&#39; : &#39;details&#39;;</span>
+<span class="s2">        }</span>
+<span class="s2">        window.onload = main();</span>
+<span class="s2">    &lt;/script&gt;</span>
+<span class="s2">&lt;/head&gt;</span>
+<span class="s2">&lt;body&gt;</span>
+<span class="s2">    &lt;div class=&quot;conn_box&quot; id=&quot;template&quot;&gt;</span>
+<span class="s2">        &lt;div class=&quot;device&quot;&gt;</span>
+<span class="s2">            &lt;div&gt;[&lt;span class=&quot;uut_status&quot;&gt;uut_status&lt;/span&gt;]&lt;/div&gt;</span>
+<span class="s2">            &lt;div&gt;&lt;a href=&quot;#&quot; class=&quot;uut_name&quot;&gt;uut_name&lt;/a&gt;:&lt;span class=&quot;rport&quot;&gt;rport&lt;/span&gt;&lt;/div&gt;</span>
+<span class="s2">            &lt;span class=&quot;spi&quot;&gt;――&lt;span class=&quot;speed&quot;&gt;&lt;/span&gt;―⟶&lt;/span&gt;</span>
+<span class="s2">            &lt;div&gt;&lt;span class=&quot;hostname&quot;&gt;hostname&lt;/span&gt;:&lt;span class=&quot;lport&quot;&gt;lport&lt;/span&gt;&lt;/div&gt;</span>
+<span class="s2">        &lt;/div&gt;</span>
+<span class="s2">        &lt;table class=&quot;state&quot;&gt;</span>
+<span class="s2">            &lt;tr class=&quot;job_template&quot;&gt;&lt;td&gt;key&lt;/td&gt;&lt;td&gt;value&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s2">        &lt;/table&gt;</span>
+<span class="s2">    &lt;/div&gt;</span>
+<span class="s2">    &lt;header&gt;</span>
+<span class="s2">        &lt;h1&gt;Afhba monitor&lt;span id=&quot;subtitle&quot;&gt;summary&lt;/span&gt;&lt;/h1&gt;</span>
+<span class="s2">        &lt;input type=&quot;checkbox&quot; checked id=&quot;detailToggle&quot; onchange=&quot;toggle_detail(event)&quot;&gt;&lt;/input&gt;</span>
+<span class="s2">        &lt;label for=&quot;detailToggle&quot; class=&quot;button&quot;&gt;Details...&lt;/label&gt;</span>
+<span class="s2">    &lt;/header&gt;</span>
+<span class="s2">    &lt;div id=&quot;container&quot; class=&quot;summary&quot;&gt;Loading...&lt;/div&gt;</span>
+<span class="s2">    &lt;footer&gt;</span>
+<span class="s2">        &lt;span id=&quot;cpuInfo&quot;&gt;No info&lt;/span&gt;</span>
+<span class="s2">    &lt;/footer&gt;</span>
+<span class="s2">&lt;/body&gt;</span>
+<span class="s2">&lt;/html&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Profiling ..&quot;</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">cProfile</span><span class="o">,</span> <span class="nn">pstats</span>
+        <span class="n">profiler</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+        <span class="n">profiler</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;KeyboardInterrupt&quot;</span><span class="p">)</span>
+        <span class="n">profiler</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="n">profiler</span><span class="p">)</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="s1">&#39;tottime&#39;</span><span class="p">)</span>
+        <span class="n">stats</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

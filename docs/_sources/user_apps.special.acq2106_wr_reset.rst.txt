@@ -1,0 +1,25 @@
+acq2106\_wr\_reset
+==================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.acq2106_wr_reset.get_parser
+      :prog: acq2106_wr_reset.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.acq2106_wr_reset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

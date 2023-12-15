@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AquadB_analysis &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="IEC60601_reboot" href="user_apps.special.IEC60601_reboot.html" />
+    <link rel="prev" title="special" href="user_apps.special.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.special.html">special</a></li>
+      <li class="breadcrumb-item active">AquadB_analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="aquadb-analysis">
+<h1>AquadB_analysis<a class="headerlink" href="#aquadb-analysis" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">AquadB_analysis</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">run_test</span> <span class="n">RUN_TEST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ecolumn</span> <span class="n">ECOLUMN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">silence</span> <span class="n">SILENCE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">aqbsite</span> <span class="n">AQBSITE</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">burst_on_demand</span> <span class="n">BURST_ON_DEMAND</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trigger_from_here</span> <span class="n">TRIGGER_FROM_HERE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">subset</span> <span class="n">SUBSET</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">filesize</span> <span class="n">FILESIZE</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">filesamples</span> <span class="n">FILESAMPLES</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">files_per_cycle</span> <span class="n">FILES_PER_CYCLE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">force_delete</span> <span class="n">FORCE_DELETE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nowrite</span> <span class="n">NOWRITE</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">totaldata</span> <span class="n">TOTALDATA</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">root</span> <span class="n">ROOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">runtime</span> <span class="n">RUNTIME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="n">VERBOSE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">display</span> <span class="n">DISPLAY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">combine</span> <span class="n">COMBINE</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">stim</span> <span class="n">STIM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dwg</span> <span class="n">DWG</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nchan</span> <span class="n">NCHAN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">nblks</span> <span class="n">NBLKS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">save</span> <span class="n">SAVE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">src</span> <span class="n">SRC</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">cycle</span> <span class="n">CYCLE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">pchan</span> <span class="n">PCHAN</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">pses</span> <span class="n">PSES</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">tai_vernier</span> <span class="n">TAI_VERNIER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">egu</span> <span class="n">EGU</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">xdt</span> <span class="n">XDT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">data_type</span> <span class="n">DATA_TYPE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">double_up</span> <span class="n">DOUBLE_UP</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">plot_mpl</span> <span class="n">PLOT_MPL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">plot</span> <span class="n">PLOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stack_480</span> <span class="n">STACK_480</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">drive_letter</span> <span class="n">DRIVE_LETTER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">pcfg</span> <span class="n">PCFG</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">callback</span> <span class="n">CALLBACK</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">traces_per_plot</span> <span class="n">TRACES_PER_PLOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">schan</span> <span class="n">SCHAN</span><span class="p">]</span>
+                          <span class="n">uuts</span> <span class="p">[</span><span class="n">uuts</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>uuts</kbd></dt>
+<dd><p class="sd-card-text">uuts - for auto configuration data_type, nchan, egu or just a label</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--run_test</kbd></dt>
+<dd><p class="sd-card-text">whether or not to run the test</p>
+<p class="sd-card-text">Default: “YES”</p>
+</dd>
+<dt><kbd>--ecolumn</kbd></dt>
+<dd><p class="sd-card-text">Event column</p>
+</dd>
+<dt><kbd>--silence</kbd></dt>
+<dd><p class="sd-card-text">Hide subordinate script output</p>
+<p class="sd-card-text">Default: “YES”</p>
+</dd>
+<dt><kbd>--aqbsite</kbd></dt>
+<dd><p class="sd-card-text">Active AquadB site with STIM loopback</p>
+<p class="sd-card-text">Default: “1”</p>
+</dd>
+<dt><kbd>--burst_on_demand</kbd></dt>
+<dd><p class="sd-card-text">Burst Size in Samples[,./plotjob]</p>
+</dd>
+<dt><kbd>--trigger_from_here</kbd></dt>
+<dd><p class="sd-card-text">action soft trigger from this application</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--subset</kbd></dt>
+<dd><p class="sd-card-text">subset command if present eg 1,5 :: strips first 5 channels</p>
+</dd>
+<dt><kbd>--filesize</kbd></dt>
+<dd><p class="sd-card-text">file size in bytes</p>
+<p class="sd-card-text">Default: 1048576</p>
+</dd>
+<dt><kbd>--filesamples</kbd></dt>
+<dd><p class="sd-card-text">file size in samples (overrides filesize)</p>
+</dd>
+<dt><kbd>--files_per_cycle</kbd></dt>
+<dd><p class="sd-card-text">files per cycle (directory)</p>
+<p class="sd-card-text">Default: 100</p>
+</dd>
+<dt><kbd>--force_delete</kbd></dt>
+<dd><p class="sd-card-text">silently delete any existing data files</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--nowrite</kbd></dt>
+<dd><p class="sd-card-text">do not write file</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--totaldata</kbd></dt>
+<dd><p class="sd-card-text">Default: 10000000000</p>
+</dd>
+<dt><kbd>--root</kbd></dt>
+<dd><p class="sd-card-text">Location to save files. Default dir is UUT name.</p>
+<p class="sd-card-text">Default: “../AquadB_FAT/DATA”</p>
+</dd>
+<dt><kbd>--runtime</kbd></dt>
+<dd><p class="sd-card-text">How long to stream data for</p>
+<p class="sd-card-text">Default: 1000000</p>
+</dd>
+<dt><kbd>--verbose</kbd></dt>
+<dd><p class="sd-card-text">Prints status messages as the stream is running</p>
+<p class="sd-card-text">Default: 2</p>
+</dd>
+<dt><kbd>--display</kbd></dt>
+<dd><p class="sd-card-text">Render display</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--combine</kbd></dt>
+<dd><p class="sd-card-text">Combine all cycle files into one</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--stim</kbd></dt>
+<dd><p class="sd-card-text">stimulator uut</p>
+<p class="sd-card-text">Default: “acq2106_351”</p>
+</dd>
+<dt><kbd>--dwg</kbd></dt>
+<dd><p class="sd-card-text">stimulator dwg file to load</p>
+<p class="sd-card-text">Default: “../AquadB_FAT/DWG/wiggle”</p>
+</dd>
+<dt><kbd>--nchan</kbd></dt>
+<dd></dd>
+<dt><kbd>--nblks</kbd></dt>
+<dd><p class="sd-card-text">Default: -1</p>
+</dd>
+<dt><kbd>--save</kbd></dt>
+<dd><p class="sd-card-text">save channelized data to dir</p>
+</dd>
+<dt><kbd>--src</kbd></dt>
+<dd><p class="sd-card-text">data source root</p>
+<p class="sd-card-text">Default: “../AquadB_FAT/DATA”</p>
+</dd>
+<dt><kbd>--cycle</kbd></dt>
+<dd><p class="sd-card-text">cycle from rtm-t-stream-disk</p>
+</dd>
+<dt><kbd>--pchan</kbd></dt>
+<dd><p class="sd-card-text">channels to plot</p>
+<p class="sd-card-text">Default: “:”</p>
+</dd>
+<dt><kbd>--pses</kbd></dt>
+<dd><p class="sd-card-text">plot start end stride, default: 0:-1:1</p>
+<p class="sd-card-text">Default: “1:-1:1”</p>
+</dd>
+<dt><kbd>--tai_vernier</kbd></dt>
+<dd><p class="sd-card-text">decode this channel as tai_vernier</p>
+</dd>
+<dt><kbd>--egu</kbd></dt>
+<dd><p class="sd-card-text">plot egu (V vs s)</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--xdt</kbd></dt>
+<dd><p class="sd-card-text">0: use interval from UUT, else specify interval</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--data_type</kbd></dt>
+<dd><p class="sd-card-text">Use int16 or int32 for data demux.</p>
+</dd>
+<dt><kbd>--double_up</kbd></dt>
+<dd><p class="sd-card-text">Use for ACQ480 two lines per channel mode</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--plot_mpl</kbd></dt>
+<dd><p class="sd-card-text">Use MatPlotLib to plot subrate data. (legacy option)</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--plot</kbd></dt>
+<dd><p class="sd-card-text">plot data when set</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--stack_480</kbd></dt>
+<dd><p class="sd-card-text">Stack : 2x4, 2x8, 4x8, 6x8</p>
+</dd>
+<dt><kbd>--drive_letter</kbd></dt>
+<dd><p class="sd-card-text">Which drive letter to use when on windows.</p>
+<p class="sd-card-text">Default: “D”</p>
+</dd>
+<dt><kbd>--pcfg</kbd></dt>
+<dd><p class="sd-card-text">plot configuration file, overrides pchan</p>
+<p class="sd-card-text">Default: “../AquadB_FAT/PCFG/qen_and_wr_and_di.pcfg”</p>
+</dd>
+<dt><kbd>--callback</kbd></dt>
+<dd><p class="sd-card-text">callback for external automation</p>
+</dd>
+<dt><kbd>--traces_per_plot</kbd></dt>
+<dd><p class="sd-card-text">traces_per_plot</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--schan</kbd></dt>
+<dd><p class="sd-card-text">channels to save ie 1,49,50</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.special.AquadB_analysis">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.special.AquadB_analysis" title="Permalink to this heading"></a></h2>
+<p>Wrapper for move aquadb and host demux</p>
+<p>examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">user_apps</span><span class="o">/</span><span class="n">special</span><span class="o">/</span><span class="n">AquadB_analysis</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">ecolumn</span><span class="o">=</span><span class="n">DI6</span> <span class="o">--</span><span class="n">run_test</span><span class="o">=</span><span class="n">yes</span> <span class="o">--</span><span class="n">silence</span><span class="o">=</span><span class="n">YES</span> <span class="n">acq2106_999</span>
+
+<span class="o">./</span><span class="n">user_apps</span><span class="o">/</span><span class="n">special</span><span class="o">/</span><span class="n">AquadB_analysis</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">stim</span><span class="o">=</span><span class="n">acq2106_888</span> <span class="o">--</span><span class="n">dwg</span><span class="o">=</span><span class="n">dat_files</span><span class="o">/</span><span class="n">dwg123</span> <span class="o">--</span><span class="n">run_test</span><span class="o">=</span><span class="n">yes</span> <span class="o">--</span><span class="n">silence</span><span class="o">=</span><span class="n">NO</span> <span class="n">acq2106_999</span>
+</pre></div>
+</div>
+<p>args for subordinate scripts should pass through wrapper</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.aquadb_move_args">
+<span class="sig-name descname"><span class="pre">aquadb_move_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#aquadb_move_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.aquadb_move_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.host_demux_args">
+<span class="sig-name descname"><span class="pre">host_demux_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#host_demux_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.host_demux_args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.blockPrint">
+<span class="sig-name descname"><span class="pre">blockPrint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#blockPrint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.blockPrint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.enablePrint">
+<span class="sig-name descname"><span class="pre">enablePrint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#enablePrint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.enablePrint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.get_events">
+<span class="sig-name descname"><span class="pre">get_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#get_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.get_events" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.build_table">
+<span class="sig-name descname"><span class="pre">build_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#build_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.build_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.demarcate">
+<span class="sig-name descname"><span class="pre">demarcate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#demarcate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.demarcate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.homecoming">
+<span class="sig-name descname"><span class="pre">homecoming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#homecoming"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.homecoming" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.AquadB_analysis.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/AquadB_analysis.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.AquadB_analysis.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+gpg\_load\_oneshot
+==================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.gpg_load_oneshot.get_parser
+      :prog: gpg_load_oneshot.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.gpg_load_oneshot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

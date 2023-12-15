@@ -1,0 +1,25 @@
+ddc\_sync\_role
+===============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.ddc_sync_role.get_parser
+      :prog: ddc_sync_role.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.ddc_sync_role
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

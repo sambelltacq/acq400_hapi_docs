@@ -1,0 +1,15 @@
+debug
+=====
+
+
+
+
+
+
+
+.. automodule:: acq400_hapi.debug
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

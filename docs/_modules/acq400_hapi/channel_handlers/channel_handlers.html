@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_hapi.channel_handlers.channel_handlers &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acq400_hapi.channel_handlers.channel_handlers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acq400_hapi.channel_handlers.channel_handlers</h1><div class="highlight"><pre>
+<span></span><span class="c1"># channel_handlers.py</span>
+
+<span class="sd">&#39;&#39;&#39; channel_handlers will take care of a specific column in a 2D data set, with user-specified formatting</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="decode_tai_vernier"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.decode_tai_vernier">[docs]</a><span class="k">def</span> <span class="nf">decode_tai_vernier</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">xdt</span> <span class="o">=</span> <span class="mf">25e-9</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">xdt</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">args</span><span class="o">.</span><span class="n">xdt</span>
+    <span class="n">secs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">right_shift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mh">0x70000000</span><span class="p">),</span> <span class="mi">28</span><span class="p">)</span>
+<span class="c1"># secs has a spike on rollover, suppress it</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">secs</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">secs</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">secs</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">secs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">!=</span> <span class="n">secs</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ted fix at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">))</span>
+            <span class="n">secs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">secs</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mh">0x0fffffff</span><span class="p">)</span><span class="o">*</span><span class="n">xdt</span>
+
+<span class="c1"># catch ticks only spike</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">ticks</span><span class="p">[</span><span class="n">ii</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+
+    <span class="n">secs</span> <span class="o">=</span> <span class="n">secs</span> <span class="o">+</span> <span class="n">ticks</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;decode_tai_vernier @@todoi stubbed spikes&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">secs</span></div>
+
+<span class="sd">&#39;&#39;&#39; formatfile</span>
+
+<span class="sd">CHDEF ::</span>
+<span class="sd">   N : channel number from 1</span>
+<span class="sd">   LIST : list of channels   eg 1,2,3</span>
+<span class="sd">   RANGE: range of channels 1:4,   : means ALL</span>
+
+<span class="sd">CHDEF,ch_raw[,fmt=F0[;F1,...]]</span>
+<span class="sd">CHDEF,ch_egu</span>
+<span class="sd">CHDEF,ch_taiv</span>
+<span class="sd">CHDEF,ch_bf,MASK[,fmt=l1;l2;l3]</span>
+
+<span class="sd">[pgm@hoy5 acq400_hapi]$ cat PCFG/user.pcfg </span>
+<span class="sd"># all channels raw:</span>
+<span class="sd">1,2,8=ch_raw,fmt=AqB1;CNT1;SC</span>
+<span class="sd">10=ch_bf,0x70000000,fmt=TAIs</span>
+<span class="sd">10=ch_taiv</span>
+
+<span class="sd"># print entire BF</span>
+<span class="sd">7=ch_bf,0x0000003f,fmt=DI6</span>
+<span class="sd"># break BF in to bits, lable each bit ..</span>
+<span class="sd">7=ch_bf,0x0000003f,fmt=d4;d3;d2;d2;d1;d0</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="n">STEP</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">SMOO</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="channel_handler"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.channel_handler">[docs]</a><span class="k">class</span> <span class="nc">channel_handler</span><span class="p">:</span>
+<div class="viewcode-block" id="channel_handler.__init__"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.channel_handler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ic</span> <span class="o">=</span> <span class="n">ic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ch</span> <span class="o">=</span> <span class="n">ic</span><span class="o">+</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR : abstract base class does nothing&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="channel_handler.make_label"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.channel_handler.make_label">[docs]</a>    <span class="k">def</span> <span class="nf">make_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="channel_handler.defsplit"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.channel_handler.defsplit">[docs]</a>    <span class="k">def</span> <span class="nf">defsplit</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+        <span class="n">lstr</span><span class="p">,</span> <span class="n">rstr</span> <span class="o">=</span> <span class="n">defstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lstr</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="ow">or</span> <span class="n">lstr</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
+            <span class="n">cdef</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nchan</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">lstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">lr</span> <span class="o">=</span> <span class="n">lstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">lr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">lr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="n">nchan</span><span class="o">+</span><span class="mi">1</span> <span class="k">if</span> <span class="n">lr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">lr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+            <span class="n">cdef</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cdef</span> <span class="o">=</span> <span class="n">lstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">rlist</span> <span class="o">=</span> <span class="n">rstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">fmts</span> <span class="o">=</span> <span class="p">(</span><span class="n">fmt</span><span class="p">,)</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;fmt=&quot;</span><span class="p">):</span>
+                <span class="n">_fmts</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+                <span class="n">fmts</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cdef</span><span class="p">):</span>
+                    <span class="n">fmts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmt</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_fmts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">_fmts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">cn</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_fmts</span><span class="p">)</span> <span class="k">else</span> <span class="n">_fmts</span><span class="p">[</span><span class="n">cn</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span> <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">cdef</span><span class="p">),</span> <span class="n">rlist</span><span class="p">,</span> <span class="n">fmts</span></div>
+    <span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">builders</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="channel_handler.decode_config"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.channel_handler.decode_config">[docs]</a>    <span class="k">def</span> <span class="nf">decode_config</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">client_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defstr</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">defstr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">builder</span> <span class="ow">in</span> <span class="n">channel_handler</span><span class="o">.</span><span class="n">builders</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">client_args</span><span class="p">):</span>
+                    <span class="k">return</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="s2"> no handler found for </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lno</span><span class="p">,</span> <span class="n">defstr</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="ch_raw"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_raw">[docs]</a><span class="k">class</span> <span class="nc">ch_raw</span><span class="p">(</span><span class="n">channel_handler</span><span class="p">):</span>
+    <span class="n">def_fmt</span> <span class="o">=</span> <span class="s2">&quot;CH</span><span class="si">{}</span><span class="s2"> bits&quot;</span>
+
+<div class="viewcode-block" id="ch_raw.__init__"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_raw.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">_fmt</span> <span class="o">=</span> <span class="n">fmt</span> <span class="k">if</span> <span class="n">fmt</span> <span class="k">else</span> <span class="n">ch_raw</span><span class="o">.</span><span class="n">def_fmt</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="n">_fmt</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">raw_channels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ic</span><span class="p">][</span><span class="n">pses</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">pses</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">pses</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch</span><span class="p">),</span> <span class="n">SMOO</span>
+
+<div class="viewcode-block" id="ch_raw.build"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_raw.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">client_args</span><span class="p">):</span>
+        <span class="n">channels</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmts</span> <span class="o">=</span> <span class="n">channel_handler</span><span class="o">.</span><span class="n">defsplit</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">ch_raw</span><span class="o">.</span><span class="n">def_fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ch_raw&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+                <span class="n">channel_handler</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_raw</span><span class="p">(</span><span class="n">ch</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmts</span><span class="p">[</span><span class="n">cn</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<span class="n">channel_handler</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_raw</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ch_egu"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_egu">[docs]</a><span class="k">class</span> <span class="nc">ch_egu</span><span class="p">(</span><span class="n">ch_raw</span><span class="p">):</span>
+    <span class="n">def_fmt</span> <span class="o">=</span> <span class="s2">&quot;CH</span><span class="si">{}</span><span class="s2"> V&quot;</span>
+<div class="viewcode-block" id="ch_egu.__init__"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_egu.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span>
+        <span class="n">_fmt</span> <span class="o">=</span> <span class="n">fmt</span> <span class="k">if</span> <span class="n">fmt</span> <span class="k">else</span> <span class="n">ch_egu</span><span class="o">.</span><span class="n">def_fmt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">egu_fmt</span> <span class="o">=</span> <span class="n">_fmt</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">):</span>
+        <span class="n">yy</span><span class="p">,</span> <span class="n">raw_fmt</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">WSIZE</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="n">yy</span><span class="o">/</span><span class="mi">256</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">the_uut</span><span class="o">.</span><span class="n">chan2volts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch</span><span class="p">,</span> <span class="n">yy</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">egu_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch</span><span class="p">),</span> <span class="n">SMOO</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">yy</span><span class="p">,</span> <span class="n">raw_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch</span><span class="p">),</span> <span class="n">SMOO</span>
+
+<div class="viewcode-block" id="ch_egu.build"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_egu.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">client_args</span><span class="p">):</span>
+        <span class="n">channels</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmts</span> <span class="o">=</span> <span class="n">channel_handler</span><span class="o">.</span><span class="n">defsplit</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">ch_egu</span><span class="o">.</span><span class="n">def_fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ch_egu&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+                <span class="n">channel_handler</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ch_egu</span><span class="p">(</span><span class="n">ch</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">client_args</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmts</span><span class="p">[</span><span class="n">cn</span> <span class="k">if</span> <span class="n">cn</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">fmts</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<span class="n">channel_handler</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_egu</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ch_db"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_db">[docs]</a><span class="k">class</span> <span class="nc">ch_db</span><span class="p">(</span><span class="n">ch_raw</span><span class="p">):</span>
+    <span class="n">def_fmt</span> <span class="o">=</span> <span class="s2">&quot;CH</span><span class="si">{}</span><span class="s2"> dB&quot;</span>
+<div class="viewcode-block" id="ch_db.__init__"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_db.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span>
+        <span class="n">_fmt</span> <span class="o">=</span> <span class="n">fmt</span> <span class="k">if</span> <span class="n">fmt</span> <span class="k">else</span> <span class="n">ch_egu</span><span class="o">.</span><span class="n">def_fmt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">egu_fmt</span> <span class="o">=</span> <span class="n">_fmt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">))</span>
+        <span class="n">yy</span><span class="p">,</span> <span class="n">raw_fmt</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">)</span>
+
+        <span class="n">dbsq</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">yy</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">WSIZE</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">db0</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mf">7.0368e13</span><span class="p">)</span>      <span class="c1"># 2^23 * 2^23</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">db0</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mi">32768</span><span class="o">*</span><span class="mi">32768</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">db0</span><span class="p">,</span> <span class="n">dbsq</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">egu_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch</span><span class="p">),</span> <span class="n">SMOO</span>        
+
+<div class="viewcode-block" id="ch_db.build"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_db.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">client_args</span><span class="p">):</span>
+        <span class="n">channels</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmts</span> <span class="o">=</span> <span class="n">channel_handler</span><span class="o">.</span><span class="n">defsplit</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">ch_egu</span><span class="o">.</span><span class="n">def_fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ch_db&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+                <span class="n">channel_handler</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ch_db</span><span class="p">(</span><span class="n">ch</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">client_args</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmts</span><span class="p">[</span><span class="n">cn</span> <span class="k">if</span> <span class="n">cn</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">fmts</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<span class="n">channel_handler</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_db</span><span class="p">)</span>    
+
+<div class="viewcode-block" id="ch_tai_vernier"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_tai_vernier">[docs]</a><span class="k">class</span> <span class="nc">ch_tai_vernier</span><span class="p">(</span><span class="n">ch_raw</span><span class="p">):</span>
+    <span class="n">def_fmt</span> <span class="o">=</span> <span class="s2">&quot;CH</span><span class="si">{}</span><span class="s2"> TAIv&quot;</span>
+<div class="viewcode-block" id="ch_tai_vernier.__init__"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_tai_vernier.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">_fmt</span> <span class="o">=</span> <span class="n">fmt</span> <span class="k">if</span> <span class="n">fmt</span> <span class="k">else</span> <span class="n">ch_raw</span><span class="o">.</span><span class="n">def_fmt</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="n">_fmt</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">):</span>
+        <span class="n">yy</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decode_tai_vernier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">yy</span><span class="p">),</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">STEP</span>
+
+<div class="viewcode-block" id="ch_tai_vernier.build"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_tai_vernier.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">client_args</span><span class="p">):</span>
+        <span class="n">channels</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmts</span> <span class="o">=</span> <span class="n">channel_handler</span><span class="o">.</span><span class="n">defsplit</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">ch_tai_vernier</span><span class="o">.</span><span class="n">def_fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ch_taiv&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+                <span class="n">channel_handler</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_tai_vernier</span><span class="p">(</span><span class="n">ch</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">client_args</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmts</span><span class="p">[</span><span class="n">cn</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<span class="n">channel_handler</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_tai_vernier</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ch_bitfield"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_bitfield">[docs]</a><span class="k">class</span> <span class="nc">ch_bitfield</span><span class="p">(</span><span class="n">channel_handler</span><span class="p">):</span>
+    <span class="n">def_fmt</span> <span class="o">=</span> <span class="s2">&quot;BITS</span><span class="si">{}</span><span class="s2">&quot;</span>
+<div class="viewcode-block" id="ch_bitfield.__init__"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_bitfield.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">_fmt</span> <span class="o">=</span> <span class="n">fmt</span> <span class="k">if</span> <span class="n">fmt</span> <span class="k">else</span> <span class="n">ch_bitfield</span><span class="o">.</span><span class="n">def_fmt</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shr</span> <span class="o">=</span> <span class="n">ch_bitfield</span><span class="o">.</span><span class="n">calc_shr</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>        </div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_channels</span><span class="p">,</span> <span class="n">pses</span><span class="p">):</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="n">raw_channels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ic</span><span class="p">][</span><span class="n">pses</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">pses</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">pses</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">bf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">right_shift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">yy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">shr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch</span><span class="p">),</span> <span class="n">STEP</span>
+
+<div class="viewcode-block" id="ch_bitfield.count_bits"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_bitfield.count_bits">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">count_bits</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+        <span class="n">mask_bits</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">while</span> <span class="n">mask</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">mask_bits</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">mask_bits</span></div>
+    
+<div class="viewcode-block" id="ch_bitfield.calc_shr"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_bitfield.calc_shr">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">calc_shr</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+        <span class="n">shr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">mask</span><span class="o">&amp;</span><span class="mh">0x1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+            <span class="n">shr</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">shr</span></div>
+    
+<div class="viewcode-block" id="ch_bitfield.build"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.ch_bitfield.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">client_args</span><span class="p">):</span>
+        <span class="n">channels</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">fmts</span> <span class="o">=</span> <span class="n">channel_handler</span><span class="o">.</span><span class="n">defsplit</span><span class="p">(</span><span class="n">nchan</span><span class="p">,</span> <span class="n">defstr</span><span class="p">,</span> <span class="n">ch_bitfield</span><span class="o">.</span><span class="n">def_fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ch_bf&#39;</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+            <span class="n">mask_bits</span> <span class="o">=</span> <span class="n">ch_bitfield</span><span class="o">.</span><span class="n">count_bits</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;fmt=&quot;</span><span class="p">):</span>
+                    <span class="n">_fmts</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">mask_bits</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">_fmts</span><span class="p">)</span> <span class="o">==</span> <span class="n">mask_bits</span><span class="p">:</span>
+                <span class="n">m1</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">mask_bits</span> <span class="o">+</span> <span class="n">ch_bitfield</span><span class="o">.</span><span class="n">calc_shr</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">mask_bits</span><span class="p">):</span>
+                    <span class="n">channel_handler</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_bitfield</span><span class="p">(</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">_fmts</span><span class="p">[</span><span class="n">ii</span><span class="p">]))</span>
+                    <span class="n">m1</span> <span class="o">=</span> <span class="n">m1</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+                    <span class="n">channel_handler</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_bitfield</span><span class="p">(</span><span class="n">ch</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmts</span><span class="p">[</span><span class="n">cn</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<span class="n">channel_handler</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_bitfield</span><span class="p">)</span>
+
+<div class="viewcode-block" id="process_pcfg"><a class="viewcode-back" href="../../../acq400_hapi.channel_handlers.channel_handlers.html#acq400_hapi.channel_handlers.channel_handlers.process_pcfg">[docs]</a><span class="k">def</span> <span class="nf">process_pcfg</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; return list of channel_handler objects built from config file &#39;&#39;&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;process_pcfg </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pcfg</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pcfg</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">lno</span><span class="p">,</span> <span class="n">defstr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()):</span>
+            <span class="n">channel_handler</span><span class="o">.</span><span class="n">decode_config</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">nchan</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">defstr</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">client_args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">channel_handler</span><span class="o">.</span><span class="n">handlers</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

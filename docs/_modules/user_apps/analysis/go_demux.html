@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.go_demux &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.go_demux</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.go_demux</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A python script to demux the data from the GO system.</span>
+
+<span class="sd">Data Format</span>
+
+<span class="sd">=====  =====  ======  ======  ======  ======  ====  ====</span>
+<span class="sd">CH01   CH02   CH03    CH16    DI32    SAMPLE  usec  fill</span>
+<span class="sd">=====  =====  ======  ======  ======  ======  ====  ====</span>
+<span class="sd">short  short  short   short   long    long    long  long</span>
+<span class="sd">=====  =====  ======  ======  ======  ======  ====  ====</span>
+
+<span class="sd">Example:</span>
+
+<span class="sd">Linux::</span>
+
+<span class="sd">    ./go_demux.py --data_file=&quot;./GO_DATA/event-1-50000-50000.dat&quot;</span>
+
+<span class="sd">Windows::</span>
+
+<span class="sd">    python .\go_demux.py --data_file=&quot;C:/O_DATA/event-1-50000-50000.dat&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="save_data"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.save_data">[docs]</a><span class="k">def</span> <span class="nf">save_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="plot_data"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.plot_data">[docs]</a><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="c1"># plot all the data in order (not stacked)</span>
+
+    <span class="n">axes</span> <span class="o">=</span> <span class="p">(</span>
+     	<span class="p">(</span> <span class="s2">&quot;CH09&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">shorts</span><span class="p">,</span>  <span class="mi">8</span> <span class="p">),</span>
+	<span class="p">(</span> <span class="s2">&quot;CH16&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">shorts</span><span class="p">,</span> <span class="mi">15</span> <span class="p">),</span>
+	<span class="p">(</span> <span class="s2">&quot;DI32&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">,</span>   <span class="n">args</span><span class="o">.</span><span class="n">L0</span><span class="o">+</span><span class="mi">0</span> <span class="p">),</span>
+        <span class="p">(</span> <span class="s2">&quot;NSAM&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">,</span>   <span class="n">args</span><span class="o">.</span><span class="n">L0</span><span class="o">+</span><span class="mi">1</span> <span class="p">),</span>
+        <span class="p">(</span> <span class="s2">&quot;usec&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">,</span>   <span class="n">args</span><span class="o">.</span><span class="n">L0</span><span class="o">+</span><span class="mi">2</span> <span class="p">),</span>
+        <span class="p">(</span> <span class="s2">&quot;msec&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">,</span>   <span class="n">args</span><span class="o">.</span><span class="n">L0</span><span class="o">+</span><span class="mi">3</span> <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">nsp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+  
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;plot_data&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">plots</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nsp</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;GO DATA </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="o">.</span><span class="n">uut</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nsp</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">arr</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+        <span class="n">plots</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">arr</span><span class="p">[:,</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">plots</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="print_es"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.print_es">[docs]</a><span class="k">def</span> <span class="nf">print_es</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">esp</span><span class="p">):</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">show_transitions</span><span class="o">//</span><span class="mi">2</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">esp</span><span class="o">-</span><span class="n">rr</span><span class="p">,</span><span class="n">esp</span><span class="o">+</span><span class="n">rr</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:6d}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span><span class="p">):</span>
+            <span class="n">txt</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:08x}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">],</span> <span class="s1">&#39;,&#39;</span> <span class="k">if</span> <span class="n">jj</span><span class="o">&lt;</span><span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span><span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="show_transitions"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.show_transitions">[docs]</a><span class="k">def</span> <span class="nf">show_transitions</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;show_transitions&quot;</span><span class="p">)</span>
+<span class="c1">#    MAGIC=0xaa55</span>
+    <span class="n">MAGIC1</span><span class="o">=</span><span class="mh">0xaa55f151</span>
+    <span class="n">MAGIC2</span><span class="o">=</span><span class="mh">0xaa55f152</span>
+    <span class="n">es1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MAGIC1</span><span class="p">)</span>
+    <span class="n">es2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MAGIC2</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">es1</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">MAGIC1</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">MAGIC1</span><span class="p">:</span> 
+            <span class="n">print_es</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">es2</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">MAGIC2</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">longs</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">MAGIC2</span><span class="p">:</span>
+            <span class="n">print_es</span><span class="p">(</span><span class="n">args</span><span class="p">,</span><span class="n">ii</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="make_shorts"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.make_shorts">[docs]</a><span class="k">def</span> <span class="nf">make_shorts</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">shorts</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">shorts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shorts</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shorts</span><span class="p">)</span><span class="o">//</span><span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_SHORTS</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_SHORTS</span><span class="p">))[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">args</span><span class="o">.</span><span class="n">SHORTCOLS</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="make_longs"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.make_longs">[docs]</a><span class="k">def</span> <span class="nf">make_longs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">longs</span><span class="p">):</span>
+<span class="c1">#    args.longs = np.reshape(longs, (len(longs)/args.SAMPLE_SIZE_LONGS, args.SAMPLE_SIZE_LONGS))[:,args.SHORTCOLS/2:]</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">longs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">longs</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">longs</span><span class="p">)</span><span class="o">//</span><span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="uut_file_print"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.uut_file_print">[docs]</a><span class="k">def</span> <span class="nf">uut_file_print</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="c1"># event-012-1567350364-2048-2047.dat</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;event-(\d+)-([\d]+)-(\d+)-(\d+).dat&#39;</span><span class="p">,</span> <span class="n">fn</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ISO-8859-1&#39;</span><span class="p">))</span>
+    <span class="n">evnum</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">post</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;fn </span><span class="si">{}</span><span class="s2"> ts </span><span class="si">{}</span><span class="s2"> event </span><span class="si">{}</span><span class="s2"> pre </span><span class="si">{}</span><span class="s2"> post </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>\
+            <span class="nb">format</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">:%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ts</span><span class="p">))),</span> <span class="n">evnum</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">post</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="load_data"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.load_data">[docs]</a><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uut_file_print</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bf</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">make_shorts</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">))</span>
+    <span class="n">make_longs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="uut_get_next"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.uut_get_next">[docs]</a><span class="k">def</span> <span class="nf">uut_get_next</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">AcqPorts</span><span class="o">.</span><span class="n">MULTI_EVENT_DISK</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">get_stick</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">AcqPorts</span><span class="o">.</span><span class="n">MULTI_EVENT_TMP</span>
+    <span class="c1"># unfortunately ChannelClient port is based from DATA0</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ChannelClient</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">port</span><span class="o">-</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">AcqPorts</span><span class="o">.</span><span class="n">DATA0</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">raw</span><span class="p">[:</span><span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span><span class="p">]</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">uut_file_print</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span><span class="p">:]</span>
+    <span class="n">make_longs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+    <span class="n">make_shorts</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">tobytes</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="uut_get_oneshot"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.uut_get_oneshot">[docs]</a><span class="k">def</span> <span class="nf">uut_get_oneshot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ChannelClient</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reading data, this may take a minute&quot;</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;we have data </span><span class="si">{}</span><span class="s2"> lw&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)))</span>
+
+    <span class="n">pre</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">TRANS_ACT_PRE</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">post</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">TRANS_ACT_POST</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="o">=</span><span class="s1">&#39;event-1-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">.dat&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">event_time</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">post</span><span class="p">)</span>
+
+    <span class="n">uut_file_print</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span><span class="p">:]</span>
+    <span class="n">make_longs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span></div>
+<span class="c1">#    make_shorts(args, np.frombuffer(args.raw.tobytes(), dtype=np.int16))</span>
+   
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">SHORTCOLS</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">LONGCOLS</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_SHORTS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">SHORTCOLS</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">LONGCOLS</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">SAMPLE_SIZE_LONGS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">SHORTCOLS</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">LONGCOLS</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">L0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">SHORTCOLS</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;save_file&quot;</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">uut</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">first_time</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">get_next</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">get_count</span> <span class="o">=</span> <span class="mi">0</span>
+     
+    <span class="k">while</span> <span class="n">first_time</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">get_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">get_oneshot</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">get_oneshot</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">save</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">get_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">uut_get_oneshot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">get_next</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">get_next</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">save</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">uut_get_next</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">get_count</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">get_count</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">data_file</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">show_transitions</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">show_transitions</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">plot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">plot_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">save</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">save_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">first_time</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.go_demux.html#user_apps.analysis.go_demux.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Demux for go system&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--SHORTCOLS&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of shorts cols&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--LONGCOLS&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of longs cols&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plot&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--save&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Save data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--show_transitions&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;hexdump +/-N samples at transition&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--data_file&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of data file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--get_oneshot&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[uut] pull oneshot data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--get_next&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[uut] get next mv file from uut&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--get_count&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of event files to fetch&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--get_stick&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: get data from USB stick, 0: from /tmp&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

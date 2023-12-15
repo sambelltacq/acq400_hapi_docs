@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq400.mean_client &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq400.mean_client</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq400.mean_client</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="sd">&quot;&quot;&quot;UUT provides a single sample of mean data on 42100</span>
+
+
+<span class="sd">thanks to this::</span>
+
+<span class="sd">    acq1001_343&gt; cat /mnt/local/inetd.mean.conf </span>
+<span class="sd">    42100 stream tcp nowait root cat cat /dev/shm/subrate</span>
+<span class="sd">    42100 dgram udp wait root cat cat /dev/shm/subrate</span>
+<span class="sd">    acq1001_343&gt; inetd /mnt/local/inetd.mean.conf</span>
+
+<span class="sd">Tested on ACQ1001+ACQ435, buffer length  4096, SR=10000</span>
+
+<span class="sd">acq1001_343&gt; cat /mnt/local/sysconfig/acq400.sh </span>
+<span class="sd">REBOOT_KNOB=y</span>
+<span class="sd">BLEN=4096</span>
+
+<span class="sd">Buffer Samples: 4096/4/32 = 32 </span>
+
+<span class="sd">Buffer Rate = 10000/32 = 330Hz</span>
+
+<span class="sd">/dev/shm/subrate is updated at Buffer Rate.</span>
+
+
+<span class="sd">Client side tests::</span>
+
+<span class="sd">    [dt100@brotto acq400]$ time  ./mean_client.py --verbose=0 --maxsam=100 acq1001_343</span>
+
+<span class="sd">    real	0m0.974s</span>
+
+<span class="sd">    ie 100 values per second is possible.</span>
+
+<span class="sd">    [dt100@brotto acq400]$  ./mean_client.py --maxsam=10 acq1001_343 | cut -d, -f1-8</span>
+<span class="sd">    000004a6,fffff93c,00000898,fffffc3d,00000bf3,fffffa4d,00000f8b,ffffec1c</span>
+<span class="sd">    000002e5,fffff936,00000895,fffffc5c,00000c00,fffffa44,00000fa0,ffffec22</span>
+<span class="sd">    00000c14,fffff95a,0000086a,fffffc45,00000c1e,fffffa31,00000fb2,ffffec10</span>
+<span class="sd">    00000304,fffff933,0000089a,fffffc55,00000c01,fffffa53,00000fca,ffffec1a</span>
+<span class="sd">    00000496,fffff942,00000882,fffffc45,00000c3d,fffffa31,00000fcb,ffffec05</span>
+<span class="sd">    00000933,fffff941,00000894,fffffc44,00000c22,fffffa5b,00000fac,ffffec2f</span>
+<span class="sd">    000003f1,fffff97f,0000089b,fffffc46,00000bfe,fffffa4a,00000f9b,ffffec25</span>
+<span class="sd">    00000a8d,fffff964,0000087a,fffffc61,00000c27,fffffa61,00000f9b,ffffec1a</span>
+<span class="sd">    00000386,fffff967,00000873,fffffc42,00000c18,fffffa46,00000fc8,ffffec3f</span>
+
+<span class="sd">Mean values are int32.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="n">MEANPORT</span> <span class="o">=</span> <span class="mi">42100</span>
+
+<div class="viewcode-block" id="get_mean"><a class="viewcode-back" href="../../../user_apps.acq400.mean_client.html#user_apps.acq400.mean_client.get_mean">[docs]</a><span class="k">def</span> <span class="nf">get_mean</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uut</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">sample_size</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">nchan</span> <span class="o">*</span> <span class="mi">4</span>
+    
+    <span class="n">isam</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">isam</span> <span class="o">&lt;</span> <span class="n">args</span><span class="o">.</span><span class="n">maxsam</span><span class="p">:</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Netclient</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">MEANPORT</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span> <span class="o">!=</span> <span class="n">sample_size</span><span class="p">:</span>
+<span class="c1">#            sys.stderr.write(&quot;short return {}&quot;.format(len(sample)))</span>
+             <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">isam</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="n">sproc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;hexdump&#39;</span><span class="p">,</span> <span class="s1">&#39;-ve&#39;</span><span class="p">,</span> <span class="s1">&#39;32/4 &quot;</span><span class="si">%08x</span><span class="s1">,&quot; &quot;</span><span class="se">\\</span><span class="s1">n&quot;&#39;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+                <span class="n">sproc</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+                <span class="n">sproc</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq400.mean_client.html#user_apps.acq400.mean_client.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Gets mean data from UUT&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--maxsam&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of samples to collect&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nchan&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of channels per sample&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: dump data, 0: silent&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uut&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uut&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">get_mean</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

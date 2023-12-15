@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_hapi.acq400_print &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acq400_hapi.acq400_print</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acq400_hapi.acq400_print</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;UI functions for cmd line&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<div class="viewcode-block" id="PR_NORMAL"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL">[docs]</a><span class="k">class</span> <span class="nc">PR_NORMAL</span><span class="p">:</span>
+<div class="viewcode-block" id="PR_NORMAL.Red"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Red">[docs]</a>    <span class="k">def</span> <span class="nf">Red</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PR_NORMAL.Green"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Green">[docs]</a>    <span class="k">def</span> <span class="nf">Green</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_NORMAL.Yellow"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Yellow">[docs]</a>    <span class="k">def</span> <span class="nf">Yellow</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_NORMAL.Purple"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Purple">[docs]</a>    <span class="k">def</span> <span class="nf">Purple</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_NORMAL.Cyan"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Cyan">[docs]</a>    <span class="k">def</span> <span class="nf">Cyan</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_NORMAL.Blue"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Blue">[docs]</a>    <span class="k">def</span> <span class="nf">Blue</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PR_NORMAL.Reverse"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Reverse">[docs]</a>    <span class="k">def</span> <span class="nf">Reverse</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PR_NORMAL.Bold"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_NORMAL.Bold">[docs]</a>    <span class="k">def</span> <span class="nf">Bold</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div></div>
+     
+<div class="viewcode-block" id="PR_FANCY"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY">[docs]</a><span class="k">class</span> <span class="nc">PR_FANCY</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Colored print options&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PR_FANCY.Red"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Red">[docs]</a>    <span class="k">def</span> <span class="nf">Red</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[91m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PR_FANCY.Green"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Green">[docs]</a>    <span class="k">def</span> <span class="nf">Green</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[92m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_FANCY.Yellow"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Yellow">[docs]</a>    <span class="k">def</span> <span class="nf">Yellow</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[93m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_FANCY.Purple"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Purple">[docs]</a>    <span class="k">def</span> <span class="nf">Purple</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[95m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_FANCY.Cyan"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Cyan">[docs]</a>    <span class="k">def</span> <span class="nf">Cyan</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[96m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="PR_FANCY.Blue"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Blue">[docs]</a>    <span class="k">def</span> <span class="nf">Blue</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[94m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PR_FANCY.Reverse"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Reverse">[docs]</a>    <span class="k">def</span> <span class="nf">Reverse</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[7m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PR_FANCY.Bold"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.PR_FANCY.Bold">[docs]</a>    <span class="k">def</span> <span class="nf">Bold</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[00m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span></div></div>
+
+
+<span class="n">PR</span> <span class="o">=</span> <span class="n">PR_FANCY</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HAPI_COLOUR&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span> <span class="k">else</span> <span class="n">PR_NORMAL</span>
+
+<div class="viewcode-block" id="DISPLAY"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY">[docs]</a><span class="k">class</span> <span class="nc">DISPLAY</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prints text over previous text for a live display effect&quot;&quot;&quot;</span>
+    <span class="n">FORMAT_CODES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;RED&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;5;196m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;GREEN&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;5;82m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;YELLOW&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;PURPLE&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[95m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CYAN&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[96m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;BLUE&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ORANGE&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;5;208m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;REVERSE&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[7m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;BOLD&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;UNDERLINE&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[4m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;TAB&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;RESET&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[00m&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    
+<div class="viewcode-block" id="DISPLAY.__init__"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HAPI_COLOUR&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FORMAT_CODES</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">FORMAT_CODES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">FORMAT_CODES</span><span class="p">[</span><span class="s1">&#39;TAB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_buffer</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partial_line</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="DISPLAY.add"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partial_line</span> <span class="o">+=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">FORMAT_CODES</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__add_partial_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_line</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">line_count</span> <span class="o">+=</span>  <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partial_line</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="DISPLAY.end"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__add_partial_line</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DISPLAY.add_line"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__add_partial_line</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_count</span> <span class="o">+=</span>  <span class="mi">1</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">FORMAT_CODES</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span></div>
+
+<div class="viewcode-block" id="DISPLAY.cache_line"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.cache_line">[docs]</a>    <span class="k">def</span> <span class="nf">cache_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">FORMAT_CODES</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+=</span> <span class="n">line</span></div>
+        
+<div class="viewcode-block" id="DISPLAY.add_cached_line"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.add_cached_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_cached_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">line_count</span> <span class="o">+=</span>  <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DISPLAY.render_interrupted"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.render_interrupted">[docs]</a>    <span class="k">def</span> <span class="nf">render_interrupted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_buffer</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DISPLAY.render"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__add_partial_line</span><span class="p">()</span>
+        <span class="n">LINE_UP</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1A&#39;</span>
+        <span class="n">ERASE_LINE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[2K&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+        <span class="k">if</span> <span class="n">loop</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">((</span><span class="n">LINE_UP</span> <span class="o">+</span> <span class="n">ERASE_LINE</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_count</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">line_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="DISPLAY.get_buffer"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.DISPLAY.get_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">get_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HAPI_COLOUR&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+        <span class="n">ansi_escape</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ansi_escape</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span></div></div>
+    
+<div class="viewcode-block" id="pprint"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.pprint">[docs]</a><span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">to_string</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prints dict with nice formatting&quot;&quot;&quot;</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">o</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&lt;&lt;non-serializable: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">)</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&gt;&gt;&quot;</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">to_string</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">string</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">string</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="unit_test"><a class="viewcode-back" href="../../acq400_hapi.acq400_print.html#acq400_hapi.acq400_print.unit_test">[docs]</a><span class="k">def</span> <span class="nf">unit_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="n">count1</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">count2</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="nb">max</span> <span class="o">=</span> <span class="mi">40</span>
+
+    <span class="n">SCREEN</span> <span class="o">=</span> <span class="n">DISPLAY</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s2">&quot;Count 1 is </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">count1</span><span class="p">)</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">cache_line</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;This line starts at the start,&quot;</span><span class="p">)</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Count 1 is &quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">count1</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">count1</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">SCREEN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;divisible by 5 </span><span class="si">{UNDERLINE}</span><span class="s2">and</span><span class="si">{RESET}</span><span class="s2"> 3&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">count1</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">SCREEN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;divisible by 5&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">count1</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">SCREEN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;divisible by 3&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">SCREEN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;divisible by neither 5 or 3&quot;</span><span class="p">)</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">cache_line</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot; continues in the middle &quot;</span><span class="p">)</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.1f}</span><span class="s2"> seconds since epoch&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s2">&quot;Count 2 is </span><span class="si">{BOLD}{0}{RESET}</span><span class="s2"> and is </span><span class="si">{1}</span><span class="s2"> from </span><span class="si">{2}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">count2</span><span class="p">,</span><span class="nb">max</span> <span class="o">-</span> <span class="n">count2</span><span class="p">,</span><span class="nb">max</span><span class="p">)</span>  
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">cache_line</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;and finishes at the end&quot;</span><span class="p">)</span>
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">add_cached_line</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">count2</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">:</span>
+                <span class="n">SCREEN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{RED}</span><span class="s2">ENDING</span><span class="si">{RESET}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">count1</span><span class="p">)</span>
+                <span class="n">SCREEN</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="n">SCREEN</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">count1</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">count2</span> <span class="o">+=</span> <span class="mi">3</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="n">SCREEN</span><span class="o">.</span><span class="n">render_interrupted</span><span class="p">()</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;Interrupt!&#39;</span><span class="p">)</span>
+        <span class="k">pass</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;printing normally&quot;</span><span class="p">)</span>
+    <span class="n">PR</span><span class="o">.</span><span class="n">Green</span><span class="p">(</span><span class="s2">&quot;Green if env set&quot;</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unit_test</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

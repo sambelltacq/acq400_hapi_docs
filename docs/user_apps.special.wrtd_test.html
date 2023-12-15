@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wrtd_test &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utils" href="user_apps.utils.html" />
+    <link rel="prev" title="tiga-stl-load" href="user_apps.special.tiga-stl-load.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.special.html">special</a></li>
+      <li class="breadcrumb-item active">wrtd_test</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="wrtd-test">
+<h1>wrtd_test<a class="headerlink" href="#wrtd-test" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">wrtd_test</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">pre</span> <span class="n">PRE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">post</span> <span class="n">POST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">demux</span> <span class="n">DEMUX</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">clk</span> <span class="n">CLK</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trg</span> <span class="n">TRG</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">sim</span> <span class="n">SIM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trace</span> <span class="n">TRACE</span><span class="p">]</span>
+                    <span class="p">[</span><span class="o">--</span><span class="n">auto_soft_trigger</span> <span class="n">AUTO_SOFT_TRIGGER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">clear_counters</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">save_data</span> <span class="n">SAVE_DATA</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">plot_data</span> <span class="n">PLOT_DATA</span><span class="p">]</span>
+                    <span class="p">[</span><span class="o">--</span><span class="n">one_plot</span> <span class="n">ONE_PLOT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trace_upload</span> <span class="n">TRACE_UPLOAD</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">channels</span> <span class="n">CHANNELS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="n">VERBOSE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">wrtd_txi</span> <span class="n">WRTD_TXI</span><span class="p">]</span>
+                    <span class="p">[</span><span class="o">--</span><span class="n">wrtd_delta_ns</span> <span class="n">WRTD_DELTA_NS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">sleep</span> <span class="n">SLEEP</span><span class="p">]</span>
+                    <span class="n">uut</span> <span class="p">[</span><span class="n">uut</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>uut</kbd></dt>
+<dd><p class="sd-card-text">uuts</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--pre</kbd></dt>
+<dd><p class="sd-card-text">pre-trigger samples</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--post</kbd></dt>
+<dd><p class="sd-card-text">post-trigger samples</p>
+<p class="sd-card-text">Default: 100000</p>
+</dd>
+<dt><kbd>--demux</kbd></dt>
+<dd><p class="sd-card-text">embedded demux</p>
+<p class="sd-card-text">Default: 1</p>
+</dd>
+<dt><kbd>--clk</kbd></dt>
+<dd><p class="sd-card-text">int|ext|zclk|xclk,fpclk,SR,[FIN]</p>
+</dd>
+<dt><kbd>--trg</kbd></dt>
+<dd><p class="sd-card-text">int|ext,rising|falling</p>
+</dd>
+<dt><kbd>--sim</kbd></dt>
+<dd><p class="sd-card-text">s1[,s2,s3..] list of sites to run in simulate mode</p>
+</dd>
+<dt><kbd>--trace</kbd></dt>
+<dd><p class="sd-card-text">1 : enable command tracing</p>
+</dd>
+<dt><kbd>--auto_soft_trigger</kbd></dt>
+<dd><p class="sd-card-text">force soft trigger generation</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--clear_counters</kbd></dt>
+<dd><p class="sd-card-text">clear all counters SLOW</p>
+<p class="sd-card-text">Default: False</p>
+</dd>
+<dt><kbd>--save_data</kbd></dt>
+<dd><p class="sd-card-text">store data to specified directory, suffix {} for shot #</p>
+</dd>
+<dt><kbd>--plot_data</kbd></dt>
+<dd><p class="sd-card-text">0: plot data, all channels. N: first N, -N: first N, all one plot</p>
+</dd>
+<dt><kbd>--one_plot</kbd></dt>
+<dd><p class="sd-card-text">1: plot data</p>
+</dd>
+<dt><kbd>--trace_upload</kbd></dt>
+<dd><p class="sd-card-text">1: verbose upload</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--channels</kbd></dt>
+<dd><p class="sd-card-text">comma separated channel list</p>
+<p class="sd-card-text">Default: “()”</p>
+</dd>
+<dt><kbd>--verbose</kbd></dt>
+<dd><p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--wrtd_txi</kbd></dt>
+<dd><p class="sd-card-text">tx immediate ID</p>
+</dd>
+<dt><kbd>--wrtd_delta_ns</kbd></dt>
+<dd><p class="sd-card-text">set delay NS</p>
+<p class="sd-card-text">Default: “50M”</p>
+</dd>
+<dt><kbd>--sleep</kbd></dt>
+<dd><p class="sd-card-text">sleep delay</p>
+<p class="sd-card-text">Default: 10</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.special.wrtd_test">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.special.wrtd_test" title="Permalink to this heading"></a></h2>
+<p>tests wrtd functionality.</p>
+<p>In particular, find minimum save DELTA_NS
+export UUTS=”acq2106_182 acq2106_180 acq2106_181 acq2106_172”</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.wrtd_test.wrtd_test">
+<span class="sig-name descname"><span class="pre">wrtd_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/wrtd_test.html#wrtd_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.wrtd_test.wrtd_test" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.special.wrtd_test.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/special/wrtd_test.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.special.wrtd_test.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

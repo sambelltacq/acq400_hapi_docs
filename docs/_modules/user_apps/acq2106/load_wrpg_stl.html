@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq2106.load_wrpg_stl &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq2106.load_wrpg_stl</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq2106.load_wrpg_stl</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">configure and run White Rabbit Pulse Generator on uut</span>
+
+<span class="sd">./load_wrpg_stl.py --stl=file uut</span>
+
+
+<span class="sd">WRTD: White Rabbit Trigger Distribution</span>
+<span class="sd">WRTT: White Rabbit Time Trigger.</span>
+<span class="sd">WRPG: White Rabbit Pulse Generator</span>
+
+
+<span class="sd">Ext-Trg -&gt; WRTD -&gt; WRTT -&gt; WRPG</span>
+
+<span class="sd">WRTD detects an external trigger input, snaps the TAI time, broadcasts a WRTD message for a short time in the future (50ms).</span>
+<span class="sd">When the specified TAI time is reached, all ACQ2106 units issue pulse WRTT</span>
+<span class="sd">We set up the WRPG to trigger on the WRTT</span>
+
+
+
+<span class="sd">Full sequence:</span>
+
+<span class="sd">    1. Activate package 99-custom_wrpg</span>
+<span class="sd">        On the UUT ::</span>
+
+<span class="sd">            mv /mnt/packages.opt/99-custom_wrpg* /mnt/packages</span>
+<span class="sd">            sync;sync;reboot</span>
+
+<span class="sd">    2. A standard ACQ2106_WR box boots with WRTD running</span>
+<span class="sd">        We typically connect a 2Hz signal to the WRTD INPUT port.</span>
+<span class="sd">        Check it&#39;s running: 2Hz count on TRG.d0</span>
+
+<span class="sd">    3. Actually, a free-running trigger is NOT helpful, stop it</span>
+<span class="sd">        If you have active control of the WRTD INPUT, stop the signal</span>
+<span class="sd">        Else, it&#39;s easy to stop the WRTTD output by stopping the wrtd rx process ::</span>
+
+<span class="sd">            nc localhost 4280</span>
+<span class="sd">            ^T</span>
+<span class="sd">            ^X</span>
+
+<span class="sd">        Check that the 2Hz clock on TRG.d0 stops.</span>
+
+<span class="sd">    4. Configure a transient capture to trigger on TRG.d0</span>
+<span class="sd">        From cs-studio:</span>
+<span class="sd">            Capture|Transient [DEFAULT POST] [setMode] ARM</span>
+<span class="sd">            The ADC sits in ARM mode.</span>
+<span class="sd">        Or use an external client program. Ensure that</span>
+<span class="sd">            UUT:1:TRG=enable UUT:1:TRG:DX=d0 UUT:1:TRG:SENSE=rising</span>
+
+<span class="sd">        Set a waterfall display: </span>
+<span class="sd">            /usr/local/epics/scripts/set.AI.waterfall</span>
+
+<span class="sd">    5. Configure the GPG to use TRG.d0</span>
+<span class="sd">        ACQ400GPG.OPI | set GPG_TRG</span>
+<span class="sd">        Or use an external client program. Ensure that</span>
+<span class="sd">        UUT:0:GPG_TRG=enable UUT:0:GPG_TRG:DX=d0 UUT:0:GPG_TRG:SENSE=rising</span>
+
+<span class="sd">    6. Load the STL, using this program</span>
+<span class="sd">        ./load_wrpg_stl.py --stl=STL/ramp_1step_64samp.stl uut</span>
+
+<span class="sd">    7. Enable the WRTD INPUT.</span>
+<span class="sd">        ^X again on the 4280 session will allow the WRTT signal to restart.</span>
+
+<span class="sd">        Both the GPG and the ADC will trigger on the next WRTT, and at the end of the shot you should see the preprogrammed pulse train.</span>
+
+<span class="sd">Limits:</span>
+
+<span class="sd">1. Number of DO lines: 32 (Single DIO482 in Site 6)</span>
+<span class="sd">2. Time resolution: 1usec (clocks on WR 1MHz)</span>
+<span class="sd">3. Maximum number of states: 512</span>
+<span class="sd">4. Maximum delay per state: 2^24 = 16s</span>
+<span class="sd">5. Maximum theoretical delay: &gt; 8192s with 1usec resolution.</span>
+
+<span class="sd">In practise, we don&#39;t expect delays &gt; 600s.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="load_stl_file"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.load_stl_file">[docs]</a><span class="k">def</span> <span class="nf">load_stl_file</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">stl_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">stl_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">load_wrpg</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">trace</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SendsWrtd"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.SendsWrtd">[docs]</a><span class="k">class</span> <span class="nc">SendsWrtd</span><span class="p">:</span>
+<div class="viewcode-block" id="SendsWrtd.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.SendsWrtd.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uut</span> <span class="o">=</span> <span class="n">uut</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">wrtd_tx_immediate</span><span class="o">=</span><span class="s1">&#39;1&#39;</span></div>
+
+<div class="viewcode-block" id="EnablesWrtt"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.EnablesWrtt">[docs]</a><span class="k">class</span> <span class="nc">EnablesWrtt</span><span class="p">:</span>
+<div class="viewcode-block" id="EnablesWrtt.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.EnablesWrtt.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uut</span> <span class="o">=</span> <span class="n">uut</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;WRTT0&#39;</span></div>
+
+<div class="viewcode-block" id="tee_shots"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.tee_shots">[docs]</a><span class="k">def</span> <span class="nf">tee_shots</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">shot</span><span class="p">):</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="n">shot</span>    
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;NONE&#39;</span>  <span class="c1"># gate external trigger OFF</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">GPG_TRG</span> <span class="o">=</span> <span class="s1">&#39;external&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">GPG_TRG_DX</span> <span class="o">=</span> <span class="s1">&#39;d0&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">GPG_TRG_SENSE</span> <span class="o">=</span> <span class="s1">&#39;rising&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">transient</span><span class="o">=</span> <span class="s1">&#39;POST=100000&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">TRG</span> <span class="o">=</span> <span class="s1">&#39;enable&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">TRG_DX</span> <span class="o">=</span> <span class="s1">&#39;d0&#39;</span>
+    <span class="n">uut</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">TRG_SENSE</span> <span class="o">=</span> <span class="s1">&#39;rising&#39;</span></div>
+
+<div class="viewcode-block" id="run_wrpg"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.run_wrpg">[docs]</a><span class="k">def</span> <span class="nf">run_wrpg</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">acq400</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uut</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">shots</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">shot</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tee_shots</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">shot</span><span class="p">)</span>
+        
+        <span class="n">shot_controller</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ShotController</span><span class="p">([</span><span class="n">uut</span><span class="p">])</span>
+        <span class="k">while</span> <span class="n">shot</span> <span class="o">&lt;</span> <span class="n">args</span><span class="o">.</span><span class="n">shots</span><span class="p">:</span>
+            <span class="n">load_stl_file</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">stl</span><span class="p">)</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="n">SendsWrtd</span><span class="p">(</span><span class="n">uut</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">trg</span> <span class="o">==</span> <span class="s1">&#39;WrtdImmediate&#39;</span> <span class="k">else</span> <span class="n">EnablesWrtt</span><span class="p">(</span><span class="n">uut</span><span class="p">)</span>
+            <span class="n">shot_controller</span><span class="o">.</span><span class="n">run_shot</span><span class="p">(</span><span class="n">remote_trigger</span><span class="o">=</span><span class="n">rt</span><span class="p">)</span>
+            <span class="n">shot</span> <span class="o">=</span> <span class="n">shot</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">load_stl_file</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">stl</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq2106.load_wrpg_stl.html#user_apps.acq2106.load_wrpg_stl.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Load WR STL&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--stl&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;stl file&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--trg&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&quot;WrtdImmediate&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;shot trigger: WrtdImmediate or WRTT&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--shots&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;run a series of shots, with immediate trigger&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uut&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uut&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_wrpg</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+analyse\_burst
+==============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.analysis.analyse_burst.get_parser
+      :prog: analyse_burst.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.analysis.analyse_burst
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

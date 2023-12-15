@@ -1,0 +1,25 @@
+sync\_cluster
+=============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.sync_cluster.get_parser
+      :prog: sync_cluster.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.sync_cluster
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

@@ -1,0 +1,25 @@
+acq400\_soft\_trigger
+=====================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_soft_trigger.get_parser
+      :prog: acq400_soft_trigger.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_soft_trigger
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

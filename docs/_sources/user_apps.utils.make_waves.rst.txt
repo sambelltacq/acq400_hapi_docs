@@ -1,0 +1,25 @@
+make\_waves
+===========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.utils.make_waves.get_parser
+      :prog: make_waves.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.utils.make_waves
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

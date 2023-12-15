@@ -1,0 +1,86 @@
+:root {
+    --D-TACQ_accent: blue;
+    --class: #b8bbfc;
+    --class_accent: #3742fa;
+    --func: #f5dd80;
+    --func_accent: #f1c40f;
+    --excp: #d87171;
+    --excp_accent: #d63031;
+    --text: #404040;
+    --normal: #f0f0f0;
+}
+
+.class > .sig{
+    background-color: var(--class) !important;
+    border-top: 3px solid var(--class_accent) !important;
+    color: var(--text) !important;
+}
+.function > .sig{
+    background-color: var(--func) !important;
+    border-top: 3px solid var(--func_accent) !important;
+    color: var(--text) !important;
+}
+.exception > .sig{
+    background-color: var(--excp) !important;
+    border-top: 3px solid var(--excp_accent) !important;
+    color: var(--text) !important;
+}
+.class .exception > .sig{
+    background-color: var(--normal) !important;
+    border-top: 0px !important;
+    border-left: 3px solid var(--excp_accent) !important;
+}
+.method > .sig{
+    border-left: 3px solid var(--func_accent) !important;
+    border-top: 0px !important;
+    color: var(--text) !important;
+}
+.attribute > .sig{
+    border-left: 3px solid var(--class_accent) !important;
+    border-top: 0px !important;
+    color: var(--text) !important;
+}
+.wy-nav-side{
+    border-right: 2px solid blue;
+}
+.wy-side-nav-search{
+    background-color: transparent !important;
+}
+.wy-side-nav-search a{
+    border: 2px solid blue !important;
+    background-color: #EFEFEF !important;
+}
+@media screen and (min-width: 1100px){
+    .wy-nav-content {
+        margin: auto !important;
+        background: #fff !important;
+    }
+}
+
+.wy-side-nav-search>a:hover {
+    opacity: 0.9;
+}
+.wy-breadcrumbs a:visited{
+    color: blue !important;
+}
+blockquote blockquote{
+    margin-left: 0px !important;
+}
+
+.spaced-list li p{
+    display: flex !important;
+    justify-content: space-between;
+}
+.spaced-list li p strong{
+    font-weight: normal !important;
+}
+.hidden{
+    display: none !important;
+}
+.wy-nav-content{
+    max-width: 1000px !important;
+}
+
+.wy-nav-content .reference{
+    color: var(--D-TACQ_accent) !important;
+}

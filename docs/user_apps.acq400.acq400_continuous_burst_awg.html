@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acq400_continuous_burst_awg &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/design-tabs.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="acq400_es_split" href="user_apps.acq400.acq400_es_split.html" />
+    <link rel="prev" title="acq400_continuous" href="user_apps.acq400.acq400_continuous.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="user_apps.html">user_apps</a></li>
+          <li class="breadcrumb-item"><a href="user_apps.acq400.html">acq400</a></li>
+      <li class="breadcrumb-item active">acq400_continuous_burst_awg</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="acq400-continuous-burst-awg">
+<h1>acq400_continuous_burst_awg<a class="headerlink" href="#acq400-continuous-burst-awg" title="Permalink to this heading"></a></h1>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Usage<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">acq400_continuous_burst_awg</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">length</span> <span class="n">LENGTH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">burst_length</span> <span class="n">BURST_LENGTH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">delay</span> <span class="n">DELAY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">trgDX</span> <span class="n">TRGDX</span><span class="p">]</span>
+                                      <span class="p">[</span><span class="o">--</span><span class="n">monitor_uut</span> <span class="n">MONITOR_UUT</span><span class="p">]</span>
+                                      <span class="n">uuts</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>uuts</kbd></dt>
+<dd><p class="sd-card-text">uut</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--length</kbd></dt>
+<dd><p class="sd-card-text">AWG length</p>
+<p class="sd-card-text">Default: 8192</p>
+</dd>
+<dt><kbd>--burst_length</kbd></dt>
+<dd><p class="sd-card-text">Burst length : -1 same as AWG, 0: no burst, &gt;0 special [sub] length</p>
+<p class="sd-card-text">Default: -1</p>
+</dd>
+<dt><kbd>--delay</kbd></dt>
+<dd><p class="sd-card-text">auto switch on this delay</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--trgDX</kbd></dt>
+<dd><p class="sd-card-text">trigger DX line</p>
+<p class="sd-card-text">Default: 0</p>
+</dd>
+<dt><kbd>--monitor_uut</kbd></dt>
+<dd><p class="sd-card-text">url of capture ADC</p>
+</dd>
+</dl>
+</section>
+</div>
+</details><section id="module-user_apps.acq400.acq400_continuous_burst_awg">
+<span id="outline"></span><h2>Outline:<a class="headerlink" href="#module-user_apps.acq400.acq400_continuous_burst_awg" title="Permalink to this heading"></a></h2>
+<p>Created on 24 Sep 2020</p>
+<p>&#64;author: pgm</p>
+<p>acq400_continuous_burst_awg.py UUT</p>
+<p>load a “Rainbow” waveform and play it out</p>
+<p>from a software point of view, it’s continuous, but the waveform may run on a burst trigger</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.get_distributor_sites">
+<span class="sig-name descname"><span class="pre">get_distributor_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#get_distributor_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.get_distributor_sites" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.configure_master_site">
+<span class="sig-name descname"><span class="pre">configure_master_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#configure_master_site"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.configure_master_site" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.load_burstlen_equals_wavelen">
+<span class="sig-name descname"><span class="pre">load_burstlen_equals_wavelen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#load_burstlen_equals_wavelen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.load_burstlen_equals_wavelen" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.load_multiple_bursts_in_one_wavelen">
+<span class="sig-name descname"><span class="pre">load_multiple_bursts_in_one_wavelen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uut</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#load_multiple_bursts_in_one_wavelen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.load_multiple_bursts_in_one_wavelen" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.tee_adc">
+<span class="sig-name descname"><span class="pre">tee_adc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uut_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burstlen</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#tee_adc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.tee_adc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.run_awg">
+<span class="sig-name descname"><span class="pre">run_awg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#run_awg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.run_awg" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.run_main">
+<span class="sig-name descname"><span class="pre">run_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#run_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.run_main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="user_apps.acq400.acq400_continuous_burst_awg.get_parser">
+<span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/user_apps/acq400/acq400_continuous_burst_awg.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#user_apps.acq400.acq400_continuous_burst_awg.get_parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

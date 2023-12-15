@@ -1,0 +1,25 @@
+mgtdramshot
+===========
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq2106.mgtdramshot.get_parser
+      :prog: mgtdramshot.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq2106.mgtdramshot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

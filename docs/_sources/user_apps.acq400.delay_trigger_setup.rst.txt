@@ -1,0 +1,25 @@
+delay\_trigger\_setup
+=====================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.delay_trigger_setup.get_parser
+      :prog: delay_trigger_setup.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.delay_trigger_setup
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

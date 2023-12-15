@@ -1,0 +1,25 @@
+acq480\_controls
+================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.acq480_controls.get_parser
+      :prog: acq480_controls.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.acq480_controls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

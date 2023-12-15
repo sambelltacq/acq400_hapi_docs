@@ -1,0 +1,15 @@
+bolo8\_host\_calcs
+==================
+
+
+
+
+
+
+
+.. automodule:: user_apps.special.bolo8_host_calcs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

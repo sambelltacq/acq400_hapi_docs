@@ -1,0 +1,25 @@
+run\_AquadB\_movement
+=====================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.run_AquadB_movement.get_parser
+      :prog: run_AquadB_movement.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.run_AquadB_movement
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

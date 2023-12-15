@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.special.acq2106_mr &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.special.acq2106_mr</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.special.acq2106_mr</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;configure and run a Multi Rate (MR) shot on one or more UUTs</span>
+
+<span class="sd">pre-requisite: transient capture configured on all boxes</span>
+
+<span class="sd">example::</span>
+
+<span class="sd">    ./user_apps/special/acq2106_mr.py --stl user_apps/STL/acq2106_mr3.stl --set_arm=1 acq2106_182</span>
+
+<span class="sd">.. rst-class:: hidden</span>
+
+<span class="sd">    usage: acq2106_mr.py uut [uut2..]</span>
+
+<span class="sd">    positional arguments:</span>
+<span class="sd">    uut                   uut</span>
+
+<span class="sd">    optional arguments:</span>
+<span class="sd">    -h, --help            show this help message and exit</span>
+<span class="sd">    --trg TRG             trigger fp|soft|softloop|softonce</span>
+<span class="sd">    --clk CLK             clk int|dX|notouch</span>
+<span class="sd">    --mode MODE           mode</span>
+<span class="sd">    --disable DISABLE     1: disable</span>
+<span class="sd">    --stl STL             stl file</span>
+<span class="sd"> </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">intSIAction</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">intSI</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">Debugger</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">libpasteurize.fixes</span> <span class="kn">import</span> <span class="n">fix_kwargs</span>
+
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+<div class="viewcode-block" id="timing"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.timing">[docs]</a><span class="k">def</span> <span class="nf">timing</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="n">te</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;TIMING:func:</span><span class="si">%r</span><span class="s1"> took: </span><span class="si">%2.2f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">te</span><span class="o">-</span><span class="n">ts</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrap</span></div>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">denormalise_stl(args): convert from usec to clock ticks. round to modulo decval</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="denormalise_stl"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.denormalise_stl">[docs]</a><span class="k">def</span> <span class="nf">denormalise_stl</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">open_safe</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">stl</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">stl</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">stl</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">literal_stl</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">stl_literal_lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">):</span> <span class="c1"># support relative increments</span>
+                <span class="n">delayp</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span>
+                <span class="n">action</span>  <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">delayp</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+            <span class="n">delay</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">action</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="n">delayk</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">delay</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">Fclk</span> <span class="o">/</span> <span class="mi">1000000</span><span class="p">)</span>
+            <span class="n">delaym</span> <span class="o">=</span> <span class="n">delayk</span> <span class="o">-</span> <span class="n">delayk</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">MR10DEC</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="o">&lt;&lt;</span> <span class="n">args</span><span class="o">.</span><span class="n">evsel0</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{:d}</span><span class="s2">,</span><span class="si">{:02x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">delayp</span><span class="p">,</span> <span class="n">delaym</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">stl_literal_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="n">args</span><span class="o">.</span><span class="n">literal_stl</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">stl_literal_lines</span><span class="p">)</span></div>
+
+<span class="n">NONE</span> <span class="o">=</span> <span class="s1">&#39;NONE&#39;</span>
+
+<div class="viewcode-block" id="selects_trg_src"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.selects_trg_src">[docs]</a><span class="k">def</span> <span class="nf">selects_trg_src</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">select_trg_src</span><span class="p">():</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="n">src</span>
+    <span class="k">return</span> <span class="n">select_trg_src</span></div>
+
+<div class="viewcode-block" id="allows_one_wrtd"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.allows_one_wrtd">[docs]</a><span class="k">def</span> <span class="nf">allows_one_wrtd</span><span class="p">(</span><span class="n">uut</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">allow_one_wrtd</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> wait..&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;WRTT0&#39;</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WRTD_TX</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">wrtd_tx</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">allow_one_wrtd</span></div>
+
+<div class="viewcode-block" id="do_immediate_trigger"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.do_immediate_trigger">[docs]</a><span class="k">def</span> <span class="nf">do_immediate_trigger</span><span class="p">(</span><span class="n">uut</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">immediate_trigger</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TXI lets go&quot;</span><span class="p">)</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;WRTT0&#39;</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">wrtd_txi</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">immediate_trigger</span></div>
+
+<div class="viewcode-block" id="run_postprocess_command"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.run_postprocess_command">[docs]</a><span class="k">def</span> <span class="nf">run_postprocess_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">uut_names</span><span class="p">):</span>
+    <span class="n">syscmd</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">uut_names</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">syscmd</span><span class="p">))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">syscmd</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="open_safe"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.open_safe">[docs]</a><span class="k">def</span> <span class="nf">open_safe</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HAPIDIR&quot;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">),</span> <span class="n">fn</span><span class="p">),</span> <span class="n">mode</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="tune_action"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.tune_action">[docs]</a><span class="k">def</span> <span class="nf">tune_action</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_tune_action</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">force_wr_reset</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> reset WR at customer request take 5+5&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+            <span class="n">reset</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">wr_reset</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">force_wr_reset</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> turbo-sequential mode, skip tuning&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+                <span class="k">return</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tune_si5326</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">wr_PPS_active</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">Si5326_TUNEPHASE_OK</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> TUNEPHASE_OK, skip&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+                <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">u</span><span class="o">.</span><span class="n">wr_PPS_active</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: </span><span class="si">{}</span><span class="s2"> no PPS. Resetting WR&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+            <span class="n">reset</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">wr_reset</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> reset WR </span><span class="si">{}</span><span class="s2"> take 5&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">reset</span><span class="p">))</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">u</span><span class="o">.</span><span class="n">wr_PPS_active</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> WAITING for White Rabbit </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WR_TAI_DATE</span><span class="p">))</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;si5326_tune_phase on </span><span class="si">{}</span><span class="s2">, this may take 30s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WR_WRTT0_RESET</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">si5326_tune_phase</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WR_WRTT0_RESET</span> <span class="o">=</span> <span class="mi">0</span>
+        
+    <span class="k">return</span> <span class="n">_tune_action</span></div>
+
+
+<span class="k">def</span> <span class="nf">_tune_up_mt</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">thx</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+        <span class="n">th</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">tune_action</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+        <span class="n">thx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">th</span><span class="p">)</span>
+        <span class="n">th</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">force_wr_reset</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span> 
+            <span class="n">th</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>     <span class="c1"># force sequential</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thx</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="tune_up_mt"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.tune_up_mt">[docs]</a><span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">tune_up_mt</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tune_si5326</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">_tune_up_mt</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tune_si5326</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;tuneup done&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="tee_up_action"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.tee_up_action">[docs]</a><span class="k">def</span> <span class="nf">tee_up_action</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">exec_args</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span> <span class="o">!=</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s2">&quot;WRTT0&quot;</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">set_shot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">set_shot</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WR_WRTT0_RESET</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">wrtt0</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">wrtt0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WR_WRTT0_COUNT</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">clear_any_units_found_in_arm</span> <span class="ow">and</span> <span class="n">u</span><span class="o">.</span><span class="n">state</span><span class="p">()</span> <span class="o">==</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">STATE</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING </span><span class="si">{}</span><span class="s2"> found in ARM state, aborting it now&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_abort</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">statmon</span><span class="o">.</span><span class="n">wait_stopped</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTICE </span><span class="si">{}</span><span class="s2"> is now IDLE, proceed..&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">uut</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">MR</span><span class="p">:</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">gpg_trg</span> <span class="o">=</span> <span class="s1">&#39;1,0,1&#39;</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">gpg_clk</span> <span class="o">=</span> <span class="s1">&#39;1,1,1&#39;</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">GPG_ENABLE</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">load_gpg</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lit_stl</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">set_MR</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">evsel0</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">evsel0</span><span class="p">,</span> <span class="n">evsel1</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">evsel0</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">MR10DEC</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">MR10DEC</span><span class="p">)</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_knob</span><span class="p">(</span><span class="s1">&#39;SIG_EVENT_SRC_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">evsel0</span><span class="p">),</span> <span class="s1">&#39;GPG&#39;</span><span class="p">)</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">set_knob</span><span class="p">(</span><span class="s1">&#39;SIG_EVENT_SRC_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">evsel0</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;GPG&#39;</span><span class="p">)</span>
+         <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">GPG_ENABLE</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">force_training</span><span class="p">:</span> 
+        <span class="n">u</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">acq480_force_training</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span></div>
+
+<div class="viewcode-block" id="tee_up_mt_action"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.tee_up_mt_action">[docs]</a><span class="k">def</span> <span class="nf">tee_up_mt_action</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_tee_up_mt_action</span><span class="p">():</span>
+        <span class="n">tee_up_action</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_tee_up_mt_action</span></div>
+    
+<div class="viewcode-block" id="tee_up_mt"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.tee_up_mt">[docs]</a><span class="k">def</span> <span class="nf">tee_up_mt</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">thx</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+        <span class="n">th</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">tee_up_mt_action</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+        <span class="n">th</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">thx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">th</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thx</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+        
+
+<span class="nd">@Debugger</span>        
+<span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">tee_up</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">master</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">MR</span><span class="p">:</span>
+        <span class="n">denormalise_stl</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="n">master</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="n">NONE</span>
+
+    <span class="n">trg0_src</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">trg0_src</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">trg0_src</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WRTT0&quot;</span><span class="p">:</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">wr_trg_src</span> <span class="o">=</span> <span class="s1">&#39;1,</span><span class="si">{}</span><span class="s1">,1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">trg0_src</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span> <span class="ow">and</span> <span class="n">trg0_src</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;RP&#39;</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WRTD_TX</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WRTD_DELTA_NS</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">WRTD_DELTA_NS</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">wrtd_commit_tx</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">rt</span> <span class="o">=</span> <span class="n">allows_one_wrtd</span><span class="p">(</span><span class="n">master</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">trg0_src</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;TXI&quot;</span><span class="p">:</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s2">&quot;WRTT0&quot;</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">rt</span> <span class="o">=</span> <span class="n">do_immediate_trigger</span><span class="p">(</span><span class="n">master</span><span class="p">);</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;EXT&#39;</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">rt</span> <span class="o">=</span> <span class="n">selects_trg_src</span><span class="p">(</span><span class="n">master</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">trg0_src</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tee_up_mt</span><span class="p">:</span>
+        <span class="n">tee_up_mt</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+            <span class="n">tee_up_action</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="post_shot_check_action"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.post_shot_check_action">[docs]</a><span class="k">def</span> <span class="nf">post_shot_check_action</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_post_shot_check_action</span><span class="p">():</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">wrtt0_after</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">WR_WRTT0_COUNT</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">_post_shot_check_action</span></div>
+
+<div class="viewcode-block" id="post_shot_checks"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.post_shot_checks">[docs]</a><span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">post_shot_checks</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">thx</span> <span class="o">=</span> <span class="p">[</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">post_shot_check_action</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span> <span class="p">]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thx</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thx</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    
+    <span class="n">report</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;wrtt0 count:&quot;</span> <span class="p">]</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-&gt;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">wrtt0</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">wrtt0_after</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">wrtt0_after</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">wrtt0</span><span class="o">+</span><span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report</span><span class="p">))</span></div>
+       
+<div class="viewcode-block" id="arm_shot"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.arm_shot">[docs]</a><span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">arm_shot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">shot_controller</span><span class="p">):</span>
+    <span class="n">shot_controller</span><span class="o">.</span><span class="n">prep_shot</span><span class="p">()</span>
+    <span class="n">shot_controller</span><span class="o">.</span><span class="n">arm_shot</span><span class="p">()</span></div>
+   
+<span class="nd">@Debugger</span> 
+<span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">run_capture</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">shot_controller</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">rt</span><span class="p">()</span>
+    <span class="n">shot_controller</span><span class="o">.</span><span class="n">wait_complete</span><span class="p">()</span>
+     
+<span class="c1">#@timing</span>
+<div class="viewcode-block" id="run_shot"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.run_shot">[docs]</a><span class="k">def</span> <span class="nf">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">shot_controller</span><span class="p">):</span>
+    <span class="n">arm_shot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">shot_controller</span><span class="p">)</span>
+    <span class="n">run_capture</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">shot_controller</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="run_epics_offload"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.run_epics_offload">[docs]</a><span class="nd">@timing</span> 
+<span class="k">def</span> <span class="nf">run_epics_offload</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">run_postprocess_command</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">get_epics4</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="run_mdsplus_offload"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.run_mdsplus_offload">[docs]</a><span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">run_mdsplus_offload</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">run_postprocess_command</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">get_mdsplus</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="connect"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.connect">[docs]</a><span class="nd">@timing</span> 
+<span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq2106</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">has_comms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">has_wr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uutnames</span> <span class="p">]</span></div>
+    
+<div class="viewcode-block" id="run_mr"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.run_mr">[docs]</a><span class="nd">@timing</span>    
+<span class="k">def</span> <span class="nf">run_mr</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">connect</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    
+    <span class="n">tune_up_mt</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">force_wr_reset</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tune up and Quit DONE&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">shot_controller</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ShotControllerWithDataHandler</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">zombie_timeout</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">shot_controller</span><span class="o">.</span><span class="n">zombie_timeout</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">zombie_timeout</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">set_arm</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">tee_up</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">shot_controller</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shot_controller</span><span class="o">.</span><span class="n">handle_data</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="n">post_shot_checks</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">get_epics4</span><span class="p">:</span>
+        <span class="n">run_epics_offload</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">get_mdsplus</span><span class="p">:</span>
+        <span class="n">run_mdsplus_offload</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FINISHED </span><span class="si">{}</span><span class="s2"> uuts&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="n">Debugger</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span>
+    <span class="n">run_mr</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.special.acq2106_mr.html#user_apps.special.acq2106_mr.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Multirate shot&#39;</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">transient</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ShotControllerUI</span><span class="o">.</span><span class="n">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--MR&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;0: do not enable MR, normal trigger applies&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--stl&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;./STL/acq2106_mr00.stl&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> 
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;stl file&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--Fclk&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">40</span><span class="o">*</span><span class="n">intSI</span><span class="o">.</span><span class="n">DEC</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">intSIAction</span><span class="p">,</span> 
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;base clock frequency&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: trace 2: step&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--WRTD_DELTA_NS&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">50</span><span class="o">*</span><span class="n">intSI</span><span class="o">.</span><span class="n">DEC</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">intSIAction</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;WRTD trigger delay&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--trg0_src&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;EXT&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;trigger source, def:EXT opt: WRTT0, WRTT0,RP&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--tune_si5326&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;tune_si5326 (takes 60s), default:1&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--set_arm&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: set arm&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--set_shot&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set this shot number on all UUTS before shot&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--evsel0&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;dX number for evsel0&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--MR10DEC&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;decimation value&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print extra debug info.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--get_epics4&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;run script [args] to store EPICS4 data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--get_mdsplus&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;run script [args] to store mdsplus data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--tee_up_mt&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;multi thread init for speed&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--force_training&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;force acq480 training every shot&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--force_wr_reset&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> 
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;1: force White Rabbit reset, run regular, 2: just tuneup and quit,</span><span class="se">\n</span><span class="s2">&quot;</span> \
+             <span class="s2">&quot;3: do in sequence rather than in parallel (v.slow), 4 skip tuning (faster)&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;--zombie_timeout&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> 
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;0: no timeout, blocks on ALL uuts, else &gt;0 block N seconds when waiting for zombies before continuing&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;--clear_any_units_found_in_arm&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> 
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set true to clear any locked units on new shot. default is to leave them for inspection&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uutnames&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uuts&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

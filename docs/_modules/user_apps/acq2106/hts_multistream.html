@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq2106.hts_multistream &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq2106.hts_multistream</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq2106.hts_multistream</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot; hts_multistream High Throughput Stream from up to 16 UUTS</span>
+
+<span class="sd">    - data on local SFP/AFHBA</span>
+<span class="sd">    - control on Ethernet</span>
+
+<span class="sd">**DEPRECATION WARNING: please consider using AFHBA404/HAPI/hts_multistream.py**</span>
+
+
+
+<span class="sd">example usage::</span>
+
+<span class="sd">    ./user_apps/acq2106/hts_multistream.py acq2106_133 acq2106_176</span>
+
+<span class="sd">    ./user_apps/acq2106/hts_multistream.py --nbuffers=2000 acq2106_133 acq2106_176</span>
+
+<span class="sd">    ./user_apps/acq2106/hts_multistream.py ---map=133:A:1/133:B:2 --secs=30 acq2106_133</span>
+
+<span class="sd">    ./user_apps/acq2106/hts_multistream.py --map=643:A:ALL/124:BOTH:3,4 --nbuffers=1000 acq2106_067</span>
+
+<span class="sd">    ./user_apps/acq2106/hts_multistream.py --spad=1,8,1 --map=11:C:2 --secs=3600 --check=2 z7io_011</span>
+
+<span class="sd">Recommendation: --secs is really a timeout, use --nbuffers for exact data length</span>
+
+<span class="sd">Warning: If data rate exceeds bandwidth uut will stay in arm</span>
+
+<span class="sd">.. rst-class:: hidden</span>
+
+<span class="sd">    usage: hts_multistream.py [-h] [--clk CLK] [--trg TRG] [--sim SIM] [--trace TRACE] [--auto_soft_trigger AUTO_SOFT_TRIGGER] [--clear_counters] [--spad SPAD] [--decimate DECIMATE] [--nbuffers NBUFFERS]</span>
+<span class="sd">                            [--secs SECS] [--map MAP] [--sig_gen SIG_GEN] [--delete DELETE] [--recycle RECYCLE] [--check CHECK] [--dry_run DRY_RUN] [--wrtd_txi WRTD_TXI] [--SIG_SRC_TRG_0 SIG_SRC_TRG_0]</span>
+<span class="sd">                            [--SIG_SRC_TRG_1 SIG_SRC_TRG_1]</span>
+<span class="sd">                            uutnames [uutnames ...]</span>
+
+<span class="sd">    positional arguments:</span>
+<span class="sd">    uutnames              uuts</span>
+
+<span class="sd">    options:</span>
+<span class="sd">    -h, --help            show this help message and exit</span>
+<span class="sd">    --clk CLK             int|ext|zclk|xclk,fpclk,SR,[FIN]</span>
+<span class="sd">    --trg TRG             int|ext,rising|falling</span>
+<span class="sd">    --sim SIM             s1[,s2,s3..] list of sites to run in simulate mode</span>
+<span class="sd">    --trace TRACE         1 : enable command tracing</span>
+<span class="sd">    --auto_soft_trigger AUTO_SOFT_TRIGGER force soft trigger generation</span>
+<span class="sd">    --clear_counters      clear all counters SLOW</span>
+<span class="sd">    --spad SPAD           scratchpad, eg 1,16,0</span>
+<span class="sd">    --decimate DECIMATE   decimate amount</span>
+<span class="sd">    --nbuffers NBUFFERS   max capture in buffers</span>
+<span class="sd">    --secs SECS           max capture in seconds</span>
+<span class="sd">    --map MAP             uut:port:site ie --map=67:A:1/67:B:2/130:BOTH:ALL</span>
+<span class="sd">    --sig_gen SIG_GEN     Signal gen to trigger when all uuts armed</span>
+<span class="sd">    --delete DELETE       delete stale data</span>
+<span class="sd">    --recycle RECYCLE     overwrite data</span>
+<span class="sd">    --check CHECK         run tests simulate ramp=1 or spad sequential=2</span>
+<span class="sd">    --dry_run DRY_RUN     run setup but dont start streams or uuts</span>
+<span class="sd">    --wrtd_txi WRTD_TXI   Command first box to send this trigger when all units are in ARM state</span>
+<span class="sd">    --SIG_SRC_TRG_0 SIG_SRC_TRG_0     Set trigger d0 source</span>
+<span class="sd">    --SIG_SRC_TRG_1 SIG_SRC_TRG_1     Set trigger d1 source</span>
+<span class="sd">    --mtrg  HDMI|EXT      Enables HDMI|EXT routing when ALL UUT&#39;s are armed, safe with free-running trigger</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">PR</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi.acq400_print</span> <span class="kn">import</span> <span class="n">DISPLAY</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">afhba404</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;High Throughput Stream using AFHBA for up to 16 UUTS&#39;</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">transient</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--spad&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;scratchpad, eg 1,16,0&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--decimate&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;decimate amount&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--nbuffers&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;max capture in buffers&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--secs&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;max capture in seconds&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--map&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ALL:BOTH:ALL&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;uut:port:site ie --map=67:A:1/67:B:2/130:BOTH:ALL &#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--sig_gen&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Signal gen to trigger when all uuts armed&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--delete&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;delete stale data&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--recycle&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;overwrite data&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--check&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;run tests simulate ramp=1 or spad sequential=2&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dry_run&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;run setup but dont start streams or uuts&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--wrtd_txi&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Command first box to send this trigger when all units are in ARM state&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--SIG_SRC_TRG_0&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Set trigger d0 source&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--SIG_SRC_TRG_1&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Set trigger d1 source&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--RTM_TRANSLEN&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Set rtm_translen for each uut&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--mtrg&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;value:HDMI|EXT, works with free-running master trigger&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;increase verbosity&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uutnames&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uuts&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="sd">&quot;&quot;&quot; what is in the streams object?.</span>
+<span class="sd">[dt100@roger740 acq400_hapi]$ HAPI_COLOUR=0 ./user_apps/acq2106/hts_multistream.py --dry_run=1 --verbose=2  acq2206_002 acq2206_003</span>
+<span class="sd">UutWrapper()</span>
+<span class="sd"> &lt;__main__.UutWrapper object at 0x7f221de0ed30&gt;</span>
+<span class="sd">streams:{</span>
+<span class="sd">&#39;4&#39;: {&#39;rport&#39;: &#39;A&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;},</span>
+<span class="sd">&#39;5&#39;: {&#39;rport&#39;: &#39;B&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;}}</span>
+<span class="sd">ports:{</span>
+<span class="sd">&#39;A&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;},</span>
+<span class="sd">&#39;B&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;},</span>
+<span class="sd">&#39;C&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}}</span>
+<span class="sd"> self.streams.items()</span>
+<span class="sd">[0] (&#39;4&#39;, {&#39;rport&#39;: &#39;A&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;})</span>
+<span class="sd">[1] (&#39;5&#39;, {&#39;rport&#39;: &#39;B&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;})</span>
+<span class="sd">UutWrapper()</span>
+<span class="sd"> &lt;__main__.UutWrapper object at 0x7f221de22160&gt;</span>
+<span class="sd">streams:{</span>
+<span class="sd">&#39;0&#39;: {&#39;rport&#39;: &#39;A&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;},</span>
+<span class="sd">&#39;1&#39;: {&#39;rport&#39;: &#39;B&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;}}</span>
+<span class="sd">ports:{</span>
+<span class="sd">&#39;A&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;},</span>
+<span class="sd">&#39;B&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;},</span>
+<span class="sd">&#39;C&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}}</span>
+<span class="sd"> self.streams.items()</span>
+<span class="sd">[0] (&#39;0&#39;, {&#39;rport&#39;: &#39;A&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;})</span>
+<span class="sd">[1] (&#39;1&#39;, {&#39;rport&#39;: &#39;B&#39;, &#39;sites&#39;: {&#39;1&#39;: &#39;8&#39;, &#39;2&#39;: &#39;8&#39;, &#39;3&#39;: &#39;8&#39;, &#39;4&#39;: &#39;8&#39;, &#39;5&#39;: &#39;8&#39;, &#39;6&#39;: &#39;8&#39;}, &#39;all_sites&#39;: &#39;1,2,3,4,5,6&#39;})</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="UutWrapper"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper">[docs]</a><span class="k">class</span> <span class="nc">UutWrapper</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Encapsulates all information about one UUT &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UutWrapper.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="nb">map</span><span class="p">,</span> <span class="n">streams</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spad</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">spad</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ended</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attach_api</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__data_builder</span><span class="p">(</span><span class="nb">map</span><span class="p">,</span> <span class="n">streams</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;UutWrapper()&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{}</span><span class="se">\n</span><span class="s2">streams:</span><span class="si">{}</span><span class="se">\n</span><span class="s2">ports:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; self.streams.items()&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s1">] </span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="UutWrapper.get_state"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span>  <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">pv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">CONTINUOUS_STATE</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UutWrapper.get_state_forever"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.get_state_forever">[docs]</a>    <span class="k">def</span> <span class="nf">get_state_forever</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UutWrapper.start"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s1">&#39;IDLE&#39;</span><span class="p">:</span>
+            <span class="c1">#self.api.s0.CONTINUOUS = &#39;0&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">streamtonowhered</span> <span class="o">=</span> <span class="s2">&quot;stop&quot;</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1">#self.api.s0.CONTINUOUS = &#39;1&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">streamtonowhered</span> <span class="o">=</span> <span class="s2">&quot;start&quot;</span></div>
+
+<div class="viewcode-block" id="UutWrapper.stop"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#self.api.s0.CONTINUOUS = 0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">streamtonowhered</span> <span class="o">=</span> <span class="s2">&quot;stop&quot;</span>
+        <span class="n">wc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s1">&#39;IDLE&#39;</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">wc</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">wc</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> to base unable to stop, dropping out&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> has stopped&#39;</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="UutWrapper.initialize"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_lane_status</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s2">&quot;rport&quot;</span><span class="p">])</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;lport&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;buffers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">nbuffers</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;recycle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">recycle</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">check</span><span class="p">:</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;sudo ./scripts/run-stream-ramdisk </span><span class="si">{lport}</span><span class="s1"> </span><span class="si">{buffers}</span><span class="s1"> </span><span class="si">{recycle}</span><span class="s1">&#39;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">check</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;sudo ./scripts/run-stream-ramdisk-ramp </span><span class="si">{lport}</span><span class="s1"> </span><span class="si">{buffers}</span><span class="s1"> </span><span class="si">{recycle}</span><span class="s1">&#39;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">check</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spad_enabled</span><span class="p">:</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: Cannot check spad if no spad: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spad</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
+                <span class="n">count_col</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;sites&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">count_col</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">site</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">count_col</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">count_col</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">args</span><span class="p">[</span><span class="s1">&#39;spad_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spad</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">args</span><span class="p">[</span><span class="s1">&#39;count_col&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">count_col</span>
+                <span class="n">args</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decimate</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decimate</span>
+
+                <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;sudo ./scripts/run-stream-ramdisk-count </span><span class="si">{lport}</span><span class="s1"> </span><span class="si">{buffers}</span><span class="s1"> </span><span class="si">{recycle}</span><span class="s1"> </span><span class="si">{spad_len}</span><span class="s1"> </span><span class="si">{count_col}</span><span class="s1"> </span><span class="si">{step}</span><span class="s1">&#39;</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cmd for stream:</span><span class="si">{</span><span class="n">stream</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;process&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">),</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">pid</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_stream_pid</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pid</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">PR</span><span class="o">.</span><span class="n">Green</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Started afhba.</span><span class="si">{</span><span class="n">stream</span><span class="si">}</span><span class="s1"> with PID </span><span class="si">{</span><span class="n">pid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;pid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pid</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_start</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: afhba.</span><span class="si">{</span><span class="n">stream</span><span class="si">}</span><span class="s1"> failed to start&#39;</span><span class="p">))</span>
+                <span class="n">pid</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_stream_pid</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UutWrapper.check_lane_status"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.check_lane_status">[docs]</a>    <span class="k">def</span> <span class="nf">check_lane_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lport</span><span class="p">,</span> <span class="n">rport</span><span class="p">):</span>
+        <span class="n">link_state</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_link_state</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> Link State LANE_UP=</span><span class="si">{</span><span class="n">link_state</span><span class="o">.</span><span class="n">LANE_UP</span><span class="si">}</span><span class="s1"> RPCIE_INIT=</span><span class="si">{</span><span class="n">link_state</span><span class="o">.</span><span class="n">RPCIE_INIT</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="k">if</span> <span class="n">link_state</span><span class="o">.</span><span class="n">LANE_UP</span> <span class="ow">and</span> <span class="n">link_state</span><span class="o">.</span><span class="n">RPCIE_INIT</span><span class="p">:</span>
+            <span class="n">PR</span><span class="o">.</span><span class="n">Green</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">comms</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;c</span><span class="si">{</span><span class="n">rport</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">comms</span><span class="p">,</span> <span class="s1">&#39;TX_DISABLE&#39;</span><span class="p">):</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;Link down: could not fix (old firmware)&#39;</span><span class="p">))</span>
+        <span class="n">retry</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">retry</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> Link down: attempting to correct </span><span class="si">{</span><span class="n">retry</span><span class="si">}</span><span class="s1">/3&#39;</span><span class="p">)</span>
+            <span class="n">comms</span><span class="o">.</span><span class="n">TX_DISABLE</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">comms</span><span class="o">.</span><span class="n">TX_DISABLE</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">link_state</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_link_state</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">link_state</span><span class="o">.</span><span class="n">RPCIE_INIT</span><span class="p">:</span>
+                <span class="n">PR</span><span class="o">.</span><span class="n">Green</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> Link Fixed </span><span class="si">{</span><span class="n">retry</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">retry</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;Link down: could not fix&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="UutWrapper.configure"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">spad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spad</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">spad</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spad_enabled</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spad</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spad_enabled</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span> <span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">sr</span><span class="p">(</span><span class="s2">&quot;spad</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">sp</span><span class="o">*</span><span class="mi">8</span><span class="p">))</span>
+
+        <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">exec_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">run0</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">sites</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spad</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decimate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">decimate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decimate</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">SIG_SRC_TRG_1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">wrtd_txi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_1</span> <span class="o">=</span> <span class="s1">&#39;WRTT1&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">RTM_TRANSLEN</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">RTM_TRANSLEN</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">RTM_TRANSLEN</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__setup_comms_aggregators</span><span class="p">()</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Configuring </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: rtm_translen </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">RTM_TRANSLEN</span><span class="si">}</span><span class="s1"> ssb </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">ssb</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">buffer_len</span><span class="si">}</span><span class="s1">MB buffers&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__setup_comms_aggregators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;c</span><span class="si">{</span><span class="n">stream</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;rport&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">comm_site</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+            <span class="n">agg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;sites=</span><span class="si">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stream</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;sites&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s1"> on&#39;</span>
+            <span class="n">comm_site</span><span class="o">.</span><span class="n">aggregator</span> <span class="o">=</span> <span class="n">agg_str</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spad_enabled</span><span class="p">:</span>
+                <span class="n">comm_site</span><span class="o">.</span><span class="n">spad</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">comm_site</span><span class="o">.</span><span class="n">spad</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decimate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">comm_site</span><span class="o">.</span><span class="n">decimate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decimate</span>
+
+<div class="viewcode-block" id="UutWrapper.get_stream_state"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.get_stream_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_stream_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lport</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_stream_state</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UutWrapper.get_results"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.UutWrapper.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lport</span><span class="p">):</span>
+            <span class="n">tests</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;Simulate&#39;</span><span class="p">,</span>
+                <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Spad Checker&#39;</span>
+            <span class="p">}</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/mnt/afhba.</span><span class="si">{</span><span class="n">lport</span><span class="si">}</span><span class="s1">/ramp_</span><span class="si">{</span><span class="n">lport</span><span class="si">}</span><span class="s1">.log&#39;</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">tests</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">check</span><span class="p">],</span> <span class="n">data</span></div>
+
+    <span class="k">def</span> <span class="nf">__attach_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: Connection failed </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__set_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hostname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">HN</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^.+_([0-9]</span><span class="si">{3}</span><span class="s1">)$&#39;</span><span class="p">,</span> <span class="n">hostname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> Hostname </span><span class="si">{</span><span class="n">hostname</span><span class="si">}</span><span class="s1"> is invalid&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__data_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">map</span><span class="p">,</span> <span class="n">streams</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> has no connections&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="n">streams</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ports</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_mapped_sites</span><span class="p">(</span><span class="nb">map</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;rport&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;sites&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;rport&#39;</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;all_sites&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="s1">&#39;sites&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__get_mapped_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">map</span><span class="p">):</span>
+        <span class="c1"># pgm: we ONLY want to look at sites already in the s0 aggregator.</span>
+        <span class="c1">#site_list = self.__get_sitelist()</span>
+        <span class="n">site_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_aggregator_sitelist</span><span class="p">()</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s1">&#39;ALL&#39;</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">:</span>
+            <span class="nb">map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">map</span><span class="p">[</span><span class="s1">&#39;ALL&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> has no valid map&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">port</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="nb">map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">port</span><span class="p">]</span> <span class="o">=</span> <span class="nb">map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">port</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">port</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ALL&#39;</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">port</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_list</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">port</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;SPLIT&#39;</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">site_list</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="nb">len</span><span class="p">(</span><span class="n">site_list</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">:])</span>
+                <span class="n">out</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">site_list</span><span class="o">.</span><span class="n">items</span><span class="p">())[:</span><span class="nb">len</span><span class="p">(</span><span class="n">site_list</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">break</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">port</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">site_list</span><span class="p">:</span>
+                    <span class="n">out</span><span class="p">[</span><span class="n">port</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_list</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">out</span><span class="p">[</span><span class="n">port</span><span class="p">]:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> has no valid sites&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">__get_aggregator_sitelist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_aggregator_sites</span><span class="p">():</span>
+            <span class="n">site_conn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;s</span><span class="si">{</span><span class="n">site</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">sites</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="p">)]</span> <span class="o">=</span> <span class="n">site_conn</span><span class="o">.</span><span class="n">active_chan</span>
+        <span class="k">return</span> <span class="n">sites</span>
+    <span class="k">def</span> <span class="nf">__get_sitelist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_site_types</span><span class="p">()[</span><span class="s1">&#39;AISITES&#39;</span><span class="p">]:</span>
+            <span class="n">site_conn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;s</span><span class="si">{</span><span class="n">site</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">sites</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="p">)]</span> <span class="o">=</span> <span class="n">site_conn</span><span class="o">.</span><span class="n">NCHAN</span>               <span class="c1"># not strictly correct. Should be active_chan</span>
+        <span class="k">return</span> <span class="n">sites</span></div>
+
+<div class="viewcode-block" id="stop_uuts"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.stop_uuts">[docs]</a><span class="k">def</span> <span class="nf">stop_uuts</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">):</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">uut_item</span> <span class="ow">in</span> <span class="n">uut_collection</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">uut_item</span><span class="o">.</span><span class="n">ended</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">uut_item</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="n">nt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">uut_item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">):</span>
+        <span class="n">threads</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">ended</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;all </span><span class="si">{</span><span class="n">nt</span><span class="si">}</span><span class="s1"> threads joined&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="object_builder"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.object_builder">[docs]</a><span class="k">def</span> <span class="nf">object_builder</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">stream_config</span> <span class="o">=</span> <span class="n">get_stream_conns</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="nb">map</span> <span class="o">=</span> <span class="n">get_parsed_map</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">map</span><span class="p">)</span>
+    <span class="n">uut_collection</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">uut_name</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uutnames</span><span class="p">:</span>
+        <span class="n">new_uut</span> <span class="o">=</span> <span class="n">UutWrapper</span><span class="p">(</span><span class="n">uut_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="nb">map</span><span class="p">,</span> <span class="n">stream_config</span><span class="p">)</span>
+        <span class="n">uut_collection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_uut</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">uut_collection</span></div>
+
+<div class="viewcode-block" id="get_stream_conns"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.get_stream_conns">[docs]</a><span class="k">def</span> <span class="nf">get_stream_conns</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">afhba404</span><span class="o">.</span><span class="n">get_connections</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">lport</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">dev</span>
+        <span class="n">rport</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cx</span>
+        <span class="n">rhost</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">uut</span>
+        <span class="n">kill_stream_if_active</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rhost</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="n">rhost</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># else second port for rhost..</span>
+        <span class="n">config</span><span class="p">[</span><span class="n">rhost</span><span class="p">][</span><span class="n">lport</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">config</span><span class="p">[</span><span class="n">rhost</span><span class="p">][</span><span class="n">lport</span><span class="p">][</span><span class="s1">&#39;rport&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rport</span>
+
+    <span class="k">return</span> <span class="n">config</span></div>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   the stream_config structure is a little hard to navigate. may be simpler as a class like this</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Stream"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.Stream">[docs]</a><span class="k">class</span> <span class="nc">Stream</span><span class="p">:</span>
+<div class="viewcode-block" id="Stream.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.Stream.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lport</span><span class="p">,</span> <span class="n">rport</span><span class="p">,</span> <span class="n">rhost</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lport</span> <span class="o">=</span> <span class="n">lport</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rport</span> <span class="o">=</span> <span class="n">rport</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rhost</span> <span class="o">=</span> <span class="n">rhost</span>
+        <span class="n">kill_stream_if_active</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Stream.get_stream_conns"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.Stream.get_stream_conns">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_stream_conns</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_connections</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">stream</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">dev</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">cx</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">uut</span><span class="p">)</span>
+            <span class="n">config</span><span class="p">[</span><span class="n">stream</span><span class="o">.</span><span class="n">rhost</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+
+
+
+<div class="viewcode-block" id="get_parsed_map"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.get_parsed_map">[docs]</a><span class="k">def</span> <span class="nf">get_parsed_map</span><span class="p">(</span><span class="n">maps</span><span class="p">):</span>
+    <span class="n">valid_ports</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;BOTH&#39;</span><span class="p">]</span>
+    <span class="n">maps</span> <span class="o">=</span> <span class="n">maps</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="n">port_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="nb">map</span> <span class="ow">in</span> <span class="n">maps</span><span class="p">:</span>
+        <span class="n">uutname</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sites</span> <span class="o">=</span> <span class="nb">map</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="n">uutname</span> <span class="o">=</span> <span class="n">uutname</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">port</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_ports</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ERROR: Invalid port: </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">uutname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">port_map</span><span class="p">:</span>
+            <span class="n">port_map</span><span class="p">[</span><span class="n">uutname</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">port</span> <span class="o">==</span> <span class="s1">&#39;BOTH&#39;</span><span class="p">:</span>
+            <span class="n">port_map</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sites</span>
+            <span class="n">port_map</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;B&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sites</span>
+            <span class="n">port_map</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="s1">&#39;C&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sites</span>
+            <span class="k">continue</span>
+        <span class="n">port_map</span><span class="p">[</span><span class="n">uutname</span><span class="p">][</span><span class="n">port</span><span class="p">]</span> <span class="o">=</span> <span class="n">sites</span>
+    <span class="k">return</span> <span class="n">port_map</span></div>
+
+<div class="viewcode-block" id="kill_stream_if_active"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.kill_stream_if_active">[docs]</a><span class="k">def</span> <span class="nf">kill_stream_if_active</span><span class="p">(</span><span class="n">lport</span><span class="p">):</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_stream_pid</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: Killing afhba.</span><span class="si">{</span><span class="n">lport</span><span class="si">}</span><span class="s1"> with pid: </span><span class="si">{</span><span class="n">pid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;sudo kill -9 </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="c1"># @todo check status</span>
+
+    <span class="n">retry</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">retry</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">afhba404</span><span class="o">.</span><span class="n">get_stream_pid</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">retry</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fatal Error: Stream failed to die </span><span class="si">{</span><span class="n">lport</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="read_knob"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.read_knob">[docs]</a><span class="k">def</span> <span class="nf">read_knob</span><span class="p">(</span><span class="n">knob</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">knob</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="configure_host"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.configure_host">[docs]</a><span class="k">def</span> <span class="nf">configure_host</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">ismount</span><span class="p">(</span><span class="s2">&quot;/mnt&quot;</span><span class="p">):</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: /mnt is not a ramdisk&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">delete</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;sudo rm  -rf /mnt/afhba.*&#39;</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Erasing /mnt/afhba.*&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+
+
+    <span class="n">lport</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">buffer_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">afhba404</span><span class="o">.</span><span class="n">get_buffer_len</span><span class="p">(</span><span class="n">lport</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1024</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">recycle</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">secs</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: --secs cannot be used if --recycle off&#39;</span><span class="p">))</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="s1">&#39;Warning: recycling disabled&#39;</span><span class="p">)</span>
+        <span class="n">total_streams</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">free_memory</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">(),</span> <span class="s1">&#39;free&#39;</span><span class="p">)</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">uut_item</span> <span class="ow">in</span> <span class="n">uut_collection</span><span class="p">:</span>
+            <span class="n">total_streams</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uut_item</span><span class="o">.</span><span class="n">streams</span><span class="p">)</span>
+        <span class="n">memory_needed</span> <span class="o">=</span> <span class="n">total_streams</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">nbuffers</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Blue</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Memory needed: </span><span class="si">{</span><span class="n">memory_needed</span><span class="si">}</span><span class="s1"> MB&#39;</span><span class="p">)</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Blue</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Memory available: </span><span class="si">{</span><span class="n">free_memory</span><span class="si">}</span><span class="s1"> MB&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">memory_needed</span> <span class="o">&gt;</span> <span class="n">free_memory</span> <span class="o">-</span> <span class="mi">1024</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error: Needed memory exceeds safe usage&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">secs</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">t_mins</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">t_secs</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">secs</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">nbuffers</span> <span class="o">=</span> <span class="mi">9999999999</span></div>
+
+
+
+<div class="viewcode-block" id="ReleasesTriggerWhenReady"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.ReleasesTriggerWhenReady">[docs]</a><span class="k">class</span> <span class="nc">ReleasesTriggerWhenReady</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; handles all trigger types from UI, enables them at the right time &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ReleasesTriggerWhenReady.null_trg_action"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.ReleasesTriggerWhenReady.null_trg_action">[docs]</a>    <span class="k">def</span> <span class="nf">null_trg_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_armed</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ReleasesTriggerWhenReady.sig_gen_trg_action"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.ReleasesTriggerWhenReady.sig_gen_trg_action">[docs]</a>    <span class="k">def</span> <span class="nf">sig_gen_trg_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_armed</span><span class="p">):</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">all_armed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">triggered</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Agilent33210A</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sig_gen</span><span class="p">)</span><span class="o">.</span><span class="n">trigger</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Triggered </span><span class="se">{{</span><span class="s1">GREEN</span><span class="se">}}</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sig_gen</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Could not trigger </span><span class="se">{{</span><span class="s1">RED</span><span class="se">}}</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sig_gen</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">rc</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triggered</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">rc</span></div>
+
+<div class="viewcode-block" id="ReleasesTriggerWhenReady.wrtd_txi_trg_action"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.ReleasesTriggerWhenReady.wrtd_txi_trg_action">[docs]</a>    <span class="k">def</span> <span class="nf">wrtd_txi_trg_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_armed</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">all_armed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">triggered</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Triggered wrtd_txi&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">top_uut</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">sr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">wrtd_txi</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triggered</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ReleasesTriggerWhenReady.mtrg_trg_action"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.ReleasesTriggerWhenReady.mtrg_trg_action">[docs]</a>    <span class="k">def</span> <span class="nf">mtrg_trg_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_armed</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">all_armed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">triggered</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Trigger mtrg </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">mtrg</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">top_uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">mtrg</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triggered</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ReleasesTriggerWhenReady.prep_mtrg"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.ReleasesTriggerWhenReady.prep_mtrg">[docs]</a>    <span class="k">def</span> <span class="nf">prep_mtrg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mtrg </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">mtrg</span><span class="si">}</span><span class="s1"> assume free-run , set source NONE&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="s1">&#39;NONE&#39;</span></div>
+
+<div class="viewcode-block" id="ReleasesTriggerWhenReady.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.ReleasesTriggerWhenReady.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SCRN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SCRN</span> <span class="o">=</span> <span class="n">SCRN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uut_collection</span> <span class="o">=</span> <span class="n">uut_collection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_uut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uut_collection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">api</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triggered</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sig_gen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Waiting to trigger </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sig_gen</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_gen_trg_action</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;duplicate trg_action sig_gen&#39;</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">wrtd_txi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Waiting to trigger wrtd_txi&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrtd_txi_trg_action</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;duplicate trg_action wrtd_txi&#39;</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">mtrg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Waiting to trigger mtrg </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">mtrg</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtrg_trg_action</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prep_mtrg</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;duplicate trg_action mtrg&#39;</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">null_trg_action</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_armed</span><span class="p">):</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trg_action</span><span class="p">(</span><span class="n">all_armed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">trg_msg</span><span class="si">}</span><span class="s1"> </span><span class="se">{{</span><span class="s1">RESET</span><span class="se">}}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SCRN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rc</span></div>
+
+
+<div class="viewcode-block" id="hot_run_init"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.hot_run_init">[docs]</a><span class="k">def</span> <span class="nf">hot_run_init</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">):</span>
+    <span class="n">total_streams</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">uut_item</span> <span class="ow">in</span> <span class="n">uut_collection</span><span class="p">:</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+        <span class="n">total_streams</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uut_item</span><span class="o">.</span><span class="n">streams</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">total_streams</span></div>
+
+<div class="viewcode-block" id="hot_run_start"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.hot_run_start">[docs]</a><span class="k">def</span> <span class="nf">hot_run_start</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">uut_item</span> <span class="ow">in</span> <span class="n">uut_collection</span><span class="p">:</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">thread</span> <span class="o">=</span>  <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">uut_item</span><span class="o">.</span><span class="n">get_state_forever</span><span class="p">)</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="hot_run_status_update_wrapper"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.hot_run_status_update_wrapper">[docs]</a><span class="k">def</span> <span class="nf">hot_run_status_update_wrapper</span><span class="p">(</span><span class="n">SCRN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">hot_run_status_update</span><span class="p">():</span>
+        <span class="n">armed_uuts</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">running_uuts</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ended_streams</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">uut_item</span> <span class="ow">in</span> <span class="n">uut_collection</span><span class="p">:</span>
+            <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">uut_item</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">uut_item</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s1">&#39;RUN&#39;</span><span class="p">:</span>
+                <span class="n">running_uuts</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">uut_item</span><span class="o">.</span><span class="n">poll_delay</span> <span class="o">=</span> <span class="mi">5</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">GREEN</span><span class="se">}}</span><span class="si">{</span><span class="n">uut_item</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="se">{{</span><span class="s1">RESET</span><span class="se">}}</span><span class="s1">:&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">uut_item</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s1">&#39;ARM&#39;</span><span class="p">:</span>
+                <span class="n">armed_uuts</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">ORANGE</span><span class="se">}}</span><span class="si">{</span><span class="n">uut_item</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="se">{{</span><span class="s1">RESET</span><span class="se">}}</span><span class="s1">:&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">RED</span><span class="se">}}</span><span class="si">{</span><span class="n">uut_item</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="se">{{</span><span class="s1">RESET</span><span class="se">}}</span><span class="s1">:&#39;</span><span class="p">)</span>
+            <span class="n">SCRN</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">uut_item</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">sstate</span> <span class="o">=</span> <span class="n">uut_item</span><span class="o">.</span><span class="n">get_stream_state</span><span class="p">(</span><span class="n">stream</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="n">stream</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;all_sites&#39;</span><span class="p">]</span>
+                <span class="n">rport</span> <span class="o">=</span> <span class="n">stream</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;rport&#39;</span><span class="p">]</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">TAB</span><span class="se">}}</span><span class="si">{</span><span class="n">sites</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">rport</span><span class="si">}</span><span class="se">{{</span><span class="s1">ORANGE</span><span class="se">}}</span><span class="s1"> --&gt; </span><span class="se">{{</span><span class="s1">RESET</span><span class="se">}}</span><span class="s1">afhba.</span><span class="si">{</span><span class="n">stream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">2</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">TAB</span><span class="se">}}{{</span><span class="s1">BOLD</span><span class="se">}}</span><span class="si">{</span><span class="n">sstate</span><span class="o">.</span><span class="n">rx_rate</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">args</span><span class="o">.</span><span class="n">buffer_len</span><span class="si">}</span><span class="s1">MB/s Total Buffers: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">sstate</span><span class="o">.</span><span class="n">rx</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">args</span><span class="o">.</span><span class="n">buffer_len</span><span class="si">:</span><span class="s1">,</span><span class="si">}</span><span class="s1"> Status: </span><span class="si">{</span><span class="n">sstate</span><span class="o">.</span><span class="n">STATUS</span><span class="si">}</span><span class="se">{{</span><span class="s1">RESET</span><span class="se">}}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">check</span><span class="p">:</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">uut_item</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="n">stream</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">SCRN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">TAB</span><span class="se">}}{{</span><span class="s1">TAB</span><span class="se">}}</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">sstate</span><span class="o">.</span><span class="n">STATUS</span> <span class="o">==</span> <span class="s1">&#39;STOP_DONE&#39;</span><span class="p">:</span>
+                    <span class="n">ended_streams</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">armed_uuts</span><span class="p">,</span> <span class="n">running_uuts</span><span class="p">,</span> <span class="n">ended_streams</span><span class="p">,</span> <span class="n">armed_uuts</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">),</span> <span class="n">running_uuts</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hot_run_status_update</span></div>
+
+<div class="viewcode-block" id="dry_run"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.dry_run">[docs]</a><span class="k">def</span> <span class="nf">dry_run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;new style Stream.get_stream_conns </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Stream</span><span class="o">.</span><span class="n">get_stream_conns</span><span class="p">(</span><span class="n">args</span><span class="p">)))</span>
+    <span class="n">top_uut</span> <span class="o">=</span> <span class="n">uut_collection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">api</span>
+
+    <span class="k">for</span> <span class="n">uut_item</span> <span class="ow">in</span> <span class="n">uut_collection</span><span class="p">:</span>
+        <span class="n">uut_item</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">wrtd_txi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;wrtd: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">wrtd_txi</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">top_uut</span><span class="o">.</span><span class="n">cC</span><span class="o">.</span><span class="n">sr</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">wrtd_txi</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">(</span><span class="n">PR</span><span class="o">.</span><span class="n">Yellow</span><span class="p">(</span><span class="s1">&#39;Dry Run Complete&#39;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="RateLimiter"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.RateLimiter">[docs]</a><span class="k">class</span> <span class="nc">RateLimiter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; limits cycle rate &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="RateLimiter.__init__"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.RateLimiter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_cycle_max</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_max</span> <span class="o">=</span> <span class="n">_cycle_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">cycle_length</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start</span>
+            <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">cycle_length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_max</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_max</span> <span class="o">-</span> <span class="n">cycle_length</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cycle_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="hot_run"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.hot_run">[docs]</a><span class="k">def</span> <span class="nf">hot_run</span><span class="p">(</span><span class="n">SCRN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">,</span> <span class="n">configure_host</span><span class="p">):</span>
+    <span class="n">total_streams</span> <span class="o">=</span> <span class="n">hot_run_init</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">)</span>
+    <span class="n">release_trigger_when_ready</span> <span class="o">=</span> <span class="n">ReleasesTriggerWhenReady</span><span class="p">(</span><span class="n">SCRN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">)</span>
+    <span class="n">hot_run_status_update</span> <span class="o">=</span> <span class="n">hot_run_status_update_wrapper</span><span class="p">(</span><span class="n">SCRN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">)</span>
+    <span class="n">hot_run_start</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">)</span>
+    <span class="n">sec_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">all_running</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">all_armed</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">rate_limiter</span> <span class="o">=</span> <span class="n">RateLimiter</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">SCRN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{REVERSE}</span><span class="s1"> &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">secs</span> <span class="ow">and</span> <span class="n">all_running</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">sec_count</span><span class="p">:</span>
+                    <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">sec_count</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_start</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">secs</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">:</span>
+                    <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.1f}</span><span class="s2">/</span><span class="si">{1}</span><span class="s2"> secs &quot;</span><span class="p">,</span> <span class="n">sec_count</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">secs</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">c_mins</span><span class="p">,</span> <span class="n">c_secs</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">sec_count</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+                    <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">c_mins</span><span class="p">)</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">c_secs</span><span class="p">)</span><span class="si">:</span><span class="s1">02</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">t_mins</span><span class="p">)</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">t_secs</span><span class="p">)</span><span class="si">:</span><span class="s1">02</span><span class="si">}</span><span class="s1"> mins &#39;</span><span class="p">)</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Buffer Length: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">buffer_len</span><span class="si">}</span><span class="s1">MB &#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.0f}</span><span class="s2"> secs &quot;</span><span class="p">,</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Max: </span><span class="si">{0}</span><span class="s2">MB Buffer Length: </span><span class="si">{1}</span><span class="s2">MB &quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nbuffers</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">buffer_len</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">buffer_len</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">release_trigger_when_ready</span><span class="p">(</span><span class="n">all_armed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">armed_uuts</span><span class="p">,</span> <span class="n">running_uuts</span><span class="p">,</span> <span class="n">ended_streams</span><span class="p">,</span> <span class="n">all_armed</span><span class="p">,</span> <span class="n">all_running</span> <span class="o">=</span> <span class="n">hot_run_status_update</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">sec_count</span> <span class="ow">and</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_start</span> <span class="o">&gt;</span> <span class="n">args</span><span class="o">.</span><span class="n">secs</span><span class="p">:</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{BOLD}</span><span class="s1">Time Limit Reached Stopping</span><span class="si">{RESET}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">running_uuts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">stop_uuts</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">ended_streams</span> <span class="o">==</span> <span class="n">total_streams</span><span class="p">:</span>
+                <span class="n">SCRN</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{BOLD}</span><span class="s1">Buffer limit Reached Stopping</span><span class="si">{RESET}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">running_uuts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">stop_uuts</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+            <span class="n">SCRN</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+            <span class="n">rate_limiter</span><span class="p">()</span>
+
+        <span class="n">SCRN</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>                     <span class="c1"># normal exit</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Normal Run Done&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="n">SCRN</span><span class="o">.</span><span class="n">render_interrupted</span><span class="p">()</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;Interrupt!&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">SCRN</span><span class="o">.</span><span class="n">render_interrupted</span><span class="p">()</span>
+        <span class="n">PR</span><span class="o">.</span><span class="n">Red</span><span class="p">(</span><span class="s1">&#39;Fatal Error&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+
+    <span class="n">stop_uuts</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exception Run Done&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_main"><a class="viewcode-back" href="../../../user_apps.acq2106.hts_multistream.html#user_apps.acq2106.hts_multistream.run_main">[docs]</a><span class="k">def</span> <span class="nf">run_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uut_collection</span> <span class="o">=</span> <span class="n">object_builder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">configure_host</span><span class="p">(</span><span class="n">uut_collection</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+        <span class="n">dry_run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hot_run</span><span class="p">(</span><span class="n">DISPLAY</span><span class="p">(),</span> <span class="n">args</span><span class="p">,</span> <span class="n">uut_collection</span><span class="p">,</span> <span class="n">configure_host</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_main</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

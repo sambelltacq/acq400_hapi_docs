@@ -1,0 +1,25 @@
+acq400\_pre\_post
+=================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_pre_post.get_parser
+      :prog: acq400_pre_post.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_pre_post
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

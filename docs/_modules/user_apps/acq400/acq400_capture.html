@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq400.acq400_capture &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq400.acq400_capture</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq400.acq400_capture</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;capture test. assume transient has been pre-configured</span>
+
+<span class="sd">acq400_capture UUT1 [UUT2 ..]</span>
+<span class="sd">where UUT1 is the ip-address or host name of first uut</span>
+<span class="sd">example test client runs captures in a loop on one or more uuts</span>
+
+<span class="sd">pre-requisite: UUT&#39;s are configured and ready to make a transient</span>
+<span class="sd">capture</span>
+<span class="sd">eg clk is running. soft trg enabled</span>
+<span class="sd">eg transient length set.</span>
+
+<span class="sd">loop continues &quot;forever&quot; until &lt;CTRL-C&gt;</span>
+
+<span class="sd">.. rst-class:: hidden</span>
+
+<span class="sd">    usage: acq400_capture.py [-h] [--soft_trigger SOFT_TRIGGER]</span>
+<span class="sd">                            [--transient TRANSIENT]</span>
+<span class="sd">                            uuts [uuts ...]</span>
+
+<span class="sd">    run capture, with optional transient configuration</span>
+
+<span class="sd">    positional arguments:</span>
+<span class="sd">    uuts                  uut1 [uut2..]</span>
+
+<span class="sd">    optional arguments:</span>
+<span class="sd">    -h, --help            show this help message and exit</span>
+<span class="sd">    --soft_trigger SOFT_TRIGGER</span>
+<span class="sd">    --transient TRANSIENT  transient control string use commas rather than spaces</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<div class="viewcode-block" id="selects_trg_src"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_capture.html#user_apps.acq400.acq400_capture.selects_trg_src">[docs]</a><span class="k">def</span> <span class="nf">selects_trg_src</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">select_trg_src</span><span class="p">():</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">SIG_SRC_TRG_0</span> <span class="o">=</span> <span class="n">src</span>
+    <span class="k">return</span> <span class="n">select_trg_src</span></div>
+
+<div class="viewcode-block" id="run_shot"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_capture.html#user_apps.acq400.acq400_capture.run_shot">[docs]</a><span class="k">def</span> <span class="nf">run_shot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">[</span><span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">]</span>
+    <span class="n">master</span> <span class="o">=</span> <span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">cleanup</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">transient</span> <span class="o">!=</span> <span class="s1">&#39;notouch&#39;</span><span class="p">:</span>
+            <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">transient</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">transient</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="c1">#        if hasattr(uut.s0, &#39;TIM_CTRL_LOCK&#39;):</span>
+<span class="c1">#            print(&quot;LOCKDOWN {}&quot;.format(uut))</span>
+<span class="c1">#            uut.s0.TIM_CTRL_LOCK = 1</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">hard_trigger_src</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">master</span><span class="o">.</span><span class="n">disable_trigger</span><span class="p">()</span>
+
+    <span class="n">shot_controller</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">ShotController</span><span class="p">(</span><span class="n">uuts</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">rt</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span>  <span class="n">args</span><span class="o">.</span><span class="n">hard_trigger_src</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">selects_trg_src</span><span class="p">(</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="o">.</span><span class="n">hard_trigger_src</span><span class="p">)</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">soft_trigger</span>
+        <span class="n">shot_controller</span><span class="o">.</span><span class="n">run_shot</span><span class="p">(</span><span class="n">soft_trigger</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">remote_trigger</span><span class="o">=</span><span class="n">rt</span><span class="p">)</span>
+        <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">cleanup</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">cleanup</span><span class="o">.</span><span class="n">ExitCommand</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ExitCommand raised and caught&quot;</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finally, going down&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_capture.html#user_apps.acq400.acq400_capture.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;run capture, with optional transient configuration&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--soft_trigger&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--hard_trigger_src&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;EXT&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--transient&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;notouch&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;transient control string use commas rather than spaces&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uuts&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;uut1 [uut2..]&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">run_shot</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

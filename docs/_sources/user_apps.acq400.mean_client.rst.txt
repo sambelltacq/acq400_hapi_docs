@@ -1,0 +1,25 @@
+mean\_client
+============
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.mean_client.get_parser
+      :prog: mean_client.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.mean_client
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

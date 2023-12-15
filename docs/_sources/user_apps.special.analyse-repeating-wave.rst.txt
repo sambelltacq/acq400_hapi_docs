@@ -1,0 +1,25 @@
+analyse\-repeating\-wave
+========================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.special.analyse-repeating-wave.get_parser
+      :prog: analyse-repeating-wave.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.special.analyse-repeating-wave
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

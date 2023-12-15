@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.analysis.wrtd_analysis &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.analysis.wrtd_analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.analysis.wrtd_analysis</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">::</span>
+
+<span class="sd">    acq2106_181 Receiver:0 nrx:3511 cur:5:37771587 ts:5:38557949 adj:5:38557949 diff:19659050 OK</span>
+<span class="sd">    acq2106_200 Receiver:0 nrx:3511 cur:5:37773457 ts:5:38557949 adj:5:38557949 diff:19612300 OK</span>
+<span class="sd">    acq2106_172 Receiver:0 nrx:3511 cur:5:37772467 ts:5:38557949 adj:5:38557949 diff:19637050 OK</span>
+<span class="sd">    acq2106_182 Receiver:0 nrx:3512 cur:6:37766554 ts:6:38558156 adj:6:38558156 diff:19790050 OK</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">intSIAction</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">intSI</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<div class="viewcode-block" id="mmm"><a class="viewcode-back" href="../../../user_apps.analysis.wrtd_analysis.html#user_apps.analysis.wrtd_analysis.mmm">[docs]</a><span class="k">def</span> <span class="nf">mmm</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+    <span class="nb">max</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999999999</span>
+    <span class="nb">min</span> <span class="o">=</span> <span class="mi">999999999</span>
+    <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">sumsq</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">nsum</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1">#    print(&quot;mmm len {} {}&quot;.format(len(stats), stats))</span>
+<span class="c1">#    print(&quot;{} {} {} {}&quot;.format(max, min, sum, sumsq))</span>
+
+    <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">st</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stats</span><span class="p">):</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">base</span><span class="o">-</span><span class="n">xx</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NEGATIVE </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">st</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">:</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="n">delta</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">:</span>
+            <span class="nb">min</span> <span class="o">=</span> <span class="n">delta</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">sum</span> <span class="o">+=</span> <span class="n">delta</span>
+            <span class="n">sumsq</span> <span class="o">+=</span> <span class="n">delta</span><span class="o">*</span><span class="n">delta</span>
+            <span class="n">nsum</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="c1"># scale to usecs</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="nb">sum</span><span class="o">/</span><span class="n">nsum</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sumsq</span><span class="o">/</span><span class="n">nsum</span><span class="p">))</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rc</span><span class="p">]</span>
+<span class="c1">#    print(rc)</span>
+    <span class="k">return</span> <span class="n">rc</span></div>
+
+<div class="viewcode-block" id="analyse"><a class="viewcode-back" href="../../../user_apps.analysis.wrtd_analysis.html#user_apps.analysis.wrtd_analysis.analyse">[docs]</a><span class="k">def</span> <span class="nf">analyse</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uuts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">rx</span><span class="p">,</span> <span class="n">nrx</span><span class="p">,</span> <span class="n">cur</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">stat</span><span class="p">)</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">uut</span> <span class="ow">in</span> <span class="n">uuts</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">uuts</span><span class="p">[</span><span class="n">uut</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">uuts</span><span class="p">[</span><span class="n">uut</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">nrx</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;nrx&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">nrx</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;diff&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;stat&#39;</span><span class="p">:</span> <span class="n">stat</span> <span class="p">}</span>
+                <span class="c1">#print(uuts[uut][int(nrx.split(&#39;:&#39;)[1])])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="n">uuts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;diff&#39;</span><span class="p">],</span> <span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+<span class="c1">#        hg, bins = np.histogram([(float(args.wrtd_delta_ns)-d)*1e-6 for d in diffs],bins=20)</span>
+<span class="c1">#        plt.plot(hg)</span>
+<span class="c1">#        plt.show()</span>
+        <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">m3</span><span class="p">,</span> <span class="n">m4</span> <span class="o">=</span> <span class="n">mmm</span><span class="p">(</span><span class="n">diffs</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">wrtd_delta_ns</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> n:</span><span class="si">{}</span><span class="s2"> min:</span><span class="si">{:4d}</span><span class="s2"> max:</span><span class="si">{:4d}</span><span class="s2"> mean:</span><span class="si">{:4d}</span><span class="s2"> rms:</span><span class="si">{:4d}</span><span class="s2"> usec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">m3</span><span class="p">,</span> <span class="n">m4</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.analysis.wrtd_analysis.html#user_apps.analysis.wrtd_analysis.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Analyse white rabbit logs&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--wrtd_delta_ns&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;50M&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">intSIAction</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set delay NS&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;log files&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">analyse</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

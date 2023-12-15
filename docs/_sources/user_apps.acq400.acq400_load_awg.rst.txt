@@ -1,0 +1,25 @@
+acq400\_load\_awg
+=================
+
+
+
+
+.. dropdown:: Usage
+
+   .. argparse::
+      :ref: user_apps.acq400.acq400_load_awg.get_parser
+      :prog: acq400_load_awg.py
+      :nodescription:
+
+Outline\:
+~~~~~~~~~
+
+
+
+
+.. automodule:: user_apps.acq400.acq400_load_awg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

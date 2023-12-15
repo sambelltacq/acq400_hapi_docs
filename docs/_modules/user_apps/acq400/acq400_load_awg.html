@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>user_apps.acq400.acq400_load_awg &mdash; acq400_hapi aae86601b7b4611f2feb451bfafd648b6a2022e7 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom_style.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/d-tacq_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/d-tacq_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acq400_hapi.html">acq400_hapi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_apps.html">user_apps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">acq400_hapi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">user_apps.acq400.acq400_load_awg</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for user_apps.acq400.acq400_load_awg</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;upload file to AWG for a one-shot play</span>
+
+<span class="sd">data for upload is a single file</span>
+<span class="sd">assumes that clocking has been pre-assigned.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="kn">import</span> <span class="nn">acq400_hapi</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">awg_data</span>
+<span class="kn">from</span> <span class="nn">acq400_hapi</span> <span class="kn">import</span> <span class="n">netclient</span> <span class="k">as</span> <span class="n">netclient</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+
+<div class="viewcode-block" id="timing"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_load_awg.html#user_apps.acq400.acq400_load_awg.timing">[docs]</a><span class="k">def</span> <span class="nf">timing</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="n">te</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;....TIMING:func:</span><span class="si">%r</span><span class="s1"> took: </span><span class="si">%2.2f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">te</span><span class="o">-</span><span class="n">ts</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrap</span></div>
+
+
+<div class="viewcode-block" id="file_extender"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_load_awg.html#user_apps.acq400.acq400_load_awg.file_extender">[docs]</a><span class="k">def</span> <span class="nf">file_extender</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">ext_count</span><span class="p">):</span>
+    <span class="n">buf</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">buf0</span> <span class="o">=</span> <span class="n">buf</span>
+
+    <span class="k">while</span> <span class="n">ext_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">buf</span> <span class="o">+=</span> <span class="n">buf0</span>
+        <span class="n">ext_count</span> <span class="o">-=</span> <span class="mi">1</span>
+        
+    <span class="k">return</span> <span class="n">buf</span></div>
+        
+
+<div class="viewcode-block" id="load_awg"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_load_awg.html#user_apps.acq400.acq400_load_awg.load_awg">[docs]</a><span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">load_awg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">rep</span><span class="p">):</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">exec_args</span><span class="p">(</span><span class="n">uut</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">shot</span> <span class="o">=</span> <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">aosite</span><span class="p">]</span><span class="o">.</span><span class="n">shot</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">rep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        
+        <span class="n">loaded</span> <span class="o">=</span> <span class="mi">0</span>
+ 
+        <span class="k">while</span> <span class="n">loaded</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+                    <span class="n">uut</span><span class="o">.</span><span class="n">load_awg</span><span class="p">(</span><span class="n">file_extender</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">awg_extend</span><span class="p">),</span> <span class="n">autorearm</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mode</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">loaded</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">loaded</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First time: caught </span><span class="si">{}</span><span class="s2">, abort and retry&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="n">loaded</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">aosite</span><span class="p">]</span><span class="o">.</span><span class="n">playloop_oneshot</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+                    <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">aosite</span><span class="p">]</span><span class="o">.</span><span class="n">awg_abort</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+                    <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Retry failed: caught </span><span class="si">{}</span><span class="s2"> FAIL&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>    
+               
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">soft_trigger</span><span class="p">:</span>
+        <span class="n">uut</span><span class="o">.</span><span class="n">s0</span><span class="o">.</span><span class="n">soft_trigger</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span></div>
+
+<div class="viewcode-block" id="wait_completion"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_load_awg.html#user_apps.acq400.acq400_load_awg.wait_completion">[docs]</a><span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">wait_completion</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">):</span>
+   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+       <span class="k">while</span> <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">aosite</span><span class="p">]</span><span class="o">.</span><span class="n">task_active</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="ow">or</span>  <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">aosite</span><span class="p">]</span><span class="o">.</span><span class="n">completed_shot</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span><span class="p">:</span>
+           <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+       <span class="c1"># print(&quot;polling completion&quot;)</span>
+   <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+       <span class="k">while</span> <span class="n">args</span><span class="o">.</span><span class="n">shot</span> <span class="o">==</span> <span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">aosite</span><span class="p">]</span><span class="o">.</span><span class="n">shot</span><span class="p">:</span>
+           <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="load_awg_top"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_load_awg.html#user_apps.acq400.acq400_load_awg.load_awg_top">[docs]</a><span class="nd">@timing</span>
+<span class="k">def</span> <span class="nf">load_awg_top</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">uut</span> <span class="o">=</span> <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">uuts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">reps</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rep</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rep </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rep</span><span class="p">))</span>
+        <span class="n">load_awg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reps</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">wait_completion</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">uut</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;playloop_length </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uut</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">aosite</span><span class="p">]</span><span class="o">.</span><span class="n">playloop_length</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../../../user_apps.acq400.acq400_load_awg.html#user_apps.acq400.acq400_load_awg.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;load awg simplest&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--file&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;file to load&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--mode&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;mode: 1 oneshot, 2 oneshot_autorearm&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--awg_extend&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times the AWG is repeated.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--soft_trigger&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Emit soft trigger&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--reps&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Repetitions&#39;</span><span class="p">)</span>
+    <span class="n">acq400_hapi</span><span class="o">.</span><span class="n">Acq400UI</span><span class="o">.</span><span class="n">add_args</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">play</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;uuts&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;uut &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+<span class="c1"># execution starts here</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">load_awg_top</span><span class="p">(</span><span class="n">get_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D-Tacq.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -157,4 +157,4 @@ You can enumerate all the knobs with::
     then operate over long periods.
 
 
-`Doc generated from commit aae86601b7b4611f2feb451bfafd648b6a2022e7 <https://github.com/D-TACQ/acq400_hapi/tree/aae86601b7b4611f2feb451bfafd648b6a2022e7>`_ 
+`Doc generated from commit 6166c4ebca93bff365b56beb8e2e717edb709392 <https://github.com/D-TACQ/acq400_hapi/tree/6166c4ebca93bff365b56beb8e2e717edb709392>`_ 

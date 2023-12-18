@@ -16,7 +16,7 @@ RELEASE='2.10.0'
 LANG='en'
 REPO='https://github.com/D-TACQ/acq400_hapi'
 
-REPO='https://github.com/D-TACQ/acq400_hapi -b doc' #until big merge
+#REPO='https://github.com/D-TACQ/acq400_hapi -b doc' #until big merge
 
 #REPO='https://github.com/sambelltacq/acq400_hapi -b SPHINX_CLEANUP' #for testing
 
